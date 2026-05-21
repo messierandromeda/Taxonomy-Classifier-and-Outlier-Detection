@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+
+# Pytest
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Docker
+ollama_data/
+
+# Optional local datasets
+test_daten/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
