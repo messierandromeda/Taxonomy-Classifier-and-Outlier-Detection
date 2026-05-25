@@ -1,0 +1,14 @@
+services:
+  land-taxonomy-api:
+    build: ./land-taxonomy-api
+    ports:
+      - '8000:8000'
+    env_file:
+      - ./land-taxonomy-api/.env
+
+  classifier:
+    build: ./classifier-module
+    depends_on:
+      - land-taxonomy-api
+    volumes:
+      - ./data:/data
