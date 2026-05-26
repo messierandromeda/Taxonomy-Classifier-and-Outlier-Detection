@@ -16,16 +16,9 @@ class DateOutlierDetector(BaseDetector):
         iqr_k: float = 1.5,
         min_year_distance: int = 10,
     ):
-        # Date fields to analyze statistically.
         self.date_fields = date_fields or ["collectionDateBegin"]
-
-        # Z-score threshold for year outliers.
         self.z_threshold = z_threshold
-
-        # IQR multiplier for lower and upper fences.
         self.iqr_k = iqr_k
-
-        # Ignore small historical year deviations.
         self.min_year_distance = min_year_distance
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
@@ -37,14 +30,12 @@ class DateOutlierDetector(BaseDetector):
         for field in self.date_fields:
             years = []
 
-            # Extract only the year from each date value.
             for record in records:
                 years.append(self._extract_year(record.get(field)))
 
             series = pd.Series(years, dtype="float64")
             clean = series.dropna()
 
-            # Not enough data for meaningful statistics.
             if len(clean) < 4:
                 continue
 
@@ -148,6 +139,7 @@ class DateOutlierDetector(BaseDetector):
             "%d/%m/%Y",
             "%Y/%m/%d",
             "%d-%m-%Y",
+            "%m/%d/%Y"
         ]
 
         for fmt in formats:

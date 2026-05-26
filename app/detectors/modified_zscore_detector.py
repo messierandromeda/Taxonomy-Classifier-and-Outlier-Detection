@@ -13,34 +13,27 @@ class ModifiedZScoreDetector(BaseDetector):
         numeric_fields: List[str] | None = None,
         threshold: float = 3.5,
     ):
-        # Use coordinate fields from the biodiversity dataset.
         self.numeric_fields = numeric_fields or [
             "decimalLatitude",
             "decimalLongitude",
         ]
-
-        # Modified z-score threshold based on MAD.
         self.threshold = threshold
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
 
-        # Create empty result lists for every record.
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)
         }
 
         for field in self.numeric_fields:
-            # Skip missing columns.
             if field not in df.columns:
                 continue
 
-            # Convert values to numeric.
             series = pd.to_numeric(df[field], errors="coerce")
             clean = series.dropna()
 
-            # Need enough data points for MAD calculation.
             if len(clean) < 4:
                 continue
 
@@ -49,7 +42,6 @@ class ModifiedZScoreDetector(BaseDetector):
             # MAD = Median Absolute Deviation.
             mad = (clean - median).abs().median()
 
-            # If MAD is zero, modified z-score is meaningless.
             if mad == 0:
                 continue
 

@@ -13,7 +13,7 @@ class ZScoreDetector(BaseDetector):
         numeric_fields: List[str] | None = None,
         threshold: float = 3.0,
     ):
-        # By default, only check coordinate fields required by the new dataset.
+
         self.numeric_fields = numeric_fields or [
             "decimalLatitude",
             "decimalLongitude",
@@ -25,29 +25,24 @@ class ZScoreDetector(BaseDetector):
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
 
-        # Prepare an empty flag list for every record.
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)
         }
 
         for field in self.numeric_fields:
-            # Skip fields that do not exist in the current dataset.
             if field not in df.columns:
                 continue
 
-            # Convert values to numeric; invalid values become NaN.
             series = pd.to_numeric(df[field], errors="coerce")
             clean = series.dropna()
 
-            # Z-score needs enough values to be meaningful.
             if len(clean) < 3:
                 continue
 
             mean = clean.mean()
             std = clean.std(ddof=0)
 
-            # If all values are equal, no outlier can be calculated.
             if std == 0:
                 continue
 

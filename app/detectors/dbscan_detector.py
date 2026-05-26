@@ -15,16 +15,12 @@ class DBSCANGeoDetector(BaseDetector):
         eps: float = 0.7,
         min_samples: int = 4,
     ):
-        # Maximum distance between neighboring points.
         self.eps = eps
-
-        # Minimum number of nearby points needed to form a cluster.
         self.min_samples = min_samples
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
 
-        # Create empty result lists for all records.
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)
@@ -35,32 +31,32 @@ class DBSCANGeoDetector(BaseDetector):
             "decimalLongitude",
         ]
 
-        # DBSCAN only works if both coordinate fields exist.
         if not all(field in df.columns for field in required):
             return results
 
-        # Convert coordinates to numeric values.
+        # Ensure we only cluster valid, complete coordinate pairs
         coords = (
             df[required]
             .apply(pd.to_numeric, errors="coerce")
             .dropna()
         )
 
-        # Too few points would create unstable clustering.
+        # Too few points would create unstable clustering.   # TODO: why *2?
         if len(coords) < self.min_samples * 2:
             return results
 
-        # Standardize coordinates before clustering.
+        # Standardize coordinates before clustering.    # TODO: I don't think standarizing is necessary here
         X = StandardScaler().fit_transform(coords)
 
         model = DBSCAN(
             eps=self.eps,
             min_samples=self.min_samples,
         )
+        
+        labels = model.fit_predict(X)     # TODO: train the model first for example in train.py to get baseline data then only use predict here
+        # maybe HDBSCAN would be a good alternative approach 
 
-        labels = model.fit_predict(X)
-
-        # DBSCAN marks noise points as -1.
+        # Outliers are flagged as -1
         for row_index, label in zip(coords.index, labels):
             if label != -1:
                 continue

@@ -1,6 +1,6 @@
 from typing import Any
 import pandas as pd
-import datetime
+from datetime import datetime
 from app.preprocessing.bgbm_normalizer import (
     normalize_bgbm_record,
 )

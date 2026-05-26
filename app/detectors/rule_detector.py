@@ -403,6 +403,7 @@ class RuleDetector(BaseDetector):
             "%d/%m/%Y",
             "%Y/%m/%d",
             "%d-%m-%Y",
+            "%m/%d/%Y"
         ]
 
         for fmt in formats:

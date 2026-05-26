@@ -190,13 +190,13 @@ class SemanticRuleDetector(BaseDetector):
             # --------------------------------------------------
             if (
                 country in ["germany", "deutschland"]
-                and self._has(combined_text, self.FOREIGN_COUNTRY_TERMS)
+                and self._has(combined_text, self.FOREIGN_COUNTRY_TERMS)  
             ):
                 results[record_id].append(
                     DetectionFlag(
                         field="country,locality",
                         method=self.name,
-                        type="country_locality_contradiction",
+                        type="country_locality_contradiction",    # TODO: they show where a sample is originally collected, so this should be valid 
                         severity="high",
                         score=0.85,
                         message=(
@@ -304,6 +304,7 @@ class SemanticRuleDetector(BaseDetector):
             "%Y",
             "%d.%m.%Y",
             "%d/%m/%Y",
+            "%m/%d/%Y"
         ]
 
         for fmt in formats:
