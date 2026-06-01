@@ -20,6 +20,41 @@ class DateOutlierDetector(BaseDetector):
         self.z_threshold = z_threshold
         self.iqr_k = iqr_k
         self.min_year_distance = min_year_distance
+        self.cached_stats: Dict[str, Dict[str, float]] = {}
+
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        self.cached_stats = {}
+
+        for field in self.date_fields:
+            years = []
+
+            for record in records:
+                years.append(self._extract_year(record.get(field)))
+
+            series = pd.Series(years, dtype="float64")
+            clean = series.dropna()
+
+            if len(clean) < 4:
+                continue
+
+            mean = clean.mean()
+            std = clean.std(ddof=0)
+            q1 = clean.quantile(0.25)
+            q3 = clean.quantile(0.75)
+            iqr = q3 - q1
+
+            lower = q1 - self.iqr_k * iqr
+            upper = q3 + self.iqr_k * iqr
+
+            self.cached_stats[field] = {
+                "mean": float(mean),
+                "std": float(std),
+                "q1": float(q1),
+                "q3": float(q3),
+                "iqr": float(iqr),
+                "lower": float(lower),
+                "upper": float(upper),
+            }
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         results = {
@@ -48,6 +83,14 @@ class DateOutlierDetector(BaseDetector):
 
             lower = q1 - self.iqr_k * iqr
             upper = q3 + self.iqr_k * iqr
+
+            if field in self.cached_stats:
+                stats = self.cached_stats[field]
+                mean = stats["mean"]
+                std = stats["std"]
+                lower = stats["lower"]
+                upper = stats["upper"]
+                iqr = stats["iqr"]
 
             for index, year in series.items():
                 if pd.isna(year):

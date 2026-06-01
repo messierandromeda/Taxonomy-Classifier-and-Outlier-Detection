@@ -21,6 +21,32 @@ class IsolationForestDetector(BaseDetector):
             "decimalLongitude",
         ]
         self.contamination = contamination
+        self.scaler: StandardScaler | None = None
+        self.model: IsolationForest | None = None
+
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        df = pd.DataFrame(records)
+        fields = [
+            field
+            for field in self.numeric_fields
+            if field in df.columns
+        ]
+
+        if not fields:
+            return
+
+        numeric = df[fields].apply(pd.to_numeric, errors="coerce").dropna()
+
+        if len(numeric) < 10:
+            return
+
+        self.scaler = StandardScaler().fit(numeric)
+        X = self.scaler.transform(numeric)
+
+        self.model = IsolationForest(
+            contamination=self.contamination,
+            random_state=42,
+        ).fit(X)
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
@@ -44,18 +70,20 @@ class IsolationForestDetector(BaseDetector):
         if len(numeric) < 10:
             return results
 
-        # Normalize features so latitude, longitude and year are comparable.   # TODO: we don't have year here only latitude and longitude, I don't think transforming is necessary
-        X = StandardScaler().fit_transform(numeric)
+        if self.model is not None and self.scaler is not None:
+            X = self.scaler.transform(numeric)
+            predictions = self.model.predict(X)
+            scores = -self.model.score_samples(X)
+        else:
+            self.scaler = StandardScaler().fit(numeric)
+            X = self.scaler.transform(numeric)
+            self.model = IsolationForest(
+                contamination=self.contamination,
+                random_state=42,
+            ).fit(X)
+            predictions = self.model.predict(X)
+            scores = -self.model.score_samples(X)
 
-        model = IsolationForest(
-            contamination=self.contamination,
-            random_state=42,
-        )
-
-        predictions = model.fit_predict(X)    # TODO: the training should be done in a separate file such as train_isolation_forest.py and only the inference should be done here 
-
-        # Higher value means more unusual.
-        scores = -model.score_samples(X)
         max_score = max(scores) if len(scores) else 1.0
 
         for row_index, prediction, raw_score in zip(

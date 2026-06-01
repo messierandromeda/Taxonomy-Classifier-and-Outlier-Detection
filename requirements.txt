@@ -12,6 +12,8 @@ python-multipart==0.0.20
 pytest==8.3.4
 httpx==0.28.1
 
+hdbscan==0.8.33
+
 # Optional future geo-validation.
 # shapely
 # pycountry

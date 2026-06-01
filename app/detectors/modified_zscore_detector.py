@@ -18,6 +18,32 @@ class ModifiedZScoreDetector(BaseDetector):
             "decimalLongitude",
         ]
         self.threshold = threshold
+        self.cached_stats: Dict[str, Dict[str, float]] = {}
+
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        df = pd.DataFrame(records)
+        self.cached_stats = {}
+
+        for field in self.numeric_fields:
+            if field not in df.columns:
+                continue
+
+            series = pd.to_numeric(df[field], errors="coerce")
+            clean = series.dropna()
+
+            if len(clean) < 4:
+                continue
+
+            median = clean.median()
+            mad = (clean - median).abs().median()
+
+            if mad == 0:
+                continue
+
+            self.cached_stats[field] = {
+                "median": float(median),
+                "mad": float(mad),
+            }
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
@@ -44,6 +70,11 @@ class ModifiedZScoreDetector(BaseDetector):
 
             if mad == 0:
                 continue
+
+            if field in self.cached_stats:
+                stats = self.cached_stats[field]
+                median = stats["median"]
+                mad = stats["mad"]
 
             for index, value in series.items():
                 if pd.isna(value):

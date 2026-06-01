@@ -18,6 +18,36 @@ class IQRDetector(BaseDetector):
             "decimalLongitude",
         ]
         self.k = k
+        self.cached_stats: Dict[str, Dict[str, float]] = {}
+
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        df = pd.DataFrame(records)
+        self.cached_stats = {}
+
+        for field in self.numeric_fields:
+            if field not in df.columns:
+                continue
+
+            series = pd.to_numeric(df[field], errors="coerce")
+            clean = series.dropna()
+
+            if len(clean) < 4:
+                continue
+
+            q1 = clean.quantile(0.25)
+            q3 = clean.quantile(0.75)
+            iqr = q3 - q1
+
+            if iqr == 0:
+                continue
+
+            self.cached_stats[field] = {
+                "q1": float(q1),
+                "q3": float(q3),
+                "iqr": float(iqr),
+                "lower": float(q1 - self.k * iqr),
+                "upper": float(q3 + self.k * iqr),
+            }
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
@@ -37,15 +67,23 @@ class IQRDetector(BaseDetector):
             if len(clean) < 4:
                 continue
 
-            q1 = clean.quantile(0.25)
-            q3 = clean.quantile(0.75)
-            iqr = q3 - q1
+            if field in self.cached_stats:
+                stats = self.cached_stats[field]
+                q1 = stats["q1"]
+                q3 = stats["q3"]
+                iqr = stats["iqr"]
+                lower = stats["lower"]
+                upper = stats["upper"]
+            else:
+                q1 = clean.quantile(0.25)
+                q3 = clean.quantile(0.75)
+                iqr = q3 - q1
 
-            if iqr == 0:
-                continue
+                if iqr == 0:
+                    continue
 
-            lower = q1 - self.k * iqr
-            upper = q3 + self.k * iqr
+                lower = q1 - self.k * iqr
+                upper = q3 + self.k * iqr
 
             for index, value in series.items():
                 if pd.isna(value):

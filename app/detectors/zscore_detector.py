@@ -21,6 +21,32 @@ class ZScoreDetector(BaseDetector):
 
         # Values with an absolute z-score above this threshold are flagged.
         self.threshold = threshold
+        self.cached_stats: Dict[str, Dict[str, float]] = {}
+
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        df = pd.DataFrame(records)
+        self.cached_stats = {}
+
+        for field in self.numeric_fields:
+            if field not in df.columns:
+                continue
+
+            series = pd.to_numeric(df[field], errors="coerce")
+            clean = series.dropna()
+
+            if len(clean) < 3:
+                continue
+
+            mean = clean.mean()
+            std = clean.std(ddof=0)
+
+            if std == 0:
+                continue
+
+            self.cached_stats[field] = {
+                "mean": float(mean),
+                "std": float(std),
+            }
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         df = pd.DataFrame(records)
@@ -40,11 +66,16 @@ class ZScoreDetector(BaseDetector):
             if len(clean) < 3:
                 continue
 
-            mean = clean.mean()
-            std = clean.std(ddof=0)
+            if field in self.cached_stats:
+                stats = self.cached_stats[field]
+                mean = stats["mean"]
+                std = stats["std"]
+            else:
+                mean = clean.mean()
+                std = clean.std(ddof=0)
 
-            if std == 0:
-                continue
+                if std == 0:
+                    continue
 
             zscores = (series - mean) / std
 

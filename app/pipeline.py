@@ -1,6 +1,7 @@
 import time
 from app.detectors.base import get_record_id
 
+from app.train import sample_training_records, train_detectors
 from app.detectors.rule_detector import RuleDetector
 from app.detectors.semantic_rule_detector import SemanticRuleDetector
 
@@ -14,7 +15,7 @@ from app.detectors.isolation_forest_detector import (
     IsolationForestDetector,
 )
 
-from app.detectors.dbscan_detector import DBSCANGeoDetector
+from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 from app.detectors.llm_detector import LLMDetector
 
 from app.report import (
@@ -102,6 +103,8 @@ def run_detectors(
     llm_provider: str = "none",
     numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
+    training_subset_size: int = 500,
+    training_seed: int = 42,
 ) -> DetectResponse:
 
     result = prepare_records(records)
@@ -127,7 +130,7 @@ def run_detectors(
         ModifiedZScoreDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
         DateOutlierDetector(date_fields=["collectionDateBegin"]),
         IsolationForestDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
-        DBSCANGeoDetector(),
+        HDBSCANGeoDetector(),
     ]
 
     detectors = []
@@ -153,6 +156,17 @@ def run_detectors(
             ollama_url=OLLAMA_URL,
             timeout=30,
         ))
+
+    if training_subset_size and training_subset_size > 0:
+        training_records = sample_training_records(
+            result,
+            subset_size=training_subset_size,
+            seed=training_seed,
+        )
+        print(
+            f"[TRAIN] Training detectors on {len(training_records)} record subset"
+        )
+        train_detectors(detectors, training_records)
 
     flag_maps = []
 
@@ -298,6 +312,7 @@ def process_records_strategically(
     llm_provider: str = "none",
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
+    training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
     # First run all fast non-LLM detectors.
     fast_response = run_detectors(
@@ -307,6 +322,7 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         llm_provider="none",
+        training_subset_size=training_subset_size,
     )
 
     llm_response = None

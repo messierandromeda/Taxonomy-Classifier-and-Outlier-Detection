@@ -52,6 +52,8 @@ def detect(request: DetectRequest):
         llm_provider=request.llm_provider,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
+        training_subset_size=request.training_subset_size,
+        training_seed=request.training_seed,
     )
 
 @app.post("/detect-csv", response_model=DetectResponse)
@@ -63,6 +65,7 @@ async def detect_csv(
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
+    training_subset_size: int = 500,
 ):
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only CSV files are supported.")
@@ -77,4 +80,5 @@ async def detect_csv(
         max_records=max_records,
         max_llm_records=max_llm_records,
         llm_only_flagged=llm_only_flagged,
+        training_subset_size=training_subset_size,
     )
