@@ -86,7 +86,7 @@ class HDBSCANGeoDetector(BaseDetector):
 
         if self.model is not None and self.scaler is not None:
             X = self.scaler.transform(coords)
-            labels, strengths = self.model.approximate_predict(X)
+            labels, strengths = hdbscan.approximate_predict(self.model, X)
         else:
             # Fit with prediction_data so we can call approximate_predict()
             self.scaler = StandardScaler().fit(coords)
@@ -98,7 +98,7 @@ class HDBSCANGeoDetector(BaseDetector):
             ).fit(X)
             # obtain labels and membership strengths for all points
             try:
-                labels, strengths = self.model.approximate_predict(X)
+                labels, strengths = hdbscan.approximate_predict(self.model, X)
             except Exception:
                 labels = self.model.labels_
                 strengths = [0.0] * len(labels)
