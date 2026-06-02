@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI(title="Land Taxonomy API", version="1.0.0")
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Load taxonomy once at startup
 _df = pd.read_csv(
@@ -86,6 +85,7 @@ class ClassifyRequest(BaseModel):
     text: str
     top_k: int = 5
     model: str = "gpt-4o-mini"
+    use_ollama : bool = False
 
     @validator("top_k")
     def top_k_bounds(cls, v):
@@ -151,9 +151,15 @@ class BatchClassifyRequest(BaseModel):
         return v
 
 
-async def _classify_single(text: str, top_k: int, model: str) -> ClassifyResponse:
+async def _classify_single(text: str, top_k: int, model: str, use_ollama: bool) -> ClassifyResponse:
     if not text.strip():
         raise HTTPException(status_code=400, detail="text must not be empty")
+
+    if use_ollama:
+        client = AsyncOpenAI(base_url='http://ollama:11434/v1', api_key='ollama')
+        model = model if model != "gpt-4o-mini" else "llama3.2"    
+    else:
+        client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     response = await client.chat.completions.create(
         model=model,
@@ -189,7 +195,7 @@ async def _classify_single(text: str, top_k: int, model: str) -> ClassifyRespons
 
 @app.post("/classify", response_model=ClassifyResponse)
 async def classify_text(req: ClassifyRequest):
-    return await _classify_single(req.text, req.top_k, req.model)
+    return await _classify_single(req.text, req.top_k, req.model, req.use_ollama)
 
 
 @app.post("/classify/batch", response_model=list[ClassifyResponse])

@@ -1,4 +1,12 @@
 services:
+  ollama:
+    image: ollama/ollama
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull llama3.2 && wait"]
+
   land-taxonomy-api:
     build: ./land-taxonomy-api
     ports:
@@ -8,7 +16,17 @@ services:
 
   classifier:
     build: ./classifier-module
+    ports:
+      - '8001:8001'
     depends_on:
       - land-taxonomy-api
+      - ollama
     volumes:
+      - ./classifier-module/classifier.py:/app/classifier.py
+      - ./classifier-module/main.py:/app/main.py
+      - ./classifier-module/pipeline.py:/app/pipeline.py
       - ./data:/data
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+volumes:
+  ollama_data:

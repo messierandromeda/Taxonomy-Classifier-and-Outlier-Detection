@@ -39,11 +39,11 @@ def wait_for_api(client: httpx.Client, retries: int = API_RETRIES) -> None:
     raise RuntimeError('Land taxonomy API did not get ready in time.')
  
  
-def classify_row(text: str, client: httpx.Client) -> dict:
+def classify_row(text: str, client: httpx.Client, use_ollama: bool) -> dict:
     """POST text to the land taxonomy classifier and return parsed JSON."""
     response = client.post(
         f'{LAND_API_BASE}/classify',
-        json={'text': text, 'top_k': 1},
+        json={'text': text, 'top_k': 1, 'use_ollama': use_ollama},
     )
     response.raise_for_status()
     return response.json()
@@ -126,12 +126,12 @@ def _get_text(row: pd.Series) -> tuple[str | None, str]:
 
 
 # Main
-def process_row(row: pd.Series, client: httpx.Client) -> dict:
+def process_row(row: pd.Series, client: httpx.Client, use_ollama: bool) -> dict:
     """Classify one row; raises on unrecoverable errors."""
     text, source_field = _get_text(row)
  
     if text:
-        land_taxonomy = classify_row(text, client)
+        land_taxonomy = classify_row(text, client, use_ollama)
         matches = land_taxonomy.get('matches', [])
         if not matches:
             raise ValueError('Land taxonomy returned empty matches list')
@@ -155,7 +155,7 @@ def process_row(row: pd.Series, client: httpx.Client) -> dict:
         'clc_reason': land_taxonomy['matches'][0]['reason'],
         'clc_summary': land_taxonomy['summary'],
         'clc_source_field': source_field,
-        'identifier': taxon['identifier'],
+        'taxon_identifier': taxon['identifier'],
         'taxon_confidence': taxon['confidence'],
         'taxon_source': taxon['source'],
         'taxon_status': taxon['status'],
@@ -197,7 +197,3 @@ def main() -> None:
     pd.DataFrame(results).to_csv(output_path, index=False)
     log.info('Done. %d rows written to %s', len(results), output_path)
 
-
-
-if __name__ == '__main__':
-    main()

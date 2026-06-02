@@ -1,10 +1,10 @@
 # Land Taxonomy Classifier
 
-A modular pipeline that classifies herbarium specimen records from the BGBM dataset against CORINE Land Cover (CLC) habitat categories. Part of the broader BiodivPipeline project for FAIR biodiversity data processing.
+A modular pipeline that classifies herbarium specimen records from the BGBM dataset against CORINE Land Cover (CLC) habitat categories. It also identifies the specimen taxonomy. Part of the broader BiodivPipeline project for FAIR biodiversity data processing.
 
 ## Overview
 
-The pipeline takes a CSV of herbarium records as input and produces a classified output CSV with CLC habitat codes derived from locality and habitat description fields.
+The pipeline takes a CSV of herbarium records as input and produces a classified output CSV with CLC habitat codes derived from locality and habitat description fields. It also returns GBIF identifiers or WFO keys for each record.
 
 It consists of two services:
 
@@ -25,11 +25,12 @@ land-taxonomy-classifier/
 │
 ├── classifier-module/        # New service
 │   ├── classify.py
+│   ├── pipeline.py
+│   ├── main.py
 │   ├── requirements.txt
 │   └── Dockerfile
 │
-├── data/                     # Mount point for input/output CSVs (not versioned)
-│   ├── input.csv
+├── data/                     # Mount point for output CSVs (not versioned)
 │   └── output.csv
 │
 ├── docker-compose.yml
@@ -63,21 +64,24 @@ Edit `.env` and add your OpenAI API key:
 OPENAI_API_KEY=sk-your-key-here
 ```
 
-### 3. Add input data
+### 3. Run the pipeline
 
-Place your input CSV at `./data/input.csv`. The file must contain at least the following columns:
+```bash
+docker compose up --build
+```
+
+### 4. Add input data
+
+Call `http://0.0.0.0:8001/docs` and use the classify function to add input data.
 
 | Column | Description |
 |--------|-------------|
 | `HerbariumID` | Unique record identifier |
 | `Locality` | Free-text locality string |
 | `FundortUNdOeko` | Habitat and ecology description (optional, preferred over Locality when present) |
-
-### 4. Run the pipeline
-
-```bash
-docker compose up --build
-```
+| `FullNameCache` | Free-text scientific plant name |
+| `Genus` | Free-text plant genus |
+| `Family` | Free-text plant family |
 
 Output is written to `./data/output.csv`.
 
@@ -90,29 +94,27 @@ Each row in the output CSV corresponds to one input record:
 | `HerbariumID` | Record identifier, for joining with input data |
 | `clc_code` | CORINE Land Cover level 3 code (e.g. `311`) |
 | `clc_name` | CLC category name (e.g. `Broadleaved Forest`) |
-| `confidence` | Match confidence score (0.0–1.0) |
-| `reason` | LLM explanation for the match |
-| `summary` | Short summary of the classified habitat |
-| `source_field` | Whether `FundortUNdOeko` or `Locality` was used as input |
-
-## Classification Logic
-
-For each record, the classifier selects input text as follows:
-
-- If `FundortUNdOeko` is present → use it (more ecologically descriptive)
-- Otherwise → fall back to `Locality`
-
-Only the top CLC match is retained per record.
+| `clc_confidence` | Match confidence score (0.0-1.0) |
+| `clc_reason` | LLM explanation for the match |
+| `clc_summary` | Short summary of the classified habitat |
+| `clc_source_field` | Whether `FundortUNdOeko` or `Locality` was used as input |
+| `taxon_identifier` | GBIF identifier (or WFO key) of given plant |
+| `taxon_confidence` | Confidence of identifier |
+| `taxon_source` | Whether the identifier is from GBIF or WFO |
+| `taxon_status` | Can be `resolved`, `fuzzy` or `unresolved` |
+| `error` | Contains any errors when processing row |
 
 ## Notes
 
 - Classification quality depends heavily on input text. Records with only place names (e.g. "Bayern, SW Grainau") produce lower-confidence, less specific results than records with actual habitat descriptions (e.g. "Weinbergshang").
 - `FundortUNdOeko` is populated in approximately 26% of BGBM records; `Locality` covers 99.4%.
 - The OpenAI API is called once per record. At 100k records, costs are non-trivial; consider using a smaller sample for development. Replacement with a local Hugging Face model is planned for the optimisation phase.
+- `llama3.2` and `gpt-4o-mini` do not return the same results. A decision needs to be made on what model will be used at the end.
+- Ollama might require a few minutes on the first compose call to download the required image. In later calls, the image will be cached so it is a one time thing.
+- Some times ollama might time out, retrying the input should work.
 
 ## Planned Extensions
 
-- Swap OpenAI for a local Hugging Face zero-shot classifier
 - Nextflow module for nf-core pipeline integration
 - Async batching for improved throughput
 - Save processed identifiers to reduce api load.
