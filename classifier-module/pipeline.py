@@ -42,3 +42,4 @@ def process_csv(input, use_ollama) -> None:
  
     pd.DataFrame(results).to_csv(output_path, index=False)
     log.info('Done. %d rows written to %s', len(results), output_path)
+    return results

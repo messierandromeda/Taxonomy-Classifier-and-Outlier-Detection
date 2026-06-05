@@ -162,38 +162,3 @@ def process_row(row: pd.Series, client: httpx.Client, use_ollama: bool) -> dict:
         'error': '',
     }
 
-
-def main() -> None:
-    input_path = os.environ.get('INPUT_CSV', '../data/input.csv')
-    output_path = os.environ.get('OUTPUT_CSV', '../data/output.csv')
- 
-    df = pd.read_csv(input_path)
-    results = []
- 
-    with httpx.Client(timeout=60.0) as client:
-        wait_for_api(client)
- 
-        for i, (_, row) in enumerate(df.iterrows()):
-            herbarium_id = row.get('HerbariumID', f'row_{i}')
-            try:
-                result = process_row(row, client)
-                log.info('OK  %s', herbarium_id)
-            except Exception as exc:
-                log.error('FAIL %s: %s', herbarium_id, exc)
-                result = {
-                    'HerbariumID': herbarium_id,
-                    'clc_code': '', 'clc_name': '', 'clc_confidence': '',
-                    'clc_reason': '', 'clc_summary': '', 'clc_source_field': '',
-                    'identifier': '', 'taxon_confidence': '', 'taxon_source': '',
-                    'taxon_status': '', 'error': str(exc),
-                }
- 
-            results.append(result)
- 
-            if (i + 1) % 500 == 0:
-                pd.DataFrame(results).to_csv(output_path, index=False)
-                log.info('Checkpoint written at row %d', i + 1)
- 
-    pd.DataFrame(results).to_csv(output_path, index=False)
-    log.info('Done. %d rows written to %s', len(results), output_path)
-
