@@ -15,7 +15,7 @@ It consists of two services:
 
 ```
 land-taxonomy-classifier/
-├── land-taxonomy-api/        # Existing service, unmodified
+├── land-taxonomy-api/        # Existing service, unmodified (except the prompt template in main.py for a more objective evaluation)
 │   ├── main.py
 │   ├── taxonomy.csv
 │   ├── requirements.txt
