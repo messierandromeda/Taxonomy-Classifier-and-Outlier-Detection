@@ -15,8 +15,8 @@ It consists of two services:
 
 ```
 land-taxonomy-classifier/
-├── land-taxonomy-api/        # Existing service, unmodified (except the prompt template in main.py for a more objective evaluation)
-│   ├── main.py
+├── land-taxonomy-api/        # Existing service, unmodified except main.py
+│   ├── main.py               # Added Ollama support and enhanced prompt template to ensure a more objective evaluation
 │   ├── taxonomy.csv
 │   ├── requirements.txt
 │   ├── .env.example
@@ -24,9 +24,9 @@ land-taxonomy-classifier/
 │   └── README.md
 │
 ├── classifier-module/        # New service
-│   ├── classify.py
-│   ├── pipeline.py
-│   ├── main.py
+│   ├── classify.py           # Classify each row using LLMs using the main.py file in the land-taxonomy-api folder
+│   ├── pipeline.py           # Pipeline for processing csv files
+│   ├── main.py               # FastAPI endpoints
 │   ├── requirements.txt
 │   └── Dockerfile
 │
@@ -42,6 +42,7 @@ land-taxonomy-classifier/
 - Docker
 - Docker Compose
 - An OpenAI API key
+  - Ollama can be used instead if there is no API key available.
 
 ## Setup
 
