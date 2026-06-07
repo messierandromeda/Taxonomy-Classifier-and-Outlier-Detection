@@ -1,7 +1,5 @@
 from typing import Any
 
-
-# Defines the order of severities.
 SEVERITY_ORDER = {
     "info": 0,
     "low": 1,

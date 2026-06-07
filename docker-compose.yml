@@ -9,6 +9,7 @@ services:
       - OLLAMA_MODEL=llama3.2:3b
     volumes:
       - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       - ollama-service
     restart: unless-stopped
@@ -20,6 +21,7 @@ services:
       - "11434:11434"
     volumes:
       - ollama_storage:/root/.ollama
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull llama3.2:3b && wait"]
     restart: unless-stopped
 
 volumes:

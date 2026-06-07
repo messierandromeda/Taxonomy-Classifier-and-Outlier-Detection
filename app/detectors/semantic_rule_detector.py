@@ -196,12 +196,13 @@ class SemanticRuleDetector(BaseDetector):
                     DetectionFlag(
                         field="country,locality",
                         method=self.name,
-                        type="country_locality_contradiction",    # TODO: they show where a sample is originally collected, so this should be valid 
-                        severity="high",
+                        type="country_locality_contradiction",
+                        severity="medium",
                         score=0.85,
                         message=(
                             "Country is Germany, but the locality text "
                             "contains strong foreign-country indicators."
+                            "This can imply that the sample is collected abroad."
                         ),
                         value={
                             "country": record.get("country"),

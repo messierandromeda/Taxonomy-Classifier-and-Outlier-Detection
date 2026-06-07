@@ -1,10 +1,17 @@
 from typing import Any, Dict, List
 from datetime import datetime
 import pandas as pd
-
+import json
+import logging
+from pathlib import Path
+from fastapi import status, HTTPException
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
+from app.config import UNINITIALIZED_MSG
 
+CURRENT_DIR = Path(__file__).resolve().parent
+PATH = CURRENT_DIR / "models" / "date_outlier.json"
+PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class DateOutlierDetector(BaseDetector):
     name = "date_outlier_detector"
@@ -56,7 +63,22 @@ class DateOutlierDetector(BaseDetector):
                 "upper": float(upper),
             }
 
+        with open(PATH, "w", encoding="utf-8") as f:
+            json.dump(self.cached_stats, f, indent=4)
+
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        if PATH.exists():
+            logging.info(f"Loading z-score data from {PATH}...")
+            with open(PATH, "r", encoding="utf-8") as f:
+                self.cached_stats = json.load(f)
+        else:
+            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
+                
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG
+            )
+        
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)
@@ -69,28 +91,14 @@ class DateOutlierDetector(BaseDetector):
                 years.append(self._extract_year(record.get(field)))
 
             series = pd.Series(years, dtype="float64")
-            clean = series.dropna()
 
-            if len(clean) < 4:
-                continue
+            stats = self.cached_stats[field]
+            mean = stats["mean"]
+            std = stats["std"]
+            lower = stats["lower"]
+            upper = stats["upper"]
+            iqr = stats["iqr"]
 
-            mean = clean.mean()
-            std = clean.std(ddof=0)
-
-            q1 = clean.quantile(0.25)
-            q3 = clean.quantile(0.75)
-            iqr = q3 - q1
-
-            lower = q1 - self.iqr_k * iqr
-            upper = q3 + self.iqr_k * iqr
-
-            if field in self.cached_stats:
-                stats = self.cached_stats[field]
-                mean = stats["mean"]
-                std = stats["std"]
-                lower = stats["lower"]
-                upper = stats["upper"]
-                iqr = stats["iqr"]
 
             for index, year in series.items():
                 if pd.isna(year):

@@ -2,6 +2,7 @@ import json
 import re
 import requests
 from typing import Any
+import logging
 
 from app.detectors.base import get_record_id
 from app.preprocessing.bgbm_normalizer import normalize_bgbm_record
@@ -47,21 +48,21 @@ class LLMDetector:
         results: dict[str, list[dict[str, Any]]] = {}
 
         if self.provider != "ollama":
-            print("[LLM SKIPPED] provider is not ollama")
+            logging.warning("[LLM SKIPPED] provider is not ollama")
             return results
 
-        print(f"[LLM START] records={len(records)} model={self.model}")
+        logging.info(f"[LLM START] records={len(records)} model={self.model}")
 
         for index, record in enumerate(records):
             normalized_record = normalize_bgbm_record(record)
             record_id = get_record_id(normalized_record, index)
-            print(
+            logging.info(
                     f"[LLM] checking record {index + 1}/{len(records)} "
                     f"| record_id={record_id}"
                 )
 
             is_suspicious, explanation, confidence = self._ask_ollama(normalized_record)
-            print(
+            logging.info(
                     f"[LLM] done record_id={record_id} "
                     f"| suspicious={is_suspicious} "
                     f"| confidence={confidence}"
@@ -83,7 +84,7 @@ class LLMDetector:
                     }
                 )
 
-        print(f"[LLM DONE] flagged_records={len(results)}")
+        logging.info(f"[LLM DONE] flagged_records={len(results)}")
         return results
 
     def _shorten_text(self, value: Any, max_chars: int = 180) -> Any:
@@ -214,7 +215,7 @@ Record:
             return suspicious, reason, confidence
 
         except Exception as exc:
-            print(f"[LLM ERROR] {exc}")
+            logging.error(f"[LLM ERROR] {exc}")
             return False, f"LLM check failed: {exc}", 0.0
 
     def _extract_json(self, text: str) -> dict[str, Any]:

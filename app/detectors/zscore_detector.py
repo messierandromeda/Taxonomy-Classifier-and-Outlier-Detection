@@ -1,9 +1,16 @@
 from typing import Any, Dict, List
 import pandas as pd
-
+import json
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
+from pathlib import Path
+import logging
+from fastapi import HTTPException, status
+from app.config import UNINITIALIZED_MSG
 
+CURRENT_DIR = Path(__file__).resolve().parent
+PATH = CURRENT_DIR / "models" / "z-score.json"
+PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class ZScoreDetector(BaseDetector):
     name = "zscore_detector"
@@ -19,7 +26,6 @@ class ZScoreDetector(BaseDetector):
             "decimalLongitude",
         ]
 
-        # Values with an absolute z-score above this threshold are flagged.
         self.threshold = threshold
         self.cached_stats: Dict[str, Dict[str, float]] = {}
 
@@ -42,13 +48,28 @@ class ZScoreDetector(BaseDetector):
 
             if std == 0:
                 continue
-
+            
             self.cached_stats[field] = {
                 "mean": float(mean),
                 "std": float(std),
             }
 
+        with open(PATH, "w", encoding="utf-8") as f:
+            json.dump(self.cached_stats, f, indent=4)
+
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        if PATH.exists():
+            logging.info(f"Loading z-score data from {PATH}...")
+            with open(PATH, "r", encoding="utf-8") as f:
+                self.cached_stats = json.load(f)
+        else:
+            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
+                
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG
+            )
+        
         df = pd.DataFrame(records)
 
         results = {
@@ -57,25 +78,17 @@ class ZScoreDetector(BaseDetector):
         }
 
         for field in self.numeric_fields:
-            if field not in df.columns:
+            if field not in df.columns or field not in self.cached_stats:
+                continue
+
+            stats = self.cached_stats[field]
+            mean = stats["mean"]
+            std = stats["std"]
+
+            if std == 0:
                 continue
 
             series = pd.to_numeric(df[field], errors="coerce")
-            clean = series.dropna()
-
-            if len(clean) < 3:
-                continue
-
-            if field in self.cached_stats:
-                stats = self.cached_stats[field]
-                mean = stats["mean"]
-                std = stats["std"]
-            else:
-                mean = clean.mean()
-                std = clean.std(ddof=0)
-
-                if std == 0:
-                    continue
 
             zscores = (series - mean) / std
 

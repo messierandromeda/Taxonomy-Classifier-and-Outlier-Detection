@@ -1,7 +1,7 @@
 import time
+import logging
 from app.detectors.base import get_record_id
 
-from app.train import sample_training_records, train_detectors
 from app.detectors.rule_detector import RuleDetector
 from app.detectors.semantic_rule_detector import SemanticRuleDetector
 
@@ -101,10 +101,7 @@ def run_detectors(
     enable_semantic: bool = True,
     enable_llm: bool = False,
     llm_provider: str = "none",
-    numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
-    training_subset_size: int = 500,
-    training_seed: int = 42,
 ) -> DetectResponse:
 
     result = prepare_records(records)
@@ -157,37 +154,26 @@ def run_detectors(
             timeout=30,
         ))
 
-    if training_subset_size and training_subset_size > 0:
-        training_records = sample_training_records(
-            result,
-            subset_size=training_subset_size,
-            seed=training_seed,
-        )
-        print(
-            f"[TRAIN] Training detectors on {len(training_records)} record subset"
-        )
-        train_detectors(detectors, training_records)
-
     flag_maps = []
 
     # --------------------------------------------------
     # Run detectors
     # --------------------------------------------------
-    print(f"\n[RUN] Processing {len(result)} records")
+    
+    logging.info(f"\n[RUN] Processing {len(result)} records")
 
     for detector in detectors:
         detector_name = detector.name
 
-        print(f"[DETECTOR START] {detector_name}")
-
         start_time = time.time()
         flag_map = detector.detect(result)
+        logging.info(f"[DETECTOR START] {detector_name}")
         elapsed = time.time() - start_time
 
         flag_count = sum(len(flags) for flags in flag_map.values())
         record_count = sum(1 for flags in flag_map.values() if flags)
 
-        print(
+        logging.info(
             f"[DETECTOR DONE] {detector_name} | "
             f"flagged_records={record_count} | "
             f"flags={flag_count} | "
@@ -312,7 +298,7 @@ def process_records_strategically(
     llm_provider: str = "none",
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
-    training_subset_size: int = 500,
+    #training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
     # First run all fast non-LLM detectors.
     fast_response = run_detectors(
@@ -322,7 +308,7 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         llm_provider="none",
-        training_subset_size=training_subset_size,
+        #training_subset_size=training_subset_size,
     )
 
     llm_response = None

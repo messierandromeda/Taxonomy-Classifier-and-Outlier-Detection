@@ -1,11 +1,20 @@
 from typing import Any, Dict, List
 import pandas as pd
+import joblib
+import logging
+from fastapi import HTTPException, status
+from pathlib import Path
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
+from app.config import UNINITIALIZED_MSG
 
+CURRENT_DIR = Path(__file__).resolve().parent
+MODEL_PATH = CURRENT_DIR / "models" / "isolation_forest_mode.pkl"
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+SCALER_PATH = CURRENT_DIR / "models" / "isolation_forest_scaler.pkl"
 
 class IsolationForestDetector(BaseDetector):
     name = "isolation_forest_detector"
@@ -13,7 +22,7 @@ class IsolationForestDetector(BaseDetector):
     def __init__(
         self,
         numeric_fields: List[str] | None = None,
-        contamination: float = 0.05,
+        contamination: float | str = "auto"
     ):
 
         self.numeric_fields = numeric_fields or [
@@ -48,7 +57,24 @@ class IsolationForestDetector(BaseDetector):
             random_state=42,
         ).fit(X)
 
+        joblib.dump(self.scaler, SCALER_PATH)
+        logging.info(f"HDBSCAN scalar successfully saved to {SCALER_PATH}")
+        joblib.dump(self.model, MODEL_PATH)
+        logging.info(f"HDBSCAN model successfully saved to {MODEL_PATH}")
+
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        if MODEL_PATH.exists() and SCALER_PATH.exists():
+            logging.info(f"Loading trained isolation forest model from {MODEL_PATH} and scalar from {SCALER_PATH}...")
+            self.model = joblib.load(MODEL_PATH)
+            self.scaler = joblib.load(SCALER_PATH)
+        else:
+            logging.critical(f"Model file NOT found at {MODEL_PATH}! API cannot process detections.")
+                
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG
+            )
+        
         df = pd.DataFrame(records)
 
         results = {
@@ -66,24 +92,10 @@ class IsolationForestDetector(BaseDetector):
             return results
 
         numeric = df[fields].apply(pd.to_numeric, errors="coerce").dropna()
-
-        if len(numeric) < 10:
-            return results
-
-        if self.model is not None and self.scaler is not None:
-            X = self.scaler.transform(numeric)
-            predictions = self.model.predict(X)
-            scores = -self.model.score_samples(X)
-        else:
-            self.scaler = StandardScaler().fit(numeric)
-            X = self.scaler.transform(numeric)
-            self.model = IsolationForest(
-                contamination=self.contamination,
-                random_state=42,
-            ).fit(X)
-            predictions = self.model.predict(X)
-            scores = -self.model.score_samples(X)
-
+    
+        X = self.scaler.transform(numeric)
+        predictions = self.model.predict(X)
+        scores = -self.model.score_samples(X)
         max_score = max(scores) if len(scores) else 1.0
 
         for row_index, prediction, raw_score in zip(

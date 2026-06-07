@@ -1,15 +1,20 @@
 from typing import Any, Dict, List
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-
-try:
-    import hdbscan
-except ImportError:
-    hdbscan = None
+import joblib
+import logging
+import hdbscan
+from pathlib import Path
+from fastapi import HTTPException, status
 
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
+from app.config import UNINITIALIZED_MSG
 
+CURRENT_DIR = Path(__file__).resolve().parent
+MODEL_PATH = CURRENT_DIR / "models" / "hdbscan_model.pkl"
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+SCALER_PATH = CURRENT_DIR / "models" / "hdbscan_scaler.pkl"
 
 class HDBSCANGeoDetector(BaseDetector):
     name = "hdbscan_geo_detector"
@@ -56,9 +61,24 @@ class HDBSCANGeoDetector(BaseDetector):
             prediction_data=True,
         ).fit(X)
 
+        joblib.dump(self.scaler, SCALER_PATH)
+        logging.info(f"HDBSCAN scaler successfully saved to {SCALER_PATH}")
+        joblib.dump(self.model, MODEL_PATH)
+        logging.info(f"HDBSCAN model successfully saved to {MODEL_PATH}")
+
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
-        if hdbscan is None:
-            return {get_record_id(record, index): [] for index, record in enumerate(records)}
+        if MODEL_PATH.exists() and SCALER_PATH.exists():
+            logging.info(f"Loading trained HDBSCAN model from {MODEL_PATH} and scaler from {SCALER_PATH}...")
+            self.model = joblib.load(MODEL_PATH)
+            self.scaler = joblib.load(SCALER_PATH)
+
+        else:
+            logging.critical(f"Model file NOT found at {MODEL_PATH}! API cannot process detections.")
+                
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG
+            )
 
         df = pd.DataFrame(records)
 
@@ -84,24 +104,17 @@ class HDBSCANGeoDetector(BaseDetector):
         if len(coords) < self.min_cluster_size * 2:
             return results
 
-        if self.model is not None and self.scaler is not None:
-            X = self.scaler.transform(coords)
+        print(f"DEBUG: Does self.model exist? {self.model is not None}")
+        print(f"DEBUG: Does self.scaler exist? {self.scaler is not None}")
+        print(f"DEBUG: Available attributes: {dir(self)}")
+        X = self.scaler.transform(coords)
+
+        # obtain labels and membership strengths for all points
+        try:
             labels, strengths = hdbscan.approximate_predict(self.model, X)
-        else:
-            # Fit with prediction_data so we can call approximate_predict()
-            self.scaler = StandardScaler().fit(coords)
-            X = self.scaler.transform(coords)
-            self.model = hdbscan.HDBSCAN(
-                min_cluster_size=self.min_cluster_size,
-                min_samples=self.min_samples,
-                prediction_data=True,
-            ).fit(X)
-            # obtain labels and membership strengths for all points
-            try:
-                labels, strengths = hdbscan.approximate_predict(self.model, X)
-            except Exception:
-                labels = self.model.labels_
-                strengths = [0.0] * len(labels)
+        except Exception:
+            labels = [-1] * len(X)
+            strengths = [0.0] * len(X)
 
         # Outliers are flagged as -1; use membership strength to compute score
         for row_index, label, strength in zip(coords.index, labels, strengths):
