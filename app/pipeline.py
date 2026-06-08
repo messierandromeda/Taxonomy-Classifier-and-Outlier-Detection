@@ -298,7 +298,6 @@ def process_records_strategically(
     llm_provider: str = "none",
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
-    #training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
     # First run all fast non-LLM detectors.
     fast_response = run_detectors(
@@ -308,7 +307,6 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         llm_provider="none",
-        #training_subset_size=training_subset_size,
     )
 
     llm_response = None

@@ -104,9 +104,6 @@ class HDBSCANGeoDetector(BaseDetector):
         if len(coords) < self.min_cluster_size * 2:
             return results
 
-        print(f"DEBUG: Does self.model exist? {self.model is not None}")
-        print(f"DEBUG: Does self.scaler exist? {self.scaler is not None}")
-        print(f"DEBUG: Available attributes: {dir(self)}")
         X = self.scaler.transform(coords)
 
         # obtain labels and membership strengths for all points
