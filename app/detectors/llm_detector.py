@@ -20,8 +20,6 @@ class LLMDetector:
         timeout: int = 30,
     ):
         self.provider = provider
-
-        # Fields used for semantic plausibility checks.
         self.text_fields = text_fields or [
             "scientificName",
             "scientificNameFull",

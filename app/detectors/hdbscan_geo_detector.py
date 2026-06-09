@@ -101,9 +101,6 @@ class HDBSCANGeoDetector(BaseDetector):
             .dropna()
         )
 
-        if len(coords) < self.min_cluster_size * 2:
-            return results
-
         X = self.scaler.transform(coords)
 
         # obtain labels and membership strengths for all points

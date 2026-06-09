@@ -17,6 +17,16 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S"
 )
 
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        log_message = record.getMessage()
+        if "/health" in log_message and "200" in log_message:
+            return False
+        return True
+
+uvicorn_logger = logging.getLogger("uvicorn.access")
+uvicorn_logger.addFilter(HealthCheckFilter())
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     start_ollama_if_needed()

@@ -106,9 +106,6 @@ class DateOutlierDetector(BaseDetector):
 
                 record_id = get_record_id(records[index], index)
 
-                # -------------------------
-                # Z-score year outlier
-                # -------------------------
                 if std != 0:
                     z = abs((year - mean) / std)
 
@@ -134,9 +131,6 @@ class DateOutlierDetector(BaseDetector):
                             )
                         )
 
-                # -------------------------
-                # IQR year outlier
-                # -------------------------
                 if iqr != 0 and (year < lower or year > upper):
                     distance_to_fence = min(
                         abs(year - lower),

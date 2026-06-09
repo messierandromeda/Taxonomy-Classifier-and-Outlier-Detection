@@ -58,9 +58,9 @@ class IsolationForestDetector(BaseDetector):
         ).fit(X)
 
         joblib.dump(self.scaler, SCALER_PATH)
-        logging.info(f"HDBSCAN scalar successfully saved to {SCALER_PATH}")
+        logging.info(f"Isolation forest scalar successfully saved to {SCALER_PATH}")
         joblib.dump(self.model, MODEL_PATH)
-        logging.info(f"HDBSCAN model successfully saved to {MODEL_PATH}")
+        logging.info(f"Isolation forest model successfully saved to {MODEL_PATH}")
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         if MODEL_PATH.exists() and SCALER_PATH.exists():
