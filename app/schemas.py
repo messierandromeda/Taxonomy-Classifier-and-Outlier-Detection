@@ -50,6 +50,8 @@ class DetectRequest(BaseModel):
     llm_provider: LLMProvider = "none"
     numeric_fields: Optional[List[str]] = None
     text_fields: Optional[List[str]] = None
+    training_subset_size: int = 500
+    training_seed: int = 42
     record_id_field: Optional[str] = None
     field_mapping: Optional[Dict[str, str]] = None
 

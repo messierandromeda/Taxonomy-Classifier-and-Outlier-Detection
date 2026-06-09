@@ -11,6 +11,10 @@ class BaseDetector(ABC):
         """Return a dict: record_id -> list of flags."""
         raise NotImplementedError
 
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        """Optional training step for detectors that fit on a subset of data."""
+        return None
+
 
 def get_record_id(record: Dict[str, Any], index: int) -> str:
     return str(record.get("id") or record.get("occurrenceID") or record.get("catalogNumber") or index)

@@ -14,6 +14,35 @@ def test_health():
     assert response.json()["status"] == "ok"
 
 
+def test_detect_with_training_subset_size():
+    payload = {
+        "training_subset_size": 1,
+        "records": [
+            {
+                "HerbariumID": "subset-1",
+                "DB": "BGBM",
+                "Family": "Fagaceae",
+                "FullNameCache": "Quercus robur L.",
+                "NameCache": "Quercus robur",
+                "Genus": "Quercus",
+                "CollectionDateBegin": "2020-05-12",
+                "CollectionDateEnd": "2020-05-13",
+                "Country": "Germany",
+                "Locality": "Berlin",
+                "Latitude": 52.5,
+                "Longitude": 13.4,
+                "Barcode": "BGBM12349",
+                "StableURI": "https://example.org/record/subset-1",
+            }
+        ]
+    }
+
+    response = client.post("/detect", json=payload)
+
+    assert response.status_code == 200
+    assert response.json()["count"] == 1
+
+
 def test_detect_invalid_coordinate():
     # Latitude above 90 must be flagged.
     payload = {

@@ -1,10 +1,17 @@
 from typing import Any, Dict, List
 from datetime import datetime
 import pandas as pd
-
+import json
+import logging
+from pathlib import Path
+from fastapi import status, HTTPException
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
+from app.config import UNINITIALIZED_MSG
 
+CURRENT_DIR = Path(__file__).resolve().parent
+PATH = CURRENT_DIR / "models" / "date_outlier.json"
+PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class DateOutlierDetector(BaseDetector):
     name = "date_outlier_detector"
@@ -20,12 +27,10 @@ class DateOutlierDetector(BaseDetector):
         self.z_threshold = z_threshold
         self.iqr_k = iqr_k
         self.min_year_distance = min_year_distance
+        self.cached_stats: Dict[str, Dict[str, float]] = {}
 
-    def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
-        results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
-        }
+    def train(self, records: List[Dict[str, Any]]) -> None:
+        self.cached_stats = {}
 
         for field in self.date_fields:
             years = []
@@ -41,7 +46,6 @@ class DateOutlierDetector(BaseDetector):
 
             mean = clean.mean()
             std = clean.std(ddof=0)
-
             q1 = clean.quantile(0.25)
             q3 = clean.quantile(0.75)
             iqr = q3 - q1
@@ -49,15 +53,59 @@ class DateOutlierDetector(BaseDetector):
             lower = q1 - self.iqr_k * iqr
             upper = q3 + self.iqr_k * iqr
 
+            self.cached_stats[field] = {
+                "mean": float(mean),
+                "std": float(std),
+                "q1": float(q1),
+                "q3": float(q3),
+                "iqr": float(iqr),
+                "lower": float(lower),
+                "upper": float(upper),
+            }
+
+        with open(PATH, "w", encoding="utf-8") as f:
+            json.dump(self.cached_stats, f, indent=4)
+
+    def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        if PATH.exists():
+            logging.info(f"Loading z-score data from {PATH}...")
+            with open(PATH, "r", encoding="utf-8") as f:
+                self.cached_stats = json.load(f)
+        else:
+            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
+                
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG
+            )
+        
+        results = {
+            get_record_id(record, index): []
+            for index, record in enumerate(records)
+        }
+
+        for field in self.date_fields:
+            years = []
+
+            for record in records:
+                years.append(self._extract_year(record.get(field)))
+
+            series = pd.Series(years, dtype="float64")
+
+            stats = self.cached_stats[field]
+            mean = stats["mean"]
+            std = stats["std"]
+            lower = stats["lower"]
+            upper = stats["upper"]
+            iqr = stats["iqr"]
+
+
             for index, year in series.items():
                 if pd.isna(year):
                     continue
 
                 record_id = get_record_id(records[index], index)
 
-                # -------------------------
-                # Z-score year outlier
-                # -------------------------
                 if std != 0:
                     z = abs((year - mean) / std)
 
@@ -83,9 +131,6 @@ class DateOutlierDetector(BaseDetector):
                             )
                         )
 
-                # -------------------------
-                # IQR year outlier
-                # -------------------------
                 if iqr != 0 and (year < lower or year > upper):
                     distance_to_fence = min(
                         abs(year - lower),

@@ -17,9 +17,6 @@ class RuleDetector(BaseDetector):
             record_id = get_record_id(record, index)
             flags: List[DetectionFlag] = []
 
-            # -------------------------
-            # Coordinates
-            # -------------------------
             lat = self._to_float(record.get("decimalLatitude"))
             lon = self._to_float(record.get("decimalLongitude"))
 
@@ -65,9 +62,6 @@ class RuleDetector(BaseDetector):
                     value=lon,
                 ))
 
-            # -------------------------
-            # Date fields
-            # -------------------------
             begin_raw = record.get("collectionDateBegin") or record.get("eventDate")
             end_raw = record.get("collectionDateEnd")
 
@@ -149,9 +143,6 @@ class RuleDetector(BaseDetector):
                         value=raw_value,
                     ))
 
-            # -------------------------
-            # Taxonomic fields
-            # -------------------------
             family = record.get("family")
             genus = record.get("genus")
             scientific_name = record.get("scientificName")
@@ -222,9 +213,6 @@ class RuleDetector(BaseDetector):
                     value=scientific_name,
                 ))
 
-            # -------------------------
-            # Geographic text fields
-            # -------------------------
             country = record.get("country")
             locality = record.get("locality")
             habitat = record.get("habitat")
@@ -266,9 +254,6 @@ class RuleDetector(BaseDetector):
                     },
                 ))
 
-            # -------------------------
-            # Identifier fields
-            # -------------------------
             herbarium_id = record.get("id")
             database = record.get("database")
             barcode = record.get("barcode")
@@ -338,9 +323,6 @@ class RuleDetector(BaseDetector):
                     value=stable_uri,
                 ))
 
-            # -------------------------
-            # Free text: Anmerkungen / collectorNotes
-            # -------------------------
             notes = record.get("collectorNotes")
 
             if not self._is_empty(notes):

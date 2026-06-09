@@ -78,11 +78,10 @@ Multivariate anomaly detection using Isolation Forest.
 Can analyze combinations such as:
 
 - latitude + longitude
-- latitude + longitude + collection year
 
 ---
 
-### `DBSCANGeoDetector`
+### `HDBSCANGeoDetector`
 
 Density-based geographic cluster outlier detection.
 

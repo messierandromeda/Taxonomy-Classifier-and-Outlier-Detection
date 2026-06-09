@@ -1,5 +1,5 @@
 # Python
-__pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -27,6 +27,7 @@ ollama_data/
 
 # Optional local datasets
 test_daten/
+data/
 
 # Jupyter
 .ipynb_checkpoints/

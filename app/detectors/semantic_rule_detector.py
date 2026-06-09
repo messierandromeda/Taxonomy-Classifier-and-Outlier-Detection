@@ -9,7 +9,6 @@ from app.detectors.base import BaseDetector, get_record_id
 class SemanticRuleDetector(BaseDetector):
     name = "semantic_rule_detector"
 
-    # Species-specific habitat plausibility rules.
     SPECIES_HABITAT_RULES = {
         "cocos nucifera": {
             "contradiction": [
@@ -135,9 +134,6 @@ class SemanticRuleDetector(BaseDetector):
                 label_text,
             ])
 
-            # --------------------------------------------------
-            # Marine vs inland contradiction
-            # --------------------------------------------------
             if (
                 self._has(combined_text, self.MARINE_TERMS)
                 and self._has(combined_text, self.INLAND_TERMS)
@@ -160,9 +156,6 @@ class SemanticRuleDetector(BaseDetector):
                     )
                 )
 
-            # --------------------------------------------------
-            # Water vs dry contradiction
-            # --------------------------------------------------
             if (
                 self._has(combined_text, self.WATER_TERMS)
                 and self._has(combined_text, self.DRY_TERMS)
@@ -185,9 +178,6 @@ class SemanticRuleDetector(BaseDetector):
                     )
                 )
 
-            # --------------------------------------------------
-            # Country vs locality contradiction
-            # --------------------------------------------------
             if (
                 country in ["germany", "deutschland"]
                 and self._has(combined_text, self.FOREIGN_COUNTRY_TERMS)  
@@ -196,12 +186,13 @@ class SemanticRuleDetector(BaseDetector):
                     DetectionFlag(
                         field="country,locality",
                         method=self.name,
-                        type="country_locality_contradiction",    # TODO: they show where a sample is originally collected, so this should be valid 
-                        severity="high",
+                        type="country_locality_contradiction",
+                        severity="medium",
                         score=0.85,
                         message=(
                             "Country is Germany, but the locality text "
                             "contains strong foreign-country indicators."
+                            "This can imply that the sample is collected abroad."
                         ),
                         value={
                             "country": record.get("country"),
@@ -210,9 +201,6 @@ class SemanticRuleDetector(BaseDetector):
                     )
                 )
 
-            # --------------------------------------------------
-            # Species-specific ecological plausibility
-            # --------------------------------------------------
             species_flag = self._check_species_rules(
                 scientific_name,
                 combined_text,

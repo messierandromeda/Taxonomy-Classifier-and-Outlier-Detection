@@ -1,36 +1,25 @@
 import time
+import logging
 from app.detectors.base import get_record_id
-
 from app.detectors.rule_detector import RuleDetector
 from app.detectors.semantic_rule_detector import SemanticRuleDetector
-
 from app.detectors.iqr_detector import IQRDetector
 from app.detectors.zscore_detector import ZScoreDetector
 from app.detectors.modified_zscore_detector import ModifiedZScoreDetector
-
 from app.detectors.date_outlier_detector import DateOutlierDetector
-
 from app.detectors.isolation_forest_detector import (
     IsolationForestDetector,
 )
-
-from app.detectors.dbscan_detector import DBSCANGeoDetector
+from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 from app.detectors.llm_detector import LLMDetector
-
 from app.report import (
     merge_flags,
     calculate_record_score,
     calculate_record_severity,
 )
-
 from app.schemas import DetectResponse, RecordQualityResult
 from app.ollama_config import OLLAMA_MODEL, OLLAMA_URL
 from app.utils import add_event_year, normalize_records
-
-
-# --------------------------------------------------
-# Detector types relevant for LLM analysis
-# --------------------------------------------------
 
 LLM_RELEVANT_TYPES = {
     "invalid_coordinate_range",
@@ -88,11 +77,7 @@ def merge_detector_results(merged: dict, records: list[dict]) -> DetectResponse:
         results=results,
     )
 
-
-# --------------------------------------------------
-# Main detector pipeline
-# --------------------------------------------------
-
+# Main pipeline
 def run_detectors(
     records: list[dict],
     enable_quality: bool = True,
@@ -100,7 +85,6 @@ def run_detectors(
     enable_semantic: bool = True,
     enable_llm: bool = False,
     llm_provider: str = "none",
-    numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
 ) -> DetectResponse:
 
@@ -108,10 +92,6 @@ def run_detectors(
 
     if not result:
         return DetectResponse(count=0, results=[])
-
-    # --------------------------------------------------
-    # Detector pipeline
-    # --------------------------------------------------
 
     quality_detectors = [
         RuleDetector(),
@@ -127,7 +107,7 @@ def run_detectors(
         ModifiedZScoreDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
         DateOutlierDetector(date_fields=["collectionDateBegin"]),
         IsolationForestDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
-        DBSCANGeoDetector(),
+        HDBSCANGeoDetector(),
     ]
 
     detectors = []
@@ -141,10 +121,6 @@ def run_detectors(
     if enable_outliers:
         detectors.extend(outlier_detectors)
 
-    # --------------------------------------------------
-    # Optional LLM detector
-    # --------------------------------------------------
-
     if enable_llm and llm_provider != "none":
         detectors.append(LLMDetector(
             provider=llm_provider,
@@ -155,43 +131,36 @@ def run_detectors(
         ))
 
     flag_maps = []
-
-    # --------------------------------------------------
-    # Run detectors
-    # --------------------------------------------------
-    print(f"\n[RUN] Processing {len(result)} records")
+    
+    logging.info(f"\n[RUN] Processing {len(result)} records")
 
     for detector in detectors:
-        detector_name = detector.name
+        try: 
+            detector_name = detector.name
 
-        print(f"[DETECTOR START] {detector_name}")
+            start_time = time.time()
+            flag_map = detector.detect(result)
+            logging.info(f"[DETECTOR START] {detector_name}")
+            elapsed = time.time() - start_time
 
-        start_time = time.time()
-        flag_map = detector.detect(result)
-        elapsed = time.time() - start_time
+            flag_count = sum(len(flags) for flags in flag_map.values())
+            record_count = sum(1 for flags in flag_map.values() if flags)
 
-        flag_count = sum(len(flags) for flags in flag_map.values())
-        record_count = sum(1 for flags in flag_map.values() if flags)
+            logging.info(
+                f"[DETECTOR DONE] {detector_name} | "
+                f"flagged_records={record_count} | "
+                f"flags={flag_count} | "
+                f"time={elapsed:.2f}s"
+            )
 
-        print(
-            f"[DETECTOR DONE] {detector_name} | "
-            f"flagged_records={record_count} | "
-            f"flags={flag_count} | "
-            f"time={elapsed:.2f}s"
-        )
-
-        flag_maps.append(flag_map)
-    # --------------------------------------------------
-    # Merge detector results
-    # --------------------------------------------------
+            flag_maps.append(flag_map)
+        except Exception as e:
+            logging.error(f"Skipping {detector_name}: {e}")
+            continue
 
     merged = merge_flags(*flag_maps)
 
     return merge_detector_results(merged, result)
-
-# --------------------------------------------------
-# Run only LLM detector
-# --------------------------------------------------
 
 def run_llm_only(
     records: list[dict],
@@ -215,10 +184,6 @@ def run_llm_only(
     flag_map = detector.detect(result)
 
     return merge_detector_results(flag_map, result)
-
-# --------------------------------------------------
-# Select records relevant for LLM analysis
-# --------------------------------------------------
 
 def select_flagged_records(
     records: list[dict],
@@ -250,11 +215,6 @@ def select_flagged_records(
             selected.append(record)
 
     return selected
-
-
-# --------------------------------------------------
-# Merge fast detector + LLM results
-# --------------------------------------------------
 
 def merge_chunk_results(
     fast_response: DetectResponse,
