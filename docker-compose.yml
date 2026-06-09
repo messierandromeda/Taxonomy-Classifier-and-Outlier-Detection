@@ -1,0 +1,28 @@
+services:
+  biodiv-api:
+    build: .
+    container_name: biodiv-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://ollama-service:11434
+      - OLLAMA_MODEL=llama3.2:3b
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - ollama-service
+    restart: unless-stopped
+
+  ollama-service:
+    image: ollama/ollama:latest
+    container_name: ollama-service
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull llama3.2:3b && wait"]
+    restart: unless-stopped
+
+volumes:
+  ollama_storage:
