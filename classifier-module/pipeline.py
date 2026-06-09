@@ -15,8 +15,14 @@ log = logging.getLogger(__name__)
 def process_csv(input, use_ollama) -> None:
     output_path = os.environ.get('OUTPUT_CSV', '../data/output.csv')
     results = []
- 
-    with httpx.Client(timeout=60.0) as client:
+
+    custom_timeout = httpx.Timeout(
+        timeout=120,      
+        connect=10.0,       
+        read=120.0     
+    )
+    
+    with httpx.Client(timeout=custom_timeout) as client:
         wait_for_api(client)
  
         for i, (_, row) in enumerate(input.iterrows()):
