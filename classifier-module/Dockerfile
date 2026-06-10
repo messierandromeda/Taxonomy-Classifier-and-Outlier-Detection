@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY classifier.py main.py pipeline.py ./
+COPY main.py pipeline.py config.py land_taxonomy.py process.py taxonomy_lookup.py ./
 
 EXPOSE 8001
 

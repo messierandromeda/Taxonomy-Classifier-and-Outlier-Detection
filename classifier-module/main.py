@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
+from fastapi.responses import Response
 import pandas as pd
 import io
 from pipeline import process_csv
@@ -21,8 +22,17 @@ async def classify_csv(
     if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail='Only CSV files are supported.')
 
-    df = pd.read_csv(io.BytesIO(input))
-    process_csv(df, use_ollama)
+    df = pd.read_csv(io.BytesIO(input), sep=None, engine='python')
+    output = await process_csv(df, use_ollama)
+
+    output_df = pd.DataFrame(output)
+    csv_string = output_df.to_csv(index=False, sep=';')
+
+    return Response(
+        content=csv_string,
+        media_type='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=processed_{file.filename}'}
+    )
 
 
 

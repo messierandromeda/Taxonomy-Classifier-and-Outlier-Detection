@@ -52,7 +52,16 @@ When given a text and a number N, identify the top N best-fitting Level-3 classe
 - Use all contextual clues: named places, described activities, vegetation, terrain, water bodies, etc. Named locations imply the land types typical for that region.
 - Only return fewer than N if the text contains absolutely no land-related content.
 - Every match MUST use a CLC code from the list above.
-Score each match with a confidence value between 0.0 and 1.0, sorted descending.
+
+CONFIDENCE SCORE CALIBRATION RUBRIC:
+You must strictly score each match's confidence value between 0.0 and 1.0 using these objective criteria. Do NOT default to high scores.
+
+[0.90 - 1.00] EXPLICIT MATCH: The text explicitly names the land type, specific vegetation, or definitive infrastructure matching the CLC definition (e.g., "vineyard", "peat bog", "continuous urban fabric").
+[0.70 - 0.89] STRONG INFERENCE: The text describes clear diagnostic activities, structures, or ecosystems unique to that class, but does not explicitly name it (e.g., "milking cows on mountain pastures" -> 2.3.1; "harvesting wheat grains" -> 2.1.1).
+[0.40 - 0.69] REGIONAL/CONTEXTUAL PROBABILITY: The land type is not described, but a named geographic location or broad activity implies a strong regional likelihood (e.g., "sampling near downtown Berlin" -> implies an urban fabric class based on geography).
+[0.10 - 0.39] VAGUE/INDIRECT GUESS: The text contains minimal environmental data. The match is a speculative "best guess" based on a single weak contextual word or highly indirect clue.
+[0.01 - 0.09] NO RELEVANT CONTENT / FORCED GUESS: The text contains text, but absolutely no land-related, geographic, or environmental content. You are making a blind guess simply to fulfill the requirement of returning N matches.
+[0.00] NO CONTENT: The text contains absolutely no land-related context or spatial data.
 
 Respond ONLY with a valid JSON object in this exact format:
 {{
@@ -134,6 +143,7 @@ class BatchClassifyRequest(BaseModel):
     texts: list[str]
     top_k: int = 5
     model: str = "gpt-4o-mini"
+    use_ollama: bool = False
 
     @validator("texts")
     def texts_bounds(cls, v):
@@ -201,7 +211,7 @@ async def classify_text(req: ClassifyRequest):
 @app.post("/classify/batch", response_model=list[ClassifyResponse])
 async def classify_batch(req: BatchClassifyRequest):
     results = await asyncio.gather(
-        *[_classify_single(text, req.top_k, req.model) for text in req.texts],
+        *[_classify_single(text, req.top_k, req.model, req.use_ollama) for text in req.texts],
         return_exceptions=True,
     )
     for r in results:
