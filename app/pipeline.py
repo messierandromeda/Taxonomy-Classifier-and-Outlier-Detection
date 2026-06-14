@@ -1,20 +1,16 @@
 import time
+import random
+
 from app.detectors.base import get_record_id
 
-from app.train import sample_training_records, train_detectors
 from app.detectors.rule_detector import RuleDetector
 from app.detectors.semantic_rule_detector import SemanticRuleDetector
 
 from app.detectors.iqr_detector import IQRDetector
 from app.detectors.zscore_detector import ZScoreDetector
 from app.detectors.modified_zscore_detector import ModifiedZScoreDetector
-
 from app.detectors.date_outlier_detector import DateOutlierDetector
-
-from app.detectors.isolation_forest_detector import (
-    IsolationForestDetector,
-)
-
+from app.detectors.isolation_forest_detector import IsolationForestDetector
 from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 from app.detectors.llm_detector import LLMDetector
 
@@ -28,10 +24,6 @@ from app.schemas import DetectResponse, RecordQualityResult
 from app.ollama_config import OLLAMA_MODEL, OLLAMA_URL
 from app.utils import add_event_year, normalize_records
 
-
-# --------------------------------------------------
-# Detector types relevant for LLM analysis
-# --------------------------------------------------
 
 LLM_RELEVANT_TYPES = {
     "invalid_coordinate_range",
@@ -55,13 +47,38 @@ LLM_RELEVANT_TYPES = {
     "species_habitat_contradiction",
 }
 
+
+def sample_training_records(
+    records: list[dict],
+    subset_size: int = 500,
+    seed: int = 42,
+) -> list[dict]:
+    if subset_size <= 0 or not records:
+        return []
+
+    if subset_size >= len(records):
+        return records
+
+    rng = random.Random(seed)
+    return rng.sample(records, k=subset_size)
+
+
+def train_detectors(detectors, records: list[dict]) -> None:
+    for detector in detectors:
+        try:
+            detector.train(records)
+        except Exception:
+            continue
+
+
 def prepare_records(records: list[dict]) -> list[dict]:
     if not records:
-        return False
+        return []
+
     records = normalize_records(records)
     records = add_event_year(records)
-    return records
 
+    return records
 
 
 def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
@@ -110,6 +127,7 @@ def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
             f"{strongest_flag.field} by {strongest_flag.method}."
         ),
     }
+
 
 def annotate_records(
     records: list[dict],
@@ -165,11 +183,14 @@ def annotate_records(
 
     return annotated
 
-def merge_detector_results(merged: dict, records: list[dict]) -> DetectResponse:
+
+def merge_detector_results(
+    merged: dict,
+    records: list[dict],
+) -> DetectResponse:
     results = []
 
     for index, record in enumerate(records):
-
         record_id = get_record_id(
             record,
             index,
@@ -192,9 +213,6 @@ def merge_detector_results(merged: dict, records: list[dict]) -> DetectResponse:
         annotated_records=annotate_records(records, results),
     )
 
-# --------------------------------------------------
-# Main detector pipeline
-# --------------------------------------------------
 
 def run_detectors(
     records: list[dict],
@@ -208,15 +226,14 @@ def run_detectors(
     training_subset_size: int = 500,
     training_seed: int = 42,
 ) -> DetectResponse:
-
     result = prepare_records(records)
 
     if not result:
-        return DetectResponse(count=0, results=[])
-
-    # --------------------------------------------------
-    # Detector pipeline
-    # --------------------------------------------------
+        return DetectResponse(
+            count=0,
+            results=[],
+            annotated_records=[],
+        )
 
     quality_detectors = [
         RuleDetector(),
@@ -230,7 +247,7 @@ def run_detectors(
         IQRDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
         ZScoreDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
         ModifiedZScoreDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
-        DateOutlierDetector(date_fields=["collectionDateBegin"]),
+        # DateOutlierDetector(date_fields=["collectionDateBegin"]),
         IsolationForestDetector(numeric_fields=["decimalLatitude", "decimalLongitude"]),
         HDBSCANGeoDetector(),
     ]
@@ -246,18 +263,20 @@ def run_detectors(
     if enable_outliers:
         detectors.extend(outlier_detectors)
 
-    # --------------------------------------------------
-    # Optional LLM detector
-    # --------------------------------------------------
-
     if enable_llm and llm_provider != "none":
-        detectors.append(LLMDetector(
-            provider=llm_provider,
-            text_fields=text_fields,
-            model=OLLAMA_MODEL,
-            ollama_url=OLLAMA_URL,
-            timeout=30,
-        ))
+        print(
+            f"[PIPELINE] LLM detector added to main detector list "
+            f"| provider={llm_provider}"
+        )
+        detectors.append(
+            LLMDetector(
+                provider=llm_provider,
+                text_fields=text_fields,
+                model=OLLAMA_MODEL,
+                ollama_url=OLLAMA_URL,
+                timeout=30,
+            )
+        )
 
     if training_subset_size and training_subset_size > 0:
         training_records = sample_training_records(
@@ -265,16 +284,18 @@ def run_detectors(
             subset_size=training_subset_size,
             seed=training_seed,
         )
+
         print(
             f"[TRAIN] Training detectors on {len(training_records)} record subset"
         )
-        train_detectors(detectors, training_records)
+
+        train_detectors(
+            detectors,
+            training_records,
+        )
 
     flag_maps = []
 
-    # --------------------------------------------------
-    # Run detectors
-    # --------------------------------------------------
     print(f"\n[RUN] Processing {len(result)} records")
 
     for detector in detectors:
@@ -286,8 +307,16 @@ def run_detectors(
         flag_map = detector.detect(result)
         elapsed = time.time() - start_time
 
-        flag_count = sum(len(flags) for flags in flag_map.values())
-        record_count = sum(1 for flags in flag_map.values() if flags)
+        flag_count = sum(
+            len(flags)
+            for flags in flag_map.values()
+        )
+
+        record_count = sum(
+            1
+            for flags in flag_map.values()
+            if flags
+        )
 
         print(
             f"[DETECTOR DONE] {detector_name} | "
@@ -297,56 +326,83 @@ def run_detectors(
         )
 
         flag_maps.append(flag_map)
-    # --------------------------------------------------
-    # Merge detector results
-    # --------------------------------------------------
 
     merged = merge_flags(*flag_maps)
 
-    return merge_detector_results(merged, result)
+    return merge_detector_results(
+        merged,
+        result,
+    )
 
-# --------------------------------------------------
-# Run only LLM detector
-# --------------------------------------------------
 
 def run_llm_only(
     records: list[dict],
     llm_provider: str = "ollama",
     text_fields: list[str] | None = None,
 ) -> DetectResponse:
-
     result = prepare_records(records)
 
     if not result:
-        return DetectResponse(count=0, results=[])
-
-    detector = LLMDetector(
-            provider=llm_provider,
-            text_fields=text_fields,
-            model=OLLAMA_MODEL,
-            ollama_url=OLLAMA_URL,
-            timeout=30,
+        print("[PIPELINE] LLM skipped because no records were provided.")
+        return DetectResponse(
+            count=0,
+            results=[],
+            annotated_records=[],
         )
 
+    print(
+        f"[PIPELINE] Running LLM only "
+        f"| provider={llm_provider} "
+        f"| records={len(result)}"
+    )
+
+    detector = LLMDetector(
+        provider=llm_provider,
+        text_fields=text_fields,
+        model=OLLAMA_MODEL,
+        ollama_url=OLLAMA_URL,
+        timeout=30,
+    )
+
+    print("[DETECTOR START] llm_detector")
+
+    start_time = time.time()
     flag_map = detector.detect(result)
+    elapsed = time.time() - start_time
 
-    return merge_detector_results(flag_map, result)
+    flag_count = sum(
+        len(flags)
+        for flags in flag_map.values()
+    )
 
-# --------------------------------------------------
-# Select records relevant for LLM analysis
-# --------------------------------------------------
+    record_count = sum(
+        1
+        for flags in flag_map.values()
+        if flags
+    )
+
+    print(
+        f"[DETECTOR DONE] llm_detector | "
+        f"flagged_records={record_count} | "
+        f"flags={flag_count} | "
+        f"time={elapsed:.2f}s"
+    )
+
+    return merge_detector_results(
+        flag_map,
+        result,
+    )
+
 
 def select_flagged_records(
     records: list[dict],
     fast_response: DetectResponse,
 ) -> list[dict]:
-
     flagged_ids = {
         result.id
         for result in fast_response.results
         if any(
-            getattr(flag, "type", None)
-            in LLM_RELEVANT_TYPES
+            getattr(flag, "type", None) in LLM_RELEVANT_TYPES
             for flag in result.flags
         )
     }
@@ -356,7 +412,6 @@ def select_flagged_records(
     normalized_records = normalize_records(records)
 
     for index, record in enumerate(normalized_records):
-
         record_id = get_record_id(
             record,
             index,
@@ -365,20 +420,27 @@ def select_flagged_records(
         if record_id in flagged_ids:
             selected.append(record)
 
+    print(
+        f"[PIPELINE] LLM candidate selection "
+        f"| flagged_ids={len(flagged_ids)} "
+        f"| selected_records={len(selected)}"
+    )
+
     return selected
 
-
-# --------------------------------------------------
-# Merge fast detector + LLM results
-# --------------------------------------------------
 
 def merge_chunk_results(
     fast_response: DetectResponse,
     llm_response: DetectResponse | None = None,
 ) -> list[RecordQualityResult]:
-
     if llm_response is None:
+        print("[PIPELINE] No LLM response to merge.")
         return fast_response.results
+
+    print(
+        f"[PIPELINE] Merging LLM response "
+        f"| llm_results={len(llm_response.results)}"
+    )
 
     by_id = {
         result.id: result
@@ -386,7 +448,6 @@ def merge_chunk_results(
     }
 
     for llm_result in llm_response.results:
-
         if llm_result.id in by_id:
             existing = by_id[llm_result.id]
 
@@ -405,6 +466,7 @@ def merge_chunk_results(
 
     return list(by_id.values())
 
+
 def process_records_strategically(
     records: list[dict],
     enable_quality: bool = True,
@@ -416,7 +478,14 @@ def process_records_strategically(
     llm_only_flagged: bool = True,
     training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
-    # First run all fast non-LLM detectors.
+    print(
+        f"[PIPELINE] process_records_strategically "
+        f"| enable_llm={enable_llm} "
+        f"| provider={llm_provider} "
+        f"| max_llm_records={max_llm_records} "
+        f"| llm_only_flagged={llm_only_flagged}"
+    )
+
     fast_response = run_detectors(
         records=records,
         enable_quality=enable_quality,
@@ -429,8 +498,9 @@ def process_records_strategically(
 
     llm_response = None
 
-    # Optionally run LLM only on selected records.
     if enable_llm and llm_provider != "none" and max_llm_records > 0:
+        print("[PIPELINE] LLM branch enabled.")
+
         if llm_only_flagged:
             llm_records = select_flagged_records(
                 records,
@@ -438,14 +508,27 @@ def process_records_strategically(
             )
         else:
             llm_records = records
+            print(
+                f"[PIPELINE] LLM will process all records "
+                f"| records={len(llm_records)}"
+            )
 
         llm_records = llm_records[:max_llm_records]
+
+        print(
+            f"[PIPELINE] Sending records to LLM "
+            f"| records={len(llm_records)}"
+        )
 
         if llm_records:
             llm_response = run_llm_only(
                 records=llm_records,
                 llm_provider=llm_provider,
             )
+        else:
+            print("[PIPELINE] LLM skipped because selected record list is empty.")
+    else:
+        print("[PIPELINE] LLM branch disabled.")
 
     return merge_chunk_results(
         fast_response=fast_response,

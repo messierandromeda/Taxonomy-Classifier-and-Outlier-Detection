@@ -16,6 +16,7 @@ MODEL_PATH = CURRENT_DIR / "models" / "hdbscan_model.pkl"
 MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 SCALER_PATH = CURRENT_DIR / "models" / "hdbscan_scaler.pkl"
 
+
 class HDBSCANGeoDetector(BaseDetector):
     name = "hdbscan_geo_detector"
 
@@ -63,29 +64,42 @@ class HDBSCANGeoDetector(BaseDetector):
 
         joblib.dump(self.scaler, SCALER_PATH)
         logging.info(f"HDBSCAN scaler successfully saved to {SCALER_PATH}")
+
         joblib.dump(self.model, MODEL_PATH)
         logging.info(f"HDBSCAN model successfully saved to {MODEL_PATH}")
 
-    def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
-        if MODEL_PATH.exists() and SCALER_PATH.exists():
-            logging.info(f"Loading trained HDBSCAN model from {MODEL_PATH} and scaler from {SCALER_PATH}...")
-            self.model = joblib.load(MODEL_PATH)
-            self.scaler = joblib.load(SCALER_PATH)
-
-        else:
-            logging.critical(f"Model file NOT found at {MODEL_PATH}! API cannot process detections.")
-                
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
-            )
-
-        df = pd.DataFrame(records)
-
+    def detect(
+        self,
+        records: List[Dict[str, Any]],
+    ) -> Dict[str, List[DetectionFlag]]:
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)
         }
+
+        if len(records) < self.min_cluster_size * 2:
+            return results
+
+        if MODEL_PATH.exists() and SCALER_PATH.exists():
+            logging.info(
+                f"Loading trained HDBSCAN model from {MODEL_PATH} "
+                f"and scaler from {SCALER_PATH}..."
+            )
+            self.model = joblib.load(MODEL_PATH)
+            self.scaler = joblib.load(SCALER_PATH)
+
+        else:
+            logging.critical(
+                f"Model file NOT found at {MODEL_PATH}! "
+                f"API cannot process detections."
+            )
+
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=UNINITIALIZED_MSG,
+            )
+
+        df = pd.DataFrame(records)
 
         required = [
             "decimalLatitude",
@@ -101,29 +115,43 @@ class HDBSCANGeoDetector(BaseDetector):
             .dropna()
         )
 
+        if len(coords) < self.min_cluster_size * 2:
+            return results
+
         X = self.scaler.transform(coords)
 
-        # obtain labels and membership strengths for all points
         try:
-            labels, strengths = hdbscan.approximate_predict(self.model, X)
+            labels, strengths = hdbscan.approximate_predict(
+                self.model,
+                X,
+            )
         except Exception:
             labels = [-1] * len(X)
             strengths = [0.0] * len(X)
 
-        # Outliers are flagged as -1; use membership strength to compute score
-        for row_index, label, strength in zip(coords.index, labels, strengths):
+        for row_index, label, strength in zip(
+            coords.index,
+            labels,
+            strengths,
+        ):
             if label != -1:
                 continue
 
-            record_id = get_record_id(records[row_index], row_index)
+            record_id = get_record_id(
+                records[row_index],
+                row_index,
+            )
 
-            # membership strength in [0,1] -> lower strength => more outlier-like
             try:
                 strength_val = float(strength)
             except Exception:
                 strength_val = 0.0
 
-            score = max(0.0, min(1.0, 1.0 - strength_val))
+            score = max(
+                0.0,
+                min(1.0, 1.0 - strength_val),
+            )
+
             severity = "medium" if score < 0.85 else "high"
 
             results[record_id].append(
@@ -138,8 +166,12 @@ class HDBSCANGeoDetector(BaseDetector):
                         "geographic cluster (HDBSCAN)."
                     ),
                     value={
-                        "decimalLatitude": records[row_index].get("decimalLatitude"),
-                        "decimalLongitude": records[row_index].get("decimalLongitude"),
+                        "decimalLatitude": records[row_index].get(
+                            "decimalLatitude"
+                        ),
+                        "decimalLongitude": records[row_index].get(
+                            "decimalLongitude"
+                        ),
                         "membership_strength": strength_val,
                     },
                 )

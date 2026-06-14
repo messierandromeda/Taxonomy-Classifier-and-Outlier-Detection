@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
 import json
+import io
+
+import pandas as pd
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body
 from fastapi.responses import StreamingResponse
-import pandas as pd
-import io
 
 from app.schemas import (
     DetectRequest,
@@ -11,8 +12,13 @@ from app.schemas import (
 )
 
 from app.pipeline import run_detectors
-from app.ollama_config import OLLAMA_MODEL, is_ollama_running, start_ollama_if_needed
+from app.ollama_config import (
+    OLLAMA_MODEL,
+    is_ollama_running,
+    start_ollama_if_needed,
+)
 from app.preprocessing.process_csv import process_csv_in_chunks
+
 
 # --------------------------------------------------
 # FastAPI lifespan hook
@@ -22,6 +28,7 @@ from app.preprocessing.process_csv import process_csv_in_chunks
 async def lifespan(app: FastAPI):
     start_ollama_if_needed()
     yield
+
 
 # --------------------------------------------------
 # FastAPI application
@@ -37,6 +44,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 @app.get("/health")
 def health():
     return {
@@ -45,13 +53,14 @@ def health():
         "ollama_model": OLLAMA_MODEL,
     }
 
+
 @app.post("/detect-json", response_model=DetectResponse)
 async def detect(
     request: DetectRequest | None = Body(default=None),
     file: UploadFile | None = File(default=None),
 ):
     if file is not None:
-        if not file.filename.endswith(".json"):
+        if not file.filename or not file.filename.endswith(".json"):
             raise HTTPException(
                 status_code=400,
                 detail="Only JSON files are supported.",
@@ -88,6 +97,7 @@ async def detect(
         training_seed=request.training_seed,
     )
 
+
 @app.post("/detect-csv")
 async def detect_csv(
     file: UploadFile = File(...),
@@ -101,7 +111,10 @@ async def detect_csv(
     download_csv: bool = False,
 ):
     if not file.filename or not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are supported.")
+        raise HTTPException(
+            status_code=400,
+            detail="Only CSV files are supported.",
+        )
 
     raw = await file.read()
 
@@ -119,6 +132,8 @@ async def detect_csv(
     if not download_csv:
         return response
 
+    df = pd.DataFrame(response.annotated_records)
+
     important_columns = [
         "HerbariumID",
         "FullNameCache",
@@ -129,19 +144,18 @@ async def detect_csv(
         "CollectionDateBegin",
         "outlier_detected",
         "outlier_status",
+        "outlier_confidence",
         "outlier_severity",
         "outlier_score",
         "outlier_primary_detector",
         "outlier_primary_field",
         "outlier_reason",
         "outlier_summary",
-        "outlier_confidence",
     ]
 
-    df = pd.DataFrame(response.annotated_records)
-
     existing_columns = [
-        column for column in important_columns
+        column
+        for column in important_columns
         if column in df.columns
     ]
 
