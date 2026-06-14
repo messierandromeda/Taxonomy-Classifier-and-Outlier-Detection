@@ -1,8 +1,10 @@
 import io
 import pandas as pd
+
 from app.schemas import DetectResponse, RecordQualityResult
 from app.utils import prepare_dataframe, apply_bgbm_columns_if_needed
-from app.pipeline import process_records_strategically
+from app.pipeline import process_records_strategically, annotate_records
+
 
 def process_csv_in_chunks(
     file_bytes: bytes,
@@ -14,15 +16,17 @@ def process_csv_in_chunks(
     llm_only_flagged: bool = True,
 ) -> DetectResponse:
     """Processes an uploaded CSV payload incrementally using configured pipelines."""
+
     all_results: list[RecordQualityResult] = []
+    all_annotated_records: list[dict] = []
     total_seen = 0
 
     chunk_reader = pd.read_csv(
-        io.BytesIO(file_bytes), 
-        chunksize=chunksize, 
-        sep=None, 
-        engine='python'
-    ) 
+        io.BytesIO(file_bytes),
+        chunksize=chunksize,
+        sep=None,
+        engine="python",
+    )
 
     for chunk in chunk_reader:
         if max_records is not None and total_seen >= max_records:
@@ -49,7 +53,17 @@ def process_csv_in_chunks(
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
         )
+
         all_results.extend(chunk_results)
+
+        all_annotated_records.extend(
+            annotate_records(records, chunk_results)
+        )
+
         total_seen += len(records)
 
-    return DetectResponse(count=len(all_results), results=all_results)
+    return DetectResponse(
+        count=len(all_results),
+        results=all_results,
+        annotated_records=all_annotated_records,
+    )

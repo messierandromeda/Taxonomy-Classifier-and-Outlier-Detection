@@ -1,25 +1,37 @@
 import time
-import logging
 from app.detectors.base import get_record_id
+
+from app.train import sample_training_records, train_detectors
 from app.detectors.rule_detector import RuleDetector
 from app.detectors.semantic_rule_detector import SemanticRuleDetector
+
 from app.detectors.iqr_detector import IQRDetector
 from app.detectors.zscore_detector import ZScoreDetector
 from app.detectors.modified_zscore_detector import ModifiedZScoreDetector
+
 from app.detectors.date_outlier_detector import DateOutlierDetector
+
 from app.detectors.isolation_forest_detector import (
     IsolationForestDetector,
 )
+
 from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 from app.detectors.llm_detector import LLMDetector
+
 from app.report import (
     merge_flags,
     calculate_record_score,
     calculate_record_severity,
 )
+
 from app.schemas import DetectResponse, RecordQualityResult
 from app.ollama_config import OLLAMA_MODEL, OLLAMA_URL
 from app.utils import add_event_year, normalize_records
+
+
+# --------------------------------------------------
+# Detector types relevant for LLM analysis
+# --------------------------------------------------
 
 LLM_RELEVANT_TYPES = {
     "invalid_coordinate_range",
@@ -51,6 +63,108 @@ def prepare_records(records: list[dict]) -> list[dict]:
     return records
 
 
+
+def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
+    if result is None or not result.flags:
+        return {
+            "outlier_detected": False,
+            "outlier_status": "clean",
+            "outlier_confidence": 0,
+            "outlier_severity": "info",
+            "outlier_score": 0,
+            "outlier_primary_detector": "",
+            "outlier_primary_field": "",
+            "outlier_primary_type": "",
+            "outlier_reason": "",
+            "outlier_summary": "",
+        }
+
+    strongest_flag = max(
+        result.flags,
+        key=lambda flag: flag.score,
+    )
+
+    confidence = round(result.score * 100)
+
+    if confidence == 0:
+        status = "clean"
+    elif confidence < 50:
+        status = "fuzzy"
+    elif confidence < 70:
+        status = "likely"
+    else:
+        status = "confirmed"
+
+    return {
+        "outlier_detected": True,
+        "outlier_status": status,
+        "outlier_confidence": confidence,
+        "outlier_severity": result.severity,
+        "outlier_score": result.score,
+        "outlier_primary_detector": strongest_flag.method,
+        "outlier_primary_field": strongest_flag.field,
+        "outlier_primary_type": strongest_flag.type,
+        "outlier_reason": strongest_flag.message,
+        "outlier_summary": (
+            f"{result.severity.capitalize()} outlier detected in "
+            f"{strongest_flag.field} by {strongest_flag.method}."
+        ),
+    }
+
+def annotate_records(
+    records: list[dict],
+    results: list[RecordQualityResult],
+) -> list[dict]:
+    by_id = {
+        result.id: result
+        for result in results
+    }
+
+    annotated = []
+    normalized_records = normalize_records(records)
+
+    for index, record in enumerate(records):
+        normalized_record = normalized_records[index]
+
+        record_id = get_record_id(
+            normalized_record,
+            index,
+        )
+
+        result = by_id.get(record_id)
+
+        new_record = dict(record)
+
+        new_record.update(
+            summarize_outlier_result(result)
+        )
+
+        flags = result.flags if result else []
+
+        new_record["outlier_flagged_fields"] = sorted(
+            {flag.field for flag in flags}
+        )
+
+        new_record["outlier_detector_methods"] = sorted(
+            {flag.method for flag in flags}
+        )
+
+        new_record["outlier_flag_types"] = sorted(
+            {flag.type for flag in flags}
+        )
+
+        new_record["outlier_explanations"] = [
+            flag.message for flag in flags
+        ]
+
+        new_record["outlier_flags"] = [
+            flag.model_dump() for flag in flags
+        ]
+
+        annotated.append(new_record)
+
+    return annotated
+
 def merge_detector_results(merged: dict, records: list[dict]) -> DetectResponse:
     results = []
 
@@ -75,9 +189,13 @@ def merge_detector_results(merged: dict, records: list[dict]) -> DetectResponse:
     return DetectResponse(
         count=len(results),
         results=results,
+        annotated_records=annotate_records(records, results),
     )
 
-# Main pipeline
+# --------------------------------------------------
+# Main detector pipeline
+# --------------------------------------------------
+
 def run_detectors(
     records: list[dict],
     enable_quality: bool = True,
@@ -85,13 +203,20 @@ def run_detectors(
     enable_semantic: bool = True,
     enable_llm: bool = False,
     llm_provider: str = "none",
+    numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
+    training_subset_size: int = 500,
+    training_seed: int = 42,
 ) -> DetectResponse:
 
     result = prepare_records(records)
 
     if not result:
         return DetectResponse(count=0, results=[])
+
+    # --------------------------------------------------
+    # Detector pipeline
+    # --------------------------------------------------
 
     quality_detectors = [
         RuleDetector(),
@@ -121,6 +246,10 @@ def run_detectors(
     if enable_outliers:
         detectors.extend(outlier_detectors)
 
+    # --------------------------------------------------
+    # Optional LLM detector
+    # --------------------------------------------------
+
     if enable_llm and llm_provider != "none":
         detectors.append(LLMDetector(
             provider=llm_provider,
@@ -130,37 +259,55 @@ def run_detectors(
             timeout=30,
         ))
 
+    if training_subset_size and training_subset_size > 0:
+        training_records = sample_training_records(
+            result,
+            subset_size=training_subset_size,
+            seed=training_seed,
+        )
+        print(
+            f"[TRAIN] Training detectors on {len(training_records)} record subset"
+        )
+        train_detectors(detectors, training_records)
+
     flag_maps = []
-    
-    logging.info(f"\n[RUN] Processing {len(result)} records")
+
+    # --------------------------------------------------
+    # Run detectors
+    # --------------------------------------------------
+    print(f"\n[RUN] Processing {len(result)} records")
 
     for detector in detectors:
-        try: 
-            detector_name = detector.name
+        detector_name = detector.name
 
-            start_time = time.time()
-            flag_map = detector.detect(result)
-            logging.info(f"[DETECTOR START] {detector_name}")
-            elapsed = time.time() - start_time
+        print(f"[DETECTOR START] {detector_name}")
 
-            flag_count = sum(len(flags) for flags in flag_map.values())
-            record_count = sum(1 for flags in flag_map.values() if flags)
+        start_time = time.time()
+        flag_map = detector.detect(result)
+        elapsed = time.time() - start_time
 
-            logging.info(
-                f"[DETECTOR DONE] {detector_name} | "
-                f"flagged_records={record_count} | "
-                f"flags={flag_count} | "
-                f"time={elapsed:.2f}s"
-            )
+        flag_count = sum(len(flags) for flags in flag_map.values())
+        record_count = sum(1 for flags in flag_map.values() if flags)
 
-            flag_maps.append(flag_map)
-        except Exception as e:
-            logging.error(f"Skipping {detector_name}: {e}")
-            continue
+        print(
+            f"[DETECTOR DONE] {detector_name} | "
+            f"flagged_records={record_count} | "
+            f"flags={flag_count} | "
+            f"time={elapsed:.2f}s"
+        )
+
+        flag_maps.append(flag_map)
+    # --------------------------------------------------
+    # Merge detector results
+    # --------------------------------------------------
 
     merged = merge_flags(*flag_maps)
 
     return merge_detector_results(merged, result)
+
+# --------------------------------------------------
+# Run only LLM detector
+# --------------------------------------------------
 
 def run_llm_only(
     records: list[dict],
@@ -184,6 +331,10 @@ def run_llm_only(
     flag_map = detector.detect(result)
 
     return merge_detector_results(flag_map, result)
+
+# --------------------------------------------------
+# Select records relevant for LLM analysis
+# --------------------------------------------------
 
 def select_flagged_records(
     records: list[dict],
@@ -215,6 +366,11 @@ def select_flagged_records(
             selected.append(record)
 
     return selected
+
+
+# --------------------------------------------------
+# Merge fast detector + LLM results
+# --------------------------------------------------
 
 def merge_chunk_results(
     fast_response: DetectResponse,
@@ -258,6 +414,7 @@ def process_records_strategically(
     llm_provider: str = "none",
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
+    training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
     # First run all fast non-LLM detectors.
     fast_response = run_detectors(
@@ -267,6 +424,7 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         llm_provider="none",
+        training_subset_size=training_subset_size,
     )
 
     llm_response = None

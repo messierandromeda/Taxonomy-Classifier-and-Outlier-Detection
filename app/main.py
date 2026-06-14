@@ -1,6 +1,10 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile, File, HTTPException, status
-import logging
+import json
+from fastapi import FastAPI, UploadFile, File, HTTPException, Body
+from fastapi.responses import StreamingResponse
+import pandas as pd
+import io
+
 from app.schemas import (
     DetectRequest,
     DetectResponse,
@@ -9,28 +13,19 @@ from app.schemas import (
 from app.pipeline import run_detectors
 from app.ollama_config import OLLAMA_MODEL, is_ollama_running, start_ollama_if_needed
 from app.preprocessing.process_csv import process_csv_in_chunks
-from app.config import UNINITIALIZED_MSG
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
-
-class HealthCheckFilter(logging.Filter):
-    def filter(self, record: logging.LogRecord) -> bool:
-        log_message = record.getMessage()
-        if "/health" in log_message and "200" in log_message:
-            return False
-        return True
-
-uvicorn_logger = logging.getLogger("uvicorn.access")
-uvicorn_logger.addFilter(HealthCheckFilter())
+# --------------------------------------------------
+# FastAPI lifespan hook
+# --------------------------------------------------
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     start_ollama_if_needed()
     yield
+
+# --------------------------------------------------
+# FastAPI application
+# --------------------------------------------------
 
 app = FastAPI(
     title="Biodiv Outlier and Data-Quality Detection Service",
@@ -50,8 +45,36 @@ def health():
         "ollama_model": OLLAMA_MODEL,
     }
 
-@app.post("/detect", response_model=DetectResponse)
-def detect(request: DetectRequest):
+@app.post("/detect-json", response_model=DetectResponse)
+async def detect(
+    request: DetectRequest | None = Body(default=None),
+    file: UploadFile | None = File(default=None),
+):
+    if file is not None:
+        if not file.filename.endswith(".json"):
+            raise HTTPException(
+                status_code=400,
+                detail="Only JSON files are supported.",
+            )
+
+        raw = await file.read()
+
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid JSON file.",
+            )
+
+        request = DetectRequest(**data)
+
+    if request is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide JSON body or JSON file upload.",
+        )
+
     return run_detectors(
         records=request.records,
         enable_quality=request.enable_quality,
@@ -65,19 +88,7 @@ def detect(request: DetectRequest):
         training_seed=request.training_seed,
     )
 
-@app.post(
-    "/detect-csv", 
-    response_model=DetectResponse,
-    responses={
-        status.HTTP_503_SERVICE_UNAVAILABLE: {
-            "description": "Returned when the outlier detection models are not trained yet.",
-            "content": {
-                "application/json": {
-                    "example": {"detail": UNINITIALIZED_MSG}
-                }
-            }
-        }
-    })
+@app.post("/detect-csv")
 async def detect_csv(
     file: UploadFile = File(...),
     enable_llm: bool = False,
@@ -86,13 +97,15 @@ async def detect_csv(
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
+    training_subset_size: int = 500,
+    download_csv: bool = False,
 ):
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="Only CSV files are supported.")
 
     raw = await file.read()
-    
-    return process_csv_in_chunks(
+
+    response = process_csv_in_chunks(
         file_bytes=raw,
         enable_llm=enable_llm,
         llm_provider=llm_provider,
@@ -100,4 +113,48 @@ async def detect_csv(
         max_records=max_records,
         max_llm_records=max_llm_records,
         llm_only_flagged=llm_only_flagged,
+        training_subset_size=training_subset_size,
+    )
+
+    if not download_csv:
+        return response
+
+    important_columns = [
+        "HerbariumID",
+        "FullNameCache",
+        "Country",
+        "Locality",
+        "Latitude",
+        "Longitude",
+        "CollectionDateBegin",
+        "outlier_detected",
+        "outlier_status",
+        "outlier_severity",
+        "outlier_score",
+        "outlier_primary_detector",
+        "outlier_primary_field",
+        "outlier_reason",
+        "outlier_summary",
+        "outlier_confidence",
+    ]
+
+    df = pd.DataFrame(response.annotated_records)
+
+    existing_columns = [
+        column for column in important_columns
+        if column in df.columns
+    ]
+
+    df = df[existing_columns]
+
+    stream = io.StringIO()
+    df.to_csv(stream, index=False)
+    stream.seek(0)
+
+    return StreamingResponse(
+        iter([stream.getvalue()]),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=annotated_output.csv"
+        },
     )

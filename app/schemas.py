@@ -59,3 +59,4 @@ class DetectRequest(BaseModel):
 class DetectResponse(BaseModel):
     count: int
     results: List[RecordQualityResult]
+    annotated_records: Optional[List[Dict[str, Any]]] = None
