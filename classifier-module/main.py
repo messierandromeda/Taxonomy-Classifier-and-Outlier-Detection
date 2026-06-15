@@ -23,13 +23,15 @@ async def classify_csv(
         raise HTTPException(status_code=400, detail='Only CSV files are supported.')
 
     df = pd.read_csv(io.BytesIO(input), sep=None, engine='python')
-    output = process_csv(df, use_ollama)
+    output = await process_csv(df, use_ollama)
 
     output_df = pd.DataFrame(output)
     csv_string = output_df.to_csv(index=False, sep=';')
 
     return Response(
         content=csv_string,
-        media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename=processed_{file.filename}"}
+        media_type='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=processed_{file.filename}'}
     )
+
+

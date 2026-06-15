@@ -143,6 +143,7 @@ class BatchClassifyRequest(BaseModel):
     texts: list[str]
     top_k: int = 5
     model: str = "gpt-4o-mini"
+    use_ollama: bool = False
 
     @validator("texts")
     def texts_bounds(cls, v):
@@ -210,7 +211,7 @@ async def classify_text(req: ClassifyRequest):
 @app.post("/classify/batch", response_model=list[ClassifyResponse])
 async def classify_batch(req: BatchClassifyRequest):
     results = await asyncio.gather(
-        *[_classify_single(text, req.top_k, req.model) for text in req.texts],
+        *[_classify_single(text, req.top_k, req.model, req.use_ollama) for text in req.texts],
         return_exceptions=True,
     )
     for r in results:
