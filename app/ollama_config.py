@@ -16,6 +16,7 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
 # --------------------------------------------------
 
 def is_ollama_running() -> bool:
+    """Return True when the configured Ollama server responds successfully."""
     try:
         response = requests.get(
             OLLAMA_URL,
@@ -32,6 +33,7 @@ def is_ollama_running() -> bool:
 # --------------------------------------------------
 
 def start_ollama_if_needed() -> None:
+    """Attempt to start the Ollama service if it is not already running."""
     if is_ollama_running():
         print("Ollama is already running.")
         return

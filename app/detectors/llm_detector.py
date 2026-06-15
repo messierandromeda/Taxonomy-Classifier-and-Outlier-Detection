@@ -9,6 +9,12 @@ from app.preprocessing.bgbm_normalizer import normalize_bgbm_record
 
 
 class LLMDetector:
+    """Performs semantic inconsistency detection using an LLM backend.
+
+    The detector builds a concise JSON prompt from key text fields and sends it
+    to the configured Ollama service for semantic analysis.
+    """
+
     method_name = "llm_detector"
 
     def __init__(
@@ -43,6 +49,7 @@ class LLMDetector:
         self.timeout = timeout
 
     def detect(self, records: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+        """Run the LLM-based semantic detector on a list of records."""
         results: dict[str, list[dict[str, Any]]] = {}
 
         if self.provider != "ollama":
@@ -86,6 +93,7 @@ class LLMDetector:
         return results
 
     def _shorten_text(self, value: Any, max_chars: int = 180) -> Any:
+        """Truncate long text values for safe prompt construction and output."""
         if not isinstance(value, str):
             return value
 
@@ -97,6 +105,7 @@ class LLMDetector:
         return value[:max_chars] + "..."
 
     def _build_relevant_record(self, record: dict[str, Any]) -> dict[str, Any]:
+        """Build a reduced record containing only relevant text fields for LLM input."""
         relevant_record = {}
 
         for field in self.text_fields:
@@ -120,6 +129,7 @@ class LLMDetector:
         return relevant_record
 
     def _ask_ollama(self, record: dict[str, Any]) -> tuple[bool, str, float]:
+        """Send the record prompt to Ollama and parse the semantic inconsistency result."""
         relevant_record = self._build_relevant_record(record)
 
         prompt = f"""
@@ -217,6 +227,10 @@ Record:
             return False, f"LLM check failed: {exc}", 0.0
 
     def _extract_json(self, text: str) -> dict[str, Any]:
+        """Extract a JSON object from raw model output text.
+
+        Falls back to heuristics if the response is not strictly valid JSON.
+        """
         try:
             return json.loads(text)
         except json.JSONDecodeError:

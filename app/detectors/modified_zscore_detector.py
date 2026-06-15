@@ -13,6 +13,7 @@ PATH = CURRENT_DIR / "models" / "modified-z-score.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class ModifiedZScoreDetector(BaseDetector):
+    """Detects numeric outliers using the modified z-score robust statistic."""
     name = "modified_zscore_detector"
 
     def __init__(
@@ -28,6 +29,7 @@ class ModifiedZScoreDetector(BaseDetector):
         self.cached_stats: Dict[str, Dict[str, float]] = {}
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Compute median and MAD values for configured numeric fields."""
         df = pd.DataFrame(records)
         self.cached_stats = {}
 
@@ -56,6 +58,7 @@ class ModifiedZScoreDetector(BaseDetector):
             json.dump(self.cached_stats, f, indent=4)
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag records with large modified z-scores indicating robust outliers."""
         if PATH.exists():
             logging.info(f"Loading z-score data from {PATH}...")
             with open(PATH, "r", encoding="utf-8") as f:

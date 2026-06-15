@@ -7,6 +7,7 @@ from app.detectors.base import BaseDetector, get_record_id
 
 
 class SemanticRuleDetector(BaseDetector):
+    """Detects higher-level semantic contradictions in habitat, locality, and species."""
     name = "semantic_rule_detector"
 
     SPECIES_HABITAT_RULES = {
@@ -109,6 +110,7 @@ class SemanticRuleDetector(BaseDetector):
         self,
         records: List[Dict[str, Any]],
     ) -> Dict[str, List[DetectionFlag]]:
+        """Evaluate records for semantic contradictions using rule-based text matching."""
 
         results = {
             get_record_id(record, index): []
@@ -219,6 +221,7 @@ class SemanticRuleDetector(BaseDetector):
         combined_text: str,
         record: Dict[str, Any],
     ) -> DetectionFlag | None:
+        """Check species-specific habitat contradiction rules and return a flag."""
 
         for species_name, rule in self.SPECIES_HABITAT_RULES.items():
             if species_name not in scientific_name:
@@ -243,6 +246,7 @@ class SemanticRuleDetector(BaseDetector):
 
     @staticmethod
     def _norm(value: Any) -> str:
+        """Normalize a text value for case-insensitive keyword matching."""
         if value is None:
             return ""
 
@@ -268,6 +272,7 @@ class SemanticRuleDetector(BaseDetector):
         text: str,
         terms: List[str],
     ) -> bool:
+        """Return True when any normalized term appears in the text."""
 
         normalized_terms = [
             cls._norm(term)
@@ -281,6 +286,7 @@ class SemanticRuleDetector(BaseDetector):
 
     @staticmethod
     def _is_future_date(value: Any) -> bool:
+        """Return True when a value represents a future date."""
         if value is None:
             return False
 

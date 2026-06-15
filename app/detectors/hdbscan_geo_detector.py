@@ -18,6 +18,13 @@ SCALER_PATH = CURRENT_DIR / "models" / "hdbscan_scaler.pkl"
 
 
 class HDBSCANGeoDetector(BaseDetector):
+    """Detector that uses HDBSCAN on geographic coordinates to identify spatial outliers.
+
+    The detector trains an HDBSCAN model on numeric latitude/longitude pairs and uses
+    approximate cluster prediction to locate coordinate records that do not belong to
+    any dense geographic cluster.
+    """
+
     name = "hdbscan_geo_detector"
 
     def __init__(
@@ -25,12 +32,29 @@ class HDBSCANGeoDetector(BaseDetector):
         min_cluster_size: int = 5,
         min_samples: int = 4,
     ):
+        """Initialize the detector with clustering hyperparameters.
+
+        Args:
+            min_cluster_size: Minimum number of points to form an HDBSCAN cluster.
+            min_samples: Minimum number of samples used for core distance estimation.
+        """
         self.min_cluster_size = min_cluster_size
         self.min_samples = min_samples
         self.scaler: StandardScaler | None = None
         self.model: Any | None = None
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Fit the geographic clustering model and persist the scaler and model files.
+
+        The training pipeline:
+        1. Converts records into a DataFrame.
+        2. Validates that latitude and longitude fields exist.
+        3. Converts coordinate fields to numeric values and drops invalid rows.
+        4. Requires at least twice the minimum cluster size to proceed.
+        5. Fits a StandardScaler to normalize coordinates.
+        6. Trains HDBSCAN on the scaled coordinates.
+        7. Saves the trained scaler and model to disk for later detection.
+        """
         if hdbscan is None:
             return
 
@@ -72,6 +96,20 @@ class HDBSCANGeoDetector(BaseDetector):
         self,
         records: List[Dict[str, Any]],
     ) -> Dict[str, List[DetectionFlag]]:
+        """Detect coordinate records that are spatial outliers relative to trained clusters.
+
+        Detection steps:
+        1. Initialize a result map for every record.
+        2. Return early if there are too few records to evaluate.
+        3. Load the persisted scaler and HDBSCAN model from disk.
+        4. Convert required coordinate fields to numeric values.
+        5. Transform coordinates with the loaded scaler.
+        6. Use HDBSCAN approximate prediction to obtain cluster labels and membership strengths.
+        7. Flag records labeled -1 as outliers and compute a severity score from membership strength.
+
+        Returns:
+            A mapping from record identifiers to a list of DetectionFlag objects.
+        """
         results = {
             get_record_id(record, index): []
             for index, record in enumerate(records)

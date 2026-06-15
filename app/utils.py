@@ -41,6 +41,10 @@ BGBM_COLUMNS = [
 # --------------------------------------------------
 
 def extract_year(value: Any) -> int | None:
+    """Extract a four-digit year from a variety of date string formats.
+
+    Supports ISO date strings, European date formats, and simple year-only values.
+    """
     if value is None:
         return None
 
@@ -81,6 +85,7 @@ def extract_year(value: Any) -> int | None:
 # --------------------------------------------------
 
 def normalize_records(records: list[dict]) -> list[dict]:
+    """Normalize all records into the internal BGBM-derived schema."""
     return [
         normalize_bgbm_record(record)
         for record in records
@@ -92,6 +97,7 @@ def normalize_records(records: list[dict]) -> list[dict]:
 # --------------------------------------------------
 
 def add_event_year(records: list[dict]) -> list[dict]:
+    """Add a derived `eventYear` field based on collection or event date strings."""
     for record in records:
         record["eventYear"] = extract_year(
             record.get("collectionDateBegin")
@@ -106,6 +112,7 @@ def add_event_year(records: list[dict]) -> list[dict]:
 # --------------------------------------------------
 
 def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Replace pandas missing values with Python None for downstream processing."""
     return df.where(pd.notnull(df), None)
 
 
@@ -116,6 +123,7 @@ def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 def apply_bgbm_columns_if_needed(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Assign BGBM header names to a CSV chunk if it lacks explicit column labels."""
 
     if all(isinstance(col, int) for col in df.columns):
 

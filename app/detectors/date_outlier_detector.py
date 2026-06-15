@@ -14,6 +14,12 @@ PATH = CURRENT_DIR / "models" / "date_outlier.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class DateOutlierDetector(BaseDetector):
+    """Detects anomalous collection years using z-score and IQR logic.
+
+    This detector computes statistical summaries from configured date fields and
+    flags records with years that are unusually far from the dataset distribution.
+    """
+
     name = "date_outlier_detector"
 
     def __init__(
@@ -30,6 +36,11 @@ class DateOutlierDetector(BaseDetector):
         self.cached_stats: Dict[str, Dict[str, float]] = {}
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Compute summary statistics for configured date fields.
+
+        Stores mean, standard deviation, quartiles and IQR fences for later
+        outlier detection.
+        """
         self.cached_stats = {}
 
         for field in self.date_fields:
@@ -67,6 +78,7 @@ class DateOutlierDetector(BaseDetector):
             json.dump(self.cached_stats, f, indent=4)
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag records with anomalous years based on precomputed date statistics."""
         if PATH.exists():
             logging.info(f"Loading z-score data from {PATH}...")
             with open(PATH, "r", encoding="utf-8") as f:
@@ -168,6 +180,11 @@ class DateOutlierDetector(BaseDetector):
         return results
 
     def _extract_year(self, value: Any) -> int | None:
+        """Extract a year integer from a date-like value.
+
+        Supports several common date formats and fallback to the first four
+        digits when parsing fails.
+        """
         if value is None:
             return None
 

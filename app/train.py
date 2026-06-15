@@ -22,6 +22,7 @@ def sample_training_records(
     subset_size: int = 500,
     seed: int = 42,
 ) -> List[Dict[str, object]]:
+    """Randomly sample a reproducible subset of records for detector training."""
     if subset_size <= 0 or not records:
         return []
 
@@ -36,6 +37,11 @@ def train_detectors(
     detectors: list[BaseDetector],
     records: List[Dict[str, object]],
 ) -> None:
+    """Train each detector on the provided record set, ignoring failures.
+
+    Some detectors may be unable to train on a given dataset; failures are
+    logged and skipped so the pipeline can continue.
+    """
     for detector in detectors:
         try:
             detector.train(records)
@@ -51,6 +57,11 @@ def run_training(
     training_subset_size: int = 500,
     training_seed: int = 42,
 ):
+    """Prepare records and train the offline detector ensemble.
+
+    This helper normalizes input records, samples a training subset, and
+    executes model/statistic training for each applicable detector.
+    """
     result = prepare_records(records)
 
     outlier_detectors = [

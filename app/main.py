@@ -47,6 +47,11 @@ app = FastAPI(
 
 @app.get("/health")
 def health():
+    """Health check endpoint for the API.
+
+    Returns the service status, whether Ollama is reachable, and the configured
+    Ollama model name.
+    """
     return {
         "status": "ok",
         "ollama_running": is_ollama_running(),
