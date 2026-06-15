@@ -1,231 +1,127 @@
-# Biodiv Outlier and Data-Quality Detection Service
+# Outlier and Data-Quality Detection Service
 
-REST service for biodiversity data-quality validation, statistical outlier detection, and semantic consistency analysis.
+A production-ready REST API for biodiversity data-quality validation, statistical outlier detection, and semantic consistency analysis.
 
-The project is designed for herbarium and biodiversity datasets such as BGBM specimen exports and supports both structured validation and optional LLM-based semantic analysis.
-
----
-
-# Features
-
-The service combines multiple independent detector types:
-
-## Quality Detectors
-
-Rule-based validation for hard data-quality constraints.
-
-### `RuleDetector`
-
-Checks:
-
-- missing mandatory fields
-- invalid latitude/longitude ranges
-- invalid date formats
-- invalid URL formats
-- invalid barcode formats
-- taxonomic inconsistencies
-- coordinate completeness
-- date ordering problems
-- identifier consistency
+Designed for herbarium and biodiversity datasets (e.g., BGBM specimen exports), the service combines rule-based validation, statistical anomaly detection, semantic rule checking, and optional LLM-based analysis into a modular detection pipeline.
 
 ---
 
-## Statistical Outlier Detectors
+## Overview
 
-Dataset-dependent anomaly detection.
+The detection pipeline processes biodiversity specimen records through multiple independent detector stages:
 
-### `IQRDetector`
+1. **Quality Detection** — rule-based validation for hard constraints
+2. **Statistical Detection** — univariate and multivariate outlier analysis
+3. **Semantic Detection** — ecological and textual inconsistency checking
+4. **LLM Detection** (optional) — semantic analysis via Ollama
 
-Univariate outlier detection using interquartile range fences.
-
-Typical use cases:
-
-- unusual latitude values
-- unusual longitude values
-- numeric field anomalies
+**See [Detectors.md](Detectors.md) for detailed descriptions of all 9 detector types, their algorithms, configuration options, and performance characteristics.**
 
 ---
 
-### `ZScoreDetector`
+## Project Structure
 
-Univariate statistical outlier detection using z-scores.
+```
+app/
+├── __init__.py
+├── config.py                 # Configuration constants
+├── main.py                   # FastAPI application
+├── ollama_config.py          # Ollama service integration
+├── pipeline.py               # Main detection pipeline
+├── report.py                 # Result aggregation and scoring
+├── schemas.py                # Pydantic models (DetectionFlag, results)
+├── train.py                  # Offline detector training
+├── utils.py                  # Data normalization utilities
+│
+├── detectors/                # Detector implementations
+│   ├── base.py               # BaseDetector abstract class
+│   ├── rule_detector.py      # RuleDetector (syntactic validation)
+│   ├── semantic_rule_detector.py  # SemanticRuleDetector (ecological rules)
+│   ├── iqr_detector.py       # IQRDetector (interquartile range)
+│   ├── zscore_detector.py    # ZScoreDetector (z-score analysis)
+│   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
+│   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
+│   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
+│   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
+│   ├── llm_detector.py       # LLMDetector (semantic via LLM)
+│   │
+│   └── models/               # Persisted detector models
+│       ├── z-score.json
+│       ├── modified-z-score.json
+│       ├── iqr_detector.json
+│       ├── date_outlier.json
+│       ├── isolation_forest_scaler.pkl
+│       ├── isolation_forest_model.pkl
+│       ├── hdbscan_scaler.pkl
+│       └── hdbscan_model.pkl
+│
+└── preprocessing/            # Data preprocessing utilities
+    ├── bgbm_normalizer.py    # BGBM field normalization
+    └── process_csv.py        # Chunked CSV processing
 
----
+tests/
+├── test_service.py           # Integration tests
 
-### `ModifiedZScoreDetector`
-
-Robust outlier detection using median absolute deviation.
-
-Less sensitive to skewed distributions and clustered biodiversity data.
-
----
-
-### `DateOutlierDetector`
-
-Detects suspicious collection years using:
-
-- z-score analysis
-- IQR-based year outlier detection
-
-Small historical year deviations are ignored to reduce false positives.
-
----
-
-### `IsolationForestDetector`
-
-Multivariate anomaly detection using Isolation Forest.
-
-Can analyze combinations such as:
-
-- latitude + longitude
-
----
-
-### `HDBSCANGeoDetector`
-
-Density-based geographic cluster outlier detection.
-
-Useful for:
-
-- isolated coordinate records
-- geographically implausible clusters
-- coordinate noise
-
----
-
-## Semantic and Ecological Validation
-
-### `SemanticRuleDetector`
-
-Detects ecological and textual inconsistencies such as:
-
-- desert species in aquatic habitats
-- marine organisms in inland environments
-- locality/country contradictions
-- implausible habitat combinations
-- future collection dates
-
----
-
-## Optional LLM Semantic Validation
-
-### `LLMDetector`
-
-Optional semantic analysis using local or remote language models.
-
-Supported providers:
-
-- Ollama
-- Hugging Face (optional)
-
-The detector analyzes semantic relationships between:
-
-- taxonomy
-- habitat
-- locality
-- coordinates
-- country
-- dates
-- free-text notes
-
-The LLM detector is conservative and tries to reduce false positives.
-
----
-
-# Supported Input Formats
-
-The service supports:
-
-- JSON payloads
-- CSV uploads
-- local CSV test files
-- local JSON test files
-
----
-
-# API Endpoints
-
-## Health Check
-
-```http
-GET /health
+docker-compose.yml
+Dockerfile
+requirements.txt
+README.md
+Detectors.md
 ```
 
-Returns service and Ollama status.
+---
+
+# Installation and Setup
+
+## Prerequisites
+
+- Python 3.13
+- Docker and Docker Compose (optional)
+- Ollama (for LLM detection)
 
 ---
 
-## Detect From JSON
+## Docker Setup
 
-```http
-POST /detect
+### Build and Start
+
+```bash
+docker compose up --build
 ```
 
-Accepts biodiversity records directly as JSON.
+This starts:
+- FastAPI service on `http://localhost:8000`
+- Ollama service (if configured)
 
----
+### Access Swagger UI
 
-## Detect From CSV Upload
-
-```http
-POST /detect-csv
+```
+http://localhost:8000/docs
 ```
 
-Accepts CSV uploads and processes them in chunks.
-
-Supports:
-
-- chunked processing
-- optional LLM filtering
-- configurable LLM limits
-
 ---
 
-## Detect Local JSON File
+## Local Development Setup
 
-```http
-GET /detect-local-json
-```
-
-Loads and processes the configured local JSON test file.
-
----
-
-## Detect Local CSV File
-
-```http
-GET /detect-local-csv
-```
-
-Loads and processes the configured local CSV test file.
-
----
-
-# Run Locally
-
-## Create Environment
+### Create Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-Activate environment:
+### Activate Environment
 
-### Linux/macOS
-
+**Linux/macOS:**
 ```bash
 source .venv/bin/activate
 ```
 
-### Windows
-
+**Windows:**
 ```powershell
 .venv\Scripts\activate
 ```
 
----
-
-## Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -233,64 +129,7 @@ pip install -r requirements.txt
 
 ---
 
-## Start Service
-
-```bash
-uvicorn app.main:app --reload
-```
-
----
-
-## Open Swagger UI
-
-```text
-http://127.0.0.1:8000/docs
-```
-
----
-
-# Example JSON Request
-
-```json
-{
-  "enable_llm": true,
-  "llm_provider": "ollama",
-  "records": [
-    {
-      "HerbariumID": "TEST-001",
-      "FullNameCache": "Quercus robur L.",
-      "Country": "Germany",
-      "Locality": "Berlin desert",
-      "Latitude": 52.52,
-      "Longitude": 13.405,
-      "FundortUNdOeko": "tropical rainforest"
-    }
-  ]
-}
-```
-
----
-
-# Example CSV Upload
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect-csv" \
-  -F "file=@data.csv"
-```
-
----
-
-# Example JSON Upload
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect" \
-  -H "Content-Type: application/json" \
-  --data @sample_records_payload.json
-```
-
----
-
-# LLM Mode With Ollama
+### LLM Mode With Ollama
 
 Install Ollama locally:
 
@@ -303,77 +142,282 @@ The service automatically checks whether Ollama is reachable during startup.
 
 ---
 
-# LLM Mode With Hugging Face
-
-Optional dependencies:
+## Start Service
 
 ```bash
-pip install transformers torch
+uvicorn app.main:app --reload
 ```
 
-Example:
+The API is available at `http://127.0.0.1:8000/docs`
 
+---
+
+## Supported Input Formats
+
+The API accepts:
+
+- JSON payloads with record objects
+- CSV file uploads (with automatic chunked processing)
+- BGBM-compatible CSV formats (with or without headers)
+
+---
+
+## API Endpoints
+
+### Health Check
+
+```http
+GET /health
+```
+
+Returns service status and Ollama connectivity.
+
+**Response:**
 ```json
 {
-  "enable_llm": true,
-  "llm_provider": "huggingface",
-  "records": [...]
+  "status": "ok",
+  "ollama_running": true,
+  "ollama_model": "llama3.2:3b"
 }
 ```
 
 ---
 
-# Docker
+### Detect From JSON
 
-## Build and Start
+```http
+POST /detect-json
+```
+
+Accepts biodiversity records directly as JSON body or file upload.
+
+**Request (JSON body):**
+```json
+{
+  "records": [
+    {
+      "id": "SPEC-001",
+      "scientificName": "Quercus robur L.",
+      "country": "Germany",
+      "locality": "Berlin",
+      "decimalLatitude": 52.52,
+      "decimalLongitude": 13.405,
+      "collectionDateBegin": "2020-06-15",
+      "family": "Fagaceae",
+      "genus": "Quercus"
+    }
+  ],
+  "enable_quality": true,
+  "enable_outliers": true,
+  "enable_semantic": true,
+  "enable_llm": false,
+  "llm_provider": "none",
+  "training_subset_size": 500,
+  "training_seed": 42
+}
+```
+
+**Parameters:**
+- `records` (required): List of record objects
+- `enable_quality` (default: true): Enable rule-based quality checks
+- `enable_outliers` (default: true): Enable statistical outlier detection
+- `enable_semantic` (default: true): Enable semantic rule checking
+- `enable_llm` (default: false): Enable LLM-based semantic analysis
+- `llm_provider` (default: "none"): LLM provider ("ollama")
+- `numeric_fields` (optional): Fields to analyze for numeric outliers
+- `text_fields` (optional): Fields to include in LLM analysis
+- `training_subset_size` (default: 500): Records to use for training detectors
+- `training_seed` (default: 42): Randomization seed for consistent training
+
+**Response:**
+```json
+{
+  "count": 1,
+  "results": [
+    {
+      "id": "SPEC-001",
+      "severity": "low",
+      "score": 0.35,
+      "flags": [
+        {
+          "field": "locality",
+          "method": "semantic_rule_detector",
+          "type": "suspicious_locality",
+          "severity": "low",
+          "score": 0.35,
+          "message": "Locality contains unusual keywords.",
+          "value": "Berlin"
+        }
+      ]
+    }
+  ],
+  "annotated_records": [
+    {
+      "id": "SPEC-001",
+      "scientificName": "Quercus robur L.",
+      "outlier_detected": true,
+      "outlier_status": "likely",
+      "outlier_confidence": 35,
+      "outlier_severity": "low",
+      "outlier_score": 0.35,
+      "outlier_primary_detector": "semantic_rule_detector",
+      "outlier_primary_field": "locality",
+      "outlier_reason": "Locality contains unusual keywords.",
+      "outlier_summary": "Low outlier detected in locality by semantic_rule_detector."
+    }
+  ]
+}
+```
+
+---
+
+### Detect From CSV Upload
+
+```http
+POST /detect-csv
+```
+
+Accepts CSV file uploads and processes them in configurable chunks.
+
+**Query Parameters:**
+- `enable_llm` (default: false): Enable LLM analysis
+- `llm_provider` (default: "none"): LLM provider ("ollama")
+- `chunksize` (default: 1000): Records per chunk
+- `max_records` (optional): Maximum total records to process
+- `max_llm_records` (default: 25): Maximum records to send to LLM
+- `llm_only_flagged` (default: true): Only analyze flagged records with LLM
+- `training_subset_size` (default: 500): Records for training
+- `download_csv` (default: false): Return results as CSV download
+
+**Example:**
+```bash
+curl -X POST "http://127.0.0.1:8000/detect-csv?enable_llm=true&download_csv=true" \
+  -F "file=@herbarium_data.csv"
+```
+
+---
+
+## Training Detectors
+
+Detectors that use statistics or models must be trained on your dataset before inference:
 
 ```bash
-docker compose up --build
+python -m app.train
+```
+
+This script:
+- Loads training data from `data/train.csv`
+- Samples a subset for efficiency
+- Trains and persists models to `app/detectors/models/`
+
+Training is optional for rule-based detectors (RuleDetector, SemanticRuleDetector).
+
+---
+
+# Configuration
+
+## Environment Variables
+
+```bash
+OLLAMA_URL=http://localhost:11434       # Ollama service URL
+OLLAMA_MODEL=llama3.2:3b                # Model name for LLM detection
+```
+
+## Detector Hyperparameters
+
+See `app/pipeline.py` for configurable detector parameters:
+
+- IQR multiplier (k)
+- Z-score thresholds
+- HDBSCAN cluster size
+- Isolation Forest contamination
+- Date year distance tolerances
+
+---
+
+# Data Format
+
+The service expects records with optional BGBM-derived fields:
+
+**Coordinate fields:**
+- `decimalLatitude`, `decimalLongitude`
+
+**Date fields:**
+- `collectionDateBegin`, `collectionDateEnd`, `eventDate`, `eventYear`
+
+**Taxonomy:**
+- `scientificName`, `scientificNameFull`, `genus`, `family`
+
+**Location:**
+- `country`, `locality`, `habitat`, `fundortUndOeko`
+
+**Identifiers:**
+- `id`, `occurrenceID`, `catalogNumber`, `barcode`, `stableUri`
+
+**Metadata:**
+- `collector`, `collectorNumber`, `collectorNotes`, `labelText`, `expedition`
+
+---
+
+# Example Requests
+
+## JSON Request
+
+```bash
+curl -X POST "http://127.0.0.1:8000/detect-json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "records": [
+      {
+        "scientificName": "Quercus robur",
+        "country": "Germany",
+        "decimalLatitude": 52.52,
+        "decimalLongitude": 13.405,
+        "collectionDateBegin": "2020-06-15"
+      }
+    ],
+    "enable_llm": false
+  }'
+```
+
+## CSV Upload
+
+```bash
+curl -X POST "http://127.0.0.1:8000/detect-csv?download_csv=true" \
+  -F "file=@biodiversity_data.csv"
 ```
 
 ---
 
-## Open API
+# Output Format
 
-```text
-http://localhost:8000/docs
-```
+All endpoints return a `DetectResponse` with:
+
+- **count**: Number of records processed
+- **results**: List of `RecordQualityResult` objects
+- **annotated_records** (optional): Original records with outlier annotations
+
+Each `DetectionFlag` contains:
+
+- `field`: Affected field name
+- `method`: Detector method
+- `type`: Flag type (e.g., "invalid_coordinate_range", "coordinate_iqr_outlier")
+- `severity`: "info", "low", "medium", "high", or "critical"
+- `score`: Confidence (0.0–1.0)
+- `message`: Human-readable explanation
+- `value`: Field value or additional context
 
 ---
 
-# Project Structure
+# Development and Testing
 
-```text
-project/
-│
-├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── schemas.py
-│   ├── report.py
-│   │
-│   ├── detectors/
-│   │   ├── base.py
-│   │   ├── rule_detector.py
-│   │   ├── iqr_detector.py
-│   │   ├── zscore_detector.py
-│   │   ├── modified_zscore_detector.py
-│   │   ├── date_outlier_detector.py
-│   │   ├── isolation_forest_detector.py
-│   │   ├── dbscan_detector.py
-│   │   ├── semantic_rule_detector.py
-│   │   └── llm_detector.py
-│   │
-│   └── preprocessing/
-│       └── bgbm_normalizer.py
-│
-├── tests/
-├── test_daten/
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
+Tests are located in `tests/test_service.py`:
+
+```bash
+pytest
 ```
+
+Configure pytest with `pytest.ini`.
 
 ---
 
@@ -427,24 +471,3 @@ The pipeline currently supports:
 - geographic plausibility
 - habitat consistency
 - semantic LLM analysis
-
----
-
-# Important Notes
-
-This project is currently a research-oriented starter implementation and not yet a fully evaluated scientific production system.
-
-Possible future improvements:
-
-- country polygon validation
-- GeoJSON-based coordinate checks
-- biodiversity ontology integration
-- embedding-based semantic similarity
-- precision/recall/F1 evaluation
-- larger benchmark datasets
-- stronger taxonomy validation
-- habitat knowledge bases
-- asynchronous LLM batching
-- nf-core compatible packaging
-- CI/CD integration
-- additional unit and integration tests
