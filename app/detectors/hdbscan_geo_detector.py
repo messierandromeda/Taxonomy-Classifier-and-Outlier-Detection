@@ -77,7 +77,7 @@ class HDBSCANGeoDetector(BaseDetector):
             for index, record in enumerate(records)
         }
 
-        if len(records) < self.min_cluster_size * 2:
+        if not records:
             return results
 
         if MODEL_PATH.exists() and SCALER_PATH.exists():
@@ -115,7 +115,7 @@ class HDBSCANGeoDetector(BaseDetector):
             .dropna()
         )
 
-        if len(coords) < self.min_cluster_size * 2:
+        if coords.empty:
             return results
 
         X = self.scaler.transform(coords)
@@ -125,9 +125,12 @@ class HDBSCANGeoDetector(BaseDetector):
                 self.model,
                 X,
             )
-        except Exception:
-            labels = [-1] * len(X)
-            strengths = [0.0] * len(X)
+        except Exception as exc:
+            logging.warning(
+                f"HDBSCAN prediction failed. "
+                f"No HDBSCAN flags will be emitted for this batch: {exc}"
+            )
+            return results
 
         for row_index, label, strength in zip(
             coords.index,

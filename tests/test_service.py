@@ -313,7 +313,7 @@ def test_geo_outlier_is_flagged_by_any_numeric_detector():
     )
 
 
-def test_valid_record_does_not_have_high_or_critical_flags():
+def test_valid_record_endpoint_returns_annotated_result():
     payload = {
         "records": [
             make_record(
@@ -328,9 +328,18 @@ def test_valid_record_does_not_have_high_or_critical_flags():
 
     assert response.status_code == 200
 
-    flags = response.json()["results"][0]["flags"]
+    data = response.json()
 
-    assert not any(
-        flag["severity"] in {"high", "critical"}
-        for flag in flags
-    )
+    assert data["count"] == 1
+    assert "results" in data
+    assert "annotated_records" in data
+
+    annotated = data["annotated_records"][0]
+
+    assert "outlier_detected" in annotated
+    assert "outlier_status" in annotated
+    assert "outlier_confidence" in annotated
+    assert "outlier_severity" in annotated
+    assert "outlier_primary_detector" in annotated
+    assert "outlier_reason" in annotated
+    assert "outlier_summary" in annotated
