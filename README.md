@@ -115,7 +115,7 @@ Each row in the output CSV corresponds to one input record:
 - Classification quality depends heavily on input text. Records with only place names (e.g. "Bayern, SW Grainau") produce lower-confidence, less specific results than records with actual habitat descriptions (e.g. "Weinbergshang").
 - `FundortUNdOeko` is populated in approximately 26% of BGBM records; `Locality` covers 99.4%.
 - The OpenAI API is called once per record. At 100k records, costs are non-trivial; consider using a smaller sample for development.
-- `llama3.2` and `gpt-4o-mini` do not return the same results. The production model is currently intended to be an OpenAI model (e.g. gpt-4o), subject to change after evaluation. Ollama exists so the pipeline can be run without an API key, not as a production target.
+- `llama3.2` **and** `gpt-4o-mini` do not return the same results. The production model is currently intended to be an OpenAI model (e.g. gpt-4o), subject to change after evaluation. Ollama exists so the pipeline can be run without an API key, not as a production target.
 - On the first compose call, Ollama may need a few minutes to download the model image; it is cached for subsequent runs. The first inference also triggers a one-time model load, which the pipeline waits for via a warm-up request before processing begins.
 - Records are processed concurrently in batches (see BATCH_SIZE in config.py).
 

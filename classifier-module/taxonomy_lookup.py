@@ -1,9 +1,10 @@
 import httpx
 
-from config import GBIF_CONFIDENCE_RESOLVED
+from config import GBIF_CONFIDENCE_RESOLVED, log
 from models import TaxonMatch
 
 async def match_gbif(name: str, genus: str, family: str, client: httpx.AsyncClient) -> TaxonMatch:
+    log.debug('GBIF lookup: %s', name)
     response = await client.get(
         'https://api.gbif.org/v2/species/match',
         params={'name': name, 'genus': genus, 'family': family, 'strict': 'false'},
@@ -16,6 +17,7 @@ async def match_gbif(name: str, genus: str, family: str, client: httpx.AsyncClie
     usage = data.get('usage', {})
 
     if diagnostics.get('matchType') == 'NONE' or not usage.get('key'):
+        log.debug('GBIF found no match for %s', name)
         return TaxonMatch()
 
     confidence = diagnostics.get('confidence')

@@ -5,7 +5,6 @@ from config import API_RETRIES, LAND_API_BASE, log
 from models import CLCMatch, LandTaxonomyResponse
 
 async def wait_for_api(client: httpx.AsyncClient, retries: int = API_RETRIES) -> None:
-    """Block until the land-taxonomy API health endpoint responds 200."""
     for i in range(retries):
         try:
             response = await client.get(f'{LAND_API_BASE}/')
@@ -20,7 +19,7 @@ async def wait_for_api(client: httpx.AsyncClient, retries: int = API_RETRIES) ->
     raise RuntimeError('Land taxonomy API did not get ready in time.') 
  
 async def match_land(text: str, client: httpx.AsyncClient, use_ollama: bool) -> CLCMatch:
-    """POST text to the land taxonomy classifier and return parsed JSON."""
+    log.debug('Land classification request (%d chars, use_ollama=%s)', len(text), use_ollama)
     response = await client.post(
         f'{LAND_API_BASE}/classify',
         json={'text': text, 'top_k': 1, 'use_ollama': use_ollama},
@@ -37,3 +36,7 @@ async def match_land(text: str, client: httpx.AsyncClient, use_ollama: bool) -> 
         input=data.input_text,
         source='OpenAI' if not use_ollama else 'ollama'
     )
+
+# Add URI
+# Add Caching
+# Consider asking 'gold standard'
