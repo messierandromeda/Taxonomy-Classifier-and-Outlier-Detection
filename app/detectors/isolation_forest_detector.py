@@ -17,6 +17,12 @@ MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 SCALER_PATH = CURRENT_DIR / "models" / "isolation_forest_scaler.pkl"
 
 class IsolationForestDetector(BaseDetector):
+    """Detects multivariate numeric outliers using Isolation Forest.
+
+    Trains on selected numeric fields and then flags records with low anomaly
+    scores from the fitted model.
+    """
+
     name = "isolation_forest_detector"
 
     def __init__(
@@ -34,6 +40,7 @@ class IsolationForestDetector(BaseDetector):
         self.model: IsolationForest | None = None
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Train the Isolation Forest model on available numeric record fields."""
         df = pd.DataFrame(records)
         fields = [
             field
@@ -63,6 +70,7 @@ class IsolationForestDetector(BaseDetector):
         logging.info(f"Isolation forest model successfully saved to {MODEL_PATH}")
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag records that the trained Isolation Forest considers anomalous."""
         if MODEL_PATH.exists() and SCALER_PATH.exists():
             logging.info(f"Loading trained isolation forest model from {MODEL_PATH} and scalar from {SCALER_PATH}...")
             self.model = joblib.load(MODEL_PATH)

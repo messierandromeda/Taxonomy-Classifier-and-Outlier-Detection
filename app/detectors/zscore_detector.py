@@ -13,6 +13,7 @@ PATH = CURRENT_DIR / "models" / "z-score.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class ZScoreDetector(BaseDetector):
+    """Detects numeric outliers by z-score relative to fitted field statistics."""
     name = "zscore_detector"
 
     def __init__(
@@ -30,6 +31,7 @@ class ZScoreDetector(BaseDetector):
         self.cached_stats: Dict[str, Dict[str, float]] = {}
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Fit mean and standard deviation for configured numeric fields."""
         df = pd.DataFrame(records)
         self.cached_stats = {}
 
@@ -58,6 +60,7 @@ class ZScoreDetector(BaseDetector):
             json.dump(self.cached_stats, f, indent=4)
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag numeric values whose z-score exceeds the configured threshold."""
         if PATH.exists():
             logging.info(f"Loading z-score data from {PATH}...")
             with open(PATH, "r", encoding="utf-8") as f:

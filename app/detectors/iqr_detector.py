@@ -13,6 +13,12 @@ PATH = CURRENT_DIR / "models" / "iqr_detector.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
 class IQRDetector(BaseDetector):
+    """Detects numeric outliers using interquartile range fences.
+
+    The detector computes IQR fences for configured numeric fields and flags
+    values outside the lower and upper bounds.
+    """
+
     name = "iqr_detector"
 
     def __init__(
@@ -28,6 +34,10 @@ class IQRDetector(BaseDetector):
         self.cached_stats: Dict[str, Dict[str, float]] = {}
 
     def train(self, records: List[Dict[str, Any]]) -> None:
+        """Compute IQR fences for each configured numeric field.
+
+        Saves lower and upper bounds for later detection of outlier values.
+        """
         df = pd.DataFrame(records)
         self.cached_stats = {}
 
@@ -60,6 +70,7 @@ class IQRDetector(BaseDetector):
             json.dump(self.cached_stats, f, indent=4)
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag records whose numeric values fall outside learned IQR fences."""
         if PATH.exists():
             logging.info(f"Loading z-score data from {PATH}...")
             with open(PATH, "r", encoding="utf-8") as f:

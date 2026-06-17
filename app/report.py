@@ -10,10 +10,10 @@ SEVERITY_ORDER = {
 
 
 def get_flag_value(flag: Any, key: str, default=None):
-    """
-    Read a value from either:
-    - Pydantic DetectionFlag object
-    - plain dictionary from LLMDetector
+    """Read a value from a DetectionFlag or a plain dictionary.
+
+    Supports both pydantic-based detector output and the dictionary-based
+    LLM detector output.
     """
 
     if isinstance(flag, dict):
@@ -23,16 +23,7 @@ def get_flag_value(flag: Any, key: str, default=None):
 
 
 def merge_flags(*flag_maps):
-    """
-    Merge results from multiple detectors.
-
-    Input:
-        detector_1 -> {record_id: [flags]}
-        detector_2 -> {record_id: [flags]}
-
-    Output:
-        merged -> {record_id: [all flags]}
-    """
+    """Merge multiple detector flag maps into a single combined map."""
 
     merged = {}
 
@@ -48,12 +39,9 @@ def merge_flags(*flag_maps):
 
 
 def calculate_record_score(flags):
-    """
-    Calculate the final score for one record.
+    """Compute a record-level score from its detector flags.
 
-    Current strategy:
-    - use the highest individual flag score
-    - simple and conservative
+    Uses the maximum individual flag score as a conservative overall score.
     """
 
     if not flags:
@@ -66,12 +54,7 @@ def calculate_record_score(flags):
 
 
 def calculate_record_severity(flags):
-    """
-    Calculate the final severity for one record.
-
-    Current strategy:
-    - use the highest severity among all flags
-    """
+    """Compute the overall record severity based on highest flag severity."""
 
     if not flags:
         return "info"

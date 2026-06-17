@@ -72,6 +72,7 @@ def train_detectors(detectors, records: list[dict]) -> None:
 
 
 def prepare_records(records: list[dict]) -> list[dict]:
+    """Normalize raw records and add derived fields used by detectors."""
     if not records:
         return []
 
@@ -82,6 +83,10 @@ def prepare_records(records: list[dict]) -> list[dict]:
 
 
 def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
+    """Summarize a single record quality result into a flat dictionary.
+
+    Produces fields used for CSV annotation and API output.
+    """
     if result is None or not result.flags:
         return {
             "outlier_detected": False,
@@ -133,6 +138,7 @@ def annotate_records(
     records: list[dict],
     results: list[RecordQualityResult],
 ) -> list[dict]:
+    """Attach result summaries and flag metadata to the original records."""
     by_id = {
         result.id: result
         for result in results
@@ -188,6 +194,7 @@ def merge_detector_results(
     merged: dict,
     records: list[dict],
 ) -> DetectResponse:
+    """Merge detector flags into a DetectResponse with annotated records."""
     results = []
 
     for index, record in enumerate(records):
@@ -226,6 +233,11 @@ def run_detectors(
     training_subset_size: int = 500,
     training_seed: int = 42,
 ) -> DetectResponse:
+    """Run the configured detector ensemble and return quality results.
+
+    This pipeline normalizes records, optionally trains detectors, executes each
+    enabled detector, merges flag outputs, and produces a final DetectResponse.
+    """
     result = prepare_records(records)
 
     if not result:
@@ -340,6 +352,11 @@ def run_llm_only(
     llm_provider: str = "ollama",
     text_fields: list[str] | None = None,
 ) -> DetectResponse:
+    """Run only the LLM detector on normalized records.
+
+    Useful when semantic LLM checks are required separately from the fast
+    detector ensemble.
+    """
     result = prepare_records(records)
 
     if not result:
@@ -398,6 +415,10 @@ def select_flagged_records(
     records: list[dict],
     fast_response: DetectResponse,
 ) -> list[dict]:
+    """Select records that were flagged by the quick detector pass.
+
+    Returns only records with flags matching LLM-relevant categories.
+    """
     flagged_ids = {
         result.id
         for result in fast_response.results
@@ -433,6 +454,11 @@ def merge_chunk_results(
     fast_response: DetectResponse,
     llm_response: DetectResponse | None = None,
 ) -> list[RecordQualityResult]:
+    """Merge a fast response with an optional LLM response.
+
+    If an LLM response is provided, combine flags and recalculate scores and
+    severities for affected records.
+    """
     if llm_response is None:
         print("[PIPELINE] No LLM response to merge.")
         return fast_response.results
@@ -478,6 +504,11 @@ def process_records_strategically(
     llm_only_flagged: bool = True,
     training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
+    """Run the pipeline and optionally trigger an LLM refinement step.
+
+    This function first runs the fast detector ensemble, then optionally selects
+    records for LLM evaluation, and merges the results.
+    """
     print(
         f"[PIPELINE] process_records_strategically "
         f"| enable_llm={enable_llm} "

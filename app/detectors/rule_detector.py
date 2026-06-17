@@ -8,9 +8,11 @@ from app.detectors.base import BaseDetector, get_record_id
 
 
 class RuleDetector(BaseDetector):
+    """Simple rules-based detector for coordinate, date, taxonomic, and metadata issues."""
     name = "rule_detector"
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
+        """Flag syntactic and basic semantic issues in each record."""
         results: Dict[str, List[DetectionFlag]] = {}
 
         for index, record in enumerate(records):
@@ -356,10 +358,12 @@ class RuleDetector(BaseDetector):
 
     @staticmethod
     def _is_empty(value: Any) -> bool:
+        """Return True for values that should be treated as missing."""
         return value is None or value == "" or str(value).strip().lower() == "nan"
 
     @staticmethod
     def _to_float(value: Any) -> float | None:
+        """Attempt to convert a value to float, returning None on failure."""
         try:
             if value is None or value == "":
                 return None
@@ -369,6 +373,7 @@ class RuleDetector(BaseDetector):
 
     @staticmethod
     def _parse_date(value: Any) -> datetime | None:
+        """Parse common date string formats into datetime objects."""
         if value is None or value == "":
             return None
 
@@ -404,6 +409,7 @@ class RuleDetector(BaseDetector):
 
     @staticmethod
     def _looks_like_scientific_name(value: Any) -> bool:
+        """Return True if a value resembles a binomial scientific name."""
         text = str(value).strip()
 
         if not text:
@@ -413,6 +419,7 @@ class RuleDetector(BaseDetector):
 
     @staticmethod
     def _looks_like_barcode(value: Any) -> bool:
+        """Return True if a value resembles a herbarium barcode identifier."""
         text = str(value).strip()
 
         if not text:
@@ -429,6 +436,7 @@ class RuleDetector(BaseDetector):
 
     @staticmethod
     def _is_valid_url(value: Any) -> bool:
+        """Validate that a string is a well-formed http or https URL."""
         text = str(value).strip()
 
         try:
