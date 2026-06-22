@@ -9,7 +9,6 @@ from app.detectors.semantic_rule_detector import SemanticRuleDetector
 from app.detectors.iqr_detector import IQRDetector
 from app.detectors.zscore_detector import ZScoreDetector
 from app.detectors.modified_zscore_detector import ModifiedZScoreDetector
-from app.detectors.date_outlier_detector import DateOutlierDetector
 from app.detectors.isolation_forest_detector import IsolationForestDetector
 from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 from app.detectors.llm_detector import LLMDetector
@@ -139,10 +138,7 @@ def annotate_records(
     results: list[RecordQualityResult],
 ) -> list[dict]:
     """Attach result summaries and flag metadata to the original records."""
-    by_id = {
-        result.id: result
-        for result in results
-    }
+    by_id = {result.id: result for result in results}
 
     annotated = []
     normalized_records = normalize_records(records)
@@ -159,31 +155,19 @@ def annotate_records(
 
         new_record = dict(record)
 
-        new_record.update(
-            summarize_outlier_result(result)
-        )
+        new_record.update(summarize_outlier_result(result))
 
         flags = result.flags if result else []
 
-        new_record["outlier_flagged_fields"] = sorted(
-            {flag.field for flag in flags}
-        )
+        new_record["outlier_flagged_fields"] = sorted({flag.field for flag in flags})
 
-        new_record["outlier_detector_methods"] = sorted(
-            {flag.method for flag in flags}
-        )
+        new_record["outlier_detector_methods"] = sorted({flag.method for flag in flags})
 
-        new_record["outlier_flag_types"] = sorted(
-            {flag.type for flag in flags}
-        )
+        new_record["outlier_flag_types"] = sorted({flag.type for flag in flags})
 
-        new_record["outlier_explanations"] = [
-            flag.message for flag in flags
-        ]
+        new_record["outlier_explanations"] = [flag.message for flag in flags]
 
-        new_record["outlier_flags"] = [
-            flag.model_dump() for flag in flags
-        ]
+        new_record["outlier_flags"] = [flag.model_dump() for flag in flags]
 
         annotated.append(new_record)
 
@@ -230,12 +214,10 @@ def run_detectors(
     llm_provider: str = "none",
     numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
-    training_subset_size: int = 500,
-    training_seed: int = 42,
 ) -> DetectResponse:
     """Run the configured detector ensemble and return quality results.
 
-    This pipeline normalizes records, optionally trains detectors, executes each
+    This pipeline normalizes records, executes each
     enabled detector, merges flag outputs, and produces a final DetectResponse.
     """
     result = prepare_records(records)
@@ -290,22 +272,6 @@ def run_detectors(
             )
         )
 
-    if training_subset_size and training_subset_size > 0:
-        training_records = sample_training_records(
-            result,
-            subset_size=training_subset_size,
-            seed=training_seed,
-        )
-
-        print(
-            f"[TRAIN] Training detectors on {len(training_records)} record subset"
-        )
-
-        train_detectors(
-            detectors,
-            training_records,
-        )
-
     flag_maps = []
 
     print(f"\n[RUN] Processing {len(result)} records")
@@ -319,16 +285,9 @@ def run_detectors(
         flag_map = detector.detect(result)
         elapsed = time.time() - start_time
 
-        flag_count = sum(
-            len(flags)
-            for flags in flag_map.values()
-        )
+        flag_count = sum(len(flags) for flags in flag_map.values())
 
-        record_count = sum(
-            1
-            for flags in flag_map.values()
-            if flags
-        )
+        record_count = sum(1 for flags in flag_map.values() if flags)
 
         print(
             f"[DETECTOR DONE] {detector_name} | "
@@ -368,9 +327,7 @@ def run_llm_only(
         )
 
     print(
-        f"[PIPELINE] Running LLM only "
-        f"| provider={llm_provider} "
-        f"| records={len(result)}"
+        f"[PIPELINE] Running LLM only | provider={llm_provider} | records={len(result)}"
     )
 
     detector = LLMDetector(
@@ -387,16 +344,9 @@ def run_llm_only(
     flag_map = detector.detect(result)
     elapsed = time.time() - start_time
 
-    flag_count = sum(
-        len(flags)
-        for flags in flag_map.values()
-    )
+    flag_count = sum(len(flags) for flags in flag_map.values())
 
-    record_count = sum(
-        1
-        for flags in flag_map.values()
-        if flags
-    )
+    record_count = sum(1 for flags in flag_map.values() if flags)
 
     print(
         f"[DETECTOR DONE] llm_detector | "
@@ -423,8 +373,7 @@ def select_flagged_records(
         result.id
         for result in fast_response.results
         if any(
-            getattr(flag, "type", None) in LLM_RELEVANT_TYPES
-            for flag in result.flags
+            getattr(flag, "type", None) in LLM_RELEVANT_TYPES for flag in result.flags
         )
     }
 
@@ -463,15 +412,9 @@ def merge_chunk_results(
         print("[PIPELINE] No LLM response to merge.")
         return fast_response.results
 
-    print(
-        f"[PIPELINE] Merging LLM response "
-        f"| llm_results={len(llm_response.results)}"
-    )
+    print(f"[PIPELINE] Merging LLM response | llm_results={len(llm_response.results)}")
 
-    by_id = {
-        result.id: result
-        for result in fast_response.results
-    }
+    by_id = {result.id: result for result in fast_response.results}
 
     for llm_result in llm_response.results:
         if llm_result.id in by_id:
@@ -479,13 +422,9 @@ def merge_chunk_results(
 
             existing.flags.extend(llm_result.flags)
 
-            existing.severity = calculate_record_severity(
-                existing.flags
-            )
+            existing.severity = calculate_record_severity(existing.flags)
 
-            existing.score = calculate_record_score(
-                existing.flags
-            )
+            existing.score = calculate_record_score(existing.flags)
 
         else:
             by_id[llm_result.id] = llm_result
@@ -502,7 +441,6 @@ def process_records_strategically(
     llm_provider: str = "none",
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
-    training_subset_size: int = 500,
 ) -> list[RecordQualityResult]:
     """Run the pipeline and optionally trigger an LLM refinement step.
 
@@ -524,7 +462,6 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         llm_provider="none",
-        training_subset_size=training_subset_size,
     )
 
     llm_response = None
@@ -540,16 +477,12 @@ def process_records_strategically(
         else:
             llm_records = records
             print(
-                f"[PIPELINE] LLM will process all records "
-                f"| records={len(llm_records)}"
+                f"[PIPELINE] LLM will process all records | records={len(llm_records)}"
             )
 
         llm_records = llm_records[:max_llm_records]
 
-        print(
-            f"[PIPELINE] Sending records to LLM "
-            f"| records={len(llm_records)}"
-        )
+        print(f"[PIPELINE] Sending records to LLM | records={len(llm_records)}")
 
         if llm_records:
             llm_response = run_llm_only(

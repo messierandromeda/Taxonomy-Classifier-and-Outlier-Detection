@@ -1,9 +1,15 @@
 from contextlib import asynccontextmanager
 import json
 import io
-
+import logging
 import pandas as pd
-from fastapi import FastAPI, UploadFile, File, HTTPException, Body
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File,
+    HTTPException,
+    status,
+)
 from fastapi.responses import StreamingResponse
 
 from app.schemas import (
@@ -18,11 +24,20 @@ from app.ollama_config import (
     start_ollama_if_needed,
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
+from app.config import UNINITIALIZED_MSG
 
 
-# --------------------------------------------------
-# FastAPI lifespan hook
-# --------------------------------------------------
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        log_message = record.getMessage()
+        if "/health" in log_message and "200" in log_message:
+            return False
+        return True
+
+
+uvicorn_logger = logging.getLogger("uvicorn.access")
+uvicorn_logger.addFilter(HealthCheckFilter())
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,16 +45,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# --------------------------------------------------
-# FastAPI application
-# --------------------------------------------------
-
 app = FastAPI(
     title="Biodiv Outlier and Data-Quality Detection Service",
     version="0.2.0",
     description=(
-        "REST service for biodiversity data-quality "
-        "checks and outlier detection."
+        "REST service for biodiversity data-quality checks and outlier detection."
     ),
     lifespan=lifespan,
 )
@@ -59,51 +69,52 @@ def health():
     }
 
 
-@app.post("/detect-json", response_model=DetectResponse)
-async def detect(
-    request: DetectRequest | None = Body(default=None),
-    file: UploadFile | None = File(default=None),
+@app.post(
+    "/detect-json-file",
+    response_model=DetectResponse,
+    responses={
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Returned when the outlier detection models are not trained yet.",
+            "content": {"application/json": {"example": {"detail": UNINITIALIZED_MSG}}},
+        }
+    },
+)
+@app.post("/detect-json-file", response_model=DetectResponse)
+async def detect_json_file(
+    file: UploadFile = File(...),
 ):
-    if file is not None:
-        if not file.filename or not file.filename.endswith(".json"):
-            raise HTTPException(
-                status_code=400,
-                detail="Only JSON files are supported.",
-            )
+    if not file.filename.endswith(".json"):
+        raise HTTPException(status_code=400, detail="Only JSON files are supported.")
 
-        raw = await file.read()
-
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid JSON file.",
-            )
-
-        request = DetectRequest(**data)
-
-    if request is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Provide JSON body or JSON file upload.",
-        )
+    raw = await file.read()
+    try:
+        data = json.loads(raw)
+        validated_request = DetectRequest(**data)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON file contents.")
 
     return run_detectors(
-        records=request.records,
-        enable_quality=request.enable_quality,
-        enable_outliers=request.enable_outliers,
-        enable_semantic=request.enable_semantic,
-        enable_llm=request.enable_llm,
-        llm_provider=request.llm_provider,
-        numeric_fields=request.numeric_fields,
-        text_fields=request.text_fields,
-        training_subset_size=request.training_subset_size,
-        training_seed=request.training_seed,
+        records=validated_request.records,
+        enable_quality=validated_request.enable_quality,
+        enable_outliers=validated_request.enable_outliers,
+        enable_semantic=validated_request.enable_semantic,
+        enable_llm=validated_request.enable_llm,
+        llm_provider=validated_request.llm_provider,
+        numeric_fields=validated_request.numeric_fields,
+        text_fields=validated_request.text_fields,
     )
 
 
-@app.post("/detect-csv")
+@app.post(
+    "/detect-csv",
+    response_model=DetectResponse,
+    responses={
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Returned when the outlier detection models are not trained yet.",
+            "content": {"application/json": {"example": {"detail": UNINITIALIZED_MSG}}},
+        }
+    },
+)
 async def detect_csv(
     file: UploadFile = File(...),
     enable_llm: bool = False,
@@ -112,7 +123,6 @@ async def detect_csv(
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
-    training_subset_size: int = 500,
     download_csv: bool = False,
 ):
     if not file.filename or not file.filename.endswith(".csv"):
@@ -131,7 +141,6 @@ async def detect_csv(
         max_records=max_records,
         max_llm_records=max_llm_records,
         llm_only_flagged=llm_only_flagged,
-        training_subset_size=training_subset_size,
     )
 
     if not download_csv:
@@ -158,11 +167,7 @@ async def detect_csv(
         "outlier_summary",
     ]
 
-    existing_columns = [
-        column
-        for column in important_columns
-        if column in df.columns
-    ]
+    existing_columns = [column for column in important_columns if column in df.columns]
 
     df = df[existing_columns]
 
@@ -173,7 +178,5 @@ async def detect_csv(
     return StreamingResponse(
         iter([stream.getvalue()]),
         media_type="text/csv",
-        headers={
-            "Content-Disposition": "attachment; filename=annotated_output.csv"
-        },
+        headers={"Content-Disposition": "attachment; filename=annotated_output.csv"},
     )

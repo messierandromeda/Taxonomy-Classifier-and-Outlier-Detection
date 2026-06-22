@@ -62,16 +62,16 @@ class LLMDetector:
             normalized_record = normalize_bgbm_record(record)
             record_id = get_record_id(normalized_record, index)
             logging.info(
-                    f"[LLM] checking record {index + 1}/{len(records)} "
-                    f"| record_id={record_id}"
-                )
+                f"[LLM] checking record {index + 1}/{len(records)} "
+                f"| record_id={record_id}"
+            )
 
             is_suspicious, explanation, confidence = self._ask_ollama(normalized_record)
             logging.info(
-                    f"[LLM] done record_id={record_id} "
-                    f"| suspicious={is_suspicious} "
-                    f"| confidence={confidence}"
-                )
+                f"[LLM] done record_id={record_id} "
+                f"| suspicious={is_suspicious} "
+                f"| confidence={confidence}"
+            )
 
             if is_suspicious:
                 results.setdefault(record_id, []).append(
@@ -240,7 +240,7 @@ Record:
         end = text.rfind("}")
 
         if start != -1 and end != -1 and end > start:
-            json_candidate = text[start:end + 1]
+            json_candidate = text[start : end + 1]
 
             try:
                 return json.loads(json_candidate)

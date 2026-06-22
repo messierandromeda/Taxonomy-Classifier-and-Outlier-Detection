@@ -14,7 +14,6 @@ def process_csv_in_chunks(
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
-    training_subset_size: int = 500,
 ) -> DetectResponse:
     """Processes an uploaded CSV payload incrementally using configured pipelines."""
 
@@ -53,14 +52,11 @@ def process_csv_in_chunks(
             llm_provider=llm_provider,
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
-            training_subset_size=training_subset_size,
         )
 
         all_results.extend(chunk_results)
 
-        all_annotated_records.extend(
-            annotate_records(records, chunk_results)
-        )
+        all_annotated_records.extend(annotate_records(records, chunk_results))
 
         total_seen += len(records)
 

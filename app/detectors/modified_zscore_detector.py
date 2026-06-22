@@ -12,8 +12,10 @@ CURRENT_DIR = Path(__file__).resolve().parent
 PATH = CURRENT_DIR / "models" / "modified-z-score.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
+
 class ModifiedZScoreDetector(BaseDetector):
     """Detects numeric outliers using the modified z-score robust statistic."""
+
     name = "modified_zscore_detector"
 
     def __init__(
@@ -48,7 +50,7 @@ class ModifiedZScoreDetector(BaseDetector):
 
             if mad == 0:
                 continue
-            
+
             self.cached_stats[field] = {
                 "median": float(median),
                 "mad": float(mad),
@@ -64,18 +66,19 @@ class ModifiedZScoreDetector(BaseDetector):
             with open(PATH, "r", encoding="utf-8") as f:
                 self.cached_stats = json.load(f)
         else:
-            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
-                
+            logging.critical(
+                f"Model file NOT found at {PATH}! API cannot process detections."
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
+                detail=UNINITIALIZED_MSG,
             )
 
         df = pd.DataFrame(records)
 
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         for field in self.numeric_fields:
@@ -95,7 +98,7 @@ class ModifiedZScoreDetector(BaseDetector):
                 if pd.isna(value):
                     continue
 
-                modified_z = 0.6745 * (value - median) / mad   
+                modified_z = 0.6745 * (value - median) / mad
 
                 if abs(modified_z) > self.threshold:
                     record_id = get_record_id(records[index], index)

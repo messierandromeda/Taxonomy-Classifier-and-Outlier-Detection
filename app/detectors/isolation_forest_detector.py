@@ -16,6 +16,7 @@ MODEL_PATH = CURRENT_DIR / "models" / "isolation_forest_mode.pkl"
 MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 SCALER_PATH = CURRENT_DIR / "models" / "isolation_forest_scaler.pkl"
 
+
 class IsolationForestDetector(BaseDetector):
     """Detects multivariate numeric outliers using Isolation Forest.
 
@@ -28,7 +29,7 @@ class IsolationForestDetector(BaseDetector):
     def __init__(
         self,
         numeric_fields: List[str] | None = None,
-        contamination: float | str = "auto"
+        contamination: float | str = "auto",
     ):
 
         self.numeric_fields = numeric_fields or [
@@ -42,11 +43,7 @@ class IsolationForestDetector(BaseDetector):
     def train(self, records: List[Dict[str, Any]]) -> None:
         """Train the Isolation Forest model on available numeric record fields."""
         df = pd.DataFrame(records)
-        fields = [
-            field
-            for field in self.numeric_fields
-            if field in df.columns
-        ]
+        fields = [field for field in self.numeric_fields if field in df.columns]
 
         if not fields:
             return
@@ -72,35 +69,34 @@ class IsolationForestDetector(BaseDetector):
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         """Flag records that the trained Isolation Forest considers anomalous."""
         if MODEL_PATH.exists() and SCALER_PATH.exists():
-            logging.info(f"Loading trained isolation forest model from {MODEL_PATH} and scalar from {SCALER_PATH}...")
+            logging.info(
+                f"Loading trained isolation forest model from {MODEL_PATH} and scalar from {SCALER_PATH}..."
+            )
             self.model = joblib.load(MODEL_PATH)
             self.scaler = joblib.load(SCALER_PATH)
         else:
-            logging.critical(f"Model file NOT found at {MODEL_PATH}! API cannot process detections.")
-                
+            logging.critical(
+                f"Model file NOT found at {MODEL_PATH}! API cannot process detections."
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
+                detail=UNINITIALIZED_MSG,
             )
-        
+
         df = pd.DataFrame(records)
 
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
-        fields = [
-            field
-            for field in self.numeric_fields
-            if field in df.columns
-        ]
+        fields = [field for field in self.numeric_fields if field in df.columns]
 
         if not fields:
             return results
 
         numeric = df[fields].apply(pd.to_numeric, errors="coerce").dropna()
-    
+
         X = self.scaler.transform(numeric)
         predictions = self.model.predict(X)
         scores = -self.model.score_samples(X)
@@ -116,7 +112,7 @@ class IsolationForestDetector(BaseDetector):
 
             record_id = get_record_id(records[row_index], row_index)
             score = min(1.0, float(raw_score / max_score))
-            
+
             if fields == ["decimalLatitude", "decimalLongitude"]:
                 flag_type = "coordinate_multivariate_outlier"
                 message = (
@@ -144,10 +140,7 @@ class IsolationForestDetector(BaseDetector):
                     severity="medium" if score < 0.85 else "high",
                     score=score,
                     message=message,
-                    value={
-                        field: records[row_index].get(field)
-                        for field in fields
-                    },
+                    value={field: records[row_index].get(field) for field in fields},
                 )
             )
 
