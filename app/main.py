@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 import json
 import io
 import logging
+from pathlib import Path
 import pandas as pd
 from fastapi import (
     FastAPI,
@@ -10,7 +11,7 @@ from fastapi import (
     HTTPException,
     status,
 )
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 
 from app.schemas import (
     DetectRequest,
@@ -25,6 +26,12 @@ from app.ollama_config import (
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
 from app.config import UNINITIALIZED_MSG
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 class HealthCheckFilter(logging.Filter):
@@ -70,7 +77,7 @@ def health():
 
 
 @app.post(
-    "/detect-json-file",
+    "/detect-json",
     response_model=DetectResponse,
     responses={
         status.HTTP_503_SERVICE_UNAVAILABLE: {
@@ -79,9 +86,15 @@ def health():
         }
     },
 )
-@app.post("/detect-json-file", response_model=DetectResponse)
-async def detect_json_file(
+async def detect_json(
     file: UploadFile = File(...),
+    enable_llm: bool = False,
+    llm_provider: str = "none",
+    # chunksize: int = 1000,
+    # max_records: int | None = None,
+    # max_llm_records: int = 25,
+    # llm_only_flagged: bool = True,
+    download_csv: bool = False,
 ):
     if not file.filename.endswith(".json"):
         raise HTTPException(status_code=400, detail="Only JSON files are supported.")
@@ -89,19 +102,36 @@ async def detect_json_file(
     raw = await file.read()
     try:
         data = json.loads(raw)
-        validated_request = DetectRequest(**data)
+        if data is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Provide JSON body or JSON file upload.",
+            )
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON file contents.")
+    request = DetectRequest(**data)
 
-    return run_detectors(
-        records=validated_request.records,
-        enable_quality=validated_request.enable_quality,
-        enable_outliers=validated_request.enable_outliers,
-        enable_semantic=validated_request.enable_semantic,
-        enable_llm=validated_request.enable_llm,
-        llm_provider=validated_request.llm_provider,
-        numeric_fields=validated_request.numeric_fields,
-        text_fields=validated_request.text_fields,
+    response = run_detectors(
+        records=request.records,
+        enable_quality=request.enable_quality,
+        enable_outliers=request.enable_outliers,
+        enable_semantic=request.enable_semantic,
+        enable_llm=enable_llm,
+        llm_provider=llm_provider,
+        numeric_fields=request.numeric_fields,
+        text_fields=request.text_fields,
+    )
+
+    if not download_csv:
+        return response
+
+    json_string = response.model_dump_json(indent=4)
+    filename = Path(file.filename).stem
+
+    return Response(
+        content=json_string,
+        media_type="application/json",
+        headers={"Content-Disposition": f"attachment; filename={filename}_output.json"},
     )
 
 
@@ -175,8 +205,12 @@ async def detect_csv(
     df.to_csv(stream, index=False)
     stream.seek(0)
 
+    filename = Path(file.filename).stem
+
     return StreamingResponse(
         iter([stream.getvalue()]),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=annotated_output.csv"},
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}_annotated_output.csv"
+        },
     )
