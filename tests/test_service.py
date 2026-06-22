@@ -8,6 +8,7 @@ client = TestClient(app)
 
 JSON_ENDPOINT = "/detect-json"
 CSV_ENDPOINT = "/detect-csv"
+TRAIN_ENDPOINT = "/train-csv"
 
 
 def make_record(**overrides):
@@ -214,6 +215,39 @@ def test_detect_csv_download():
     assert "outlier_detected" in response.text
     assert "outlier_confidence" in response.text
     assert "csv-1" in response.text
+
+
+def test_train_csv_upload():
+    csv_content = (
+        "HerbariumID,DB,Family,FullNameCache,NameCache,Genus,"
+        "CollectionDateBegin,CollectionDateEnd,Country,Locality,"
+        "Latitude,Longitude,Barcode,StableURI\n"
+        "train-1,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
+        "2020-05-12,2020-05-13,Germany,Berlin,50.0,13.0,BGBMTRAIN,https://example.org/record/train-1\n"
+        "train-2,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
+        "2020-05-12,2020-05-13,Germany,Berlin,50.1,13.1,BGBMTRAIN2,https://example.org/record/train-2\n"
+    )
+
+    files = {
+        "file": (
+            "train.csv",
+            csv_content,
+            "text/csv",
+        )
+    }
+
+    response = client.post(
+        TRAIN_ENDPOINT,
+        files=files,
+        data={"training_subset_size": "2", "training_seed": "42"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"] == "Training completed successfully."
+    assert payload["trained_records"] == 2
+    assert payload["training_subset_size"] == 2
+    assert payload["training_seed"] == 42
 
 
 def test_semantic_detector_species_habitat_contradiction():

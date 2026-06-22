@@ -7,6 +7,7 @@ from fastapi import (
     FastAPI,
     UploadFile,
     File,
+    Form,
     HTTPException,
     status,
 )
@@ -18,12 +19,14 @@ from app.schemas import (
 )
 
 from app.pipeline import run_detectors
+from app.train import run_training
 from app.ollama_config import (
     OLLAMA_MODEL,
     is_ollama_running,
     start_ollama_if_needed,
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
+from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
 from app.config import UNINITIALIZED_MSG
 
 
@@ -79,7 +82,7 @@ def health():
         }
     },
 )
-@app.post("/detect-json-file", response_model=DetectResponse)
+@app.post("/detect-json", response_model=DetectResponse)
 async def detect_json_file(
     file: UploadFile = File(...),
 ):
@@ -180,3 +183,59 @@ async def detect_csv(
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=annotated_output.csv"},
     )
+
+
+@app.post("/train-csv")
+async def train_csv(
+    file: UploadFile = File(...),
+    training_subset_size: int = Form(500),
+    training_seed: int = Form(42),
+):
+    if not file.filename or not file.filename.endswith(".csv"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only CSV files are supported.",
+        )
+
+    raw = await file.read()
+
+    try:
+        df = pd.read_csv(
+            io.BytesIO(raw),
+            sep=None,
+            engine="python",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unable to parse CSV training data: {exc}",
+        )
+
+    df = apply_bgbm_columns_if_needed(df)
+    df = prepare_dataframe(df)
+    records = df.to_dict(orient="records")
+
+    if not records:
+        raise HTTPException(
+            status_code=400,
+            detail="CSV file contains no records.",
+        )
+
+    try:
+        run_training(
+            records=records,
+            training_subset_size=training_subset_size,
+            training_seed=training_seed,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Training failed: {exc}",
+        )
+
+    return {
+        "message": "Training completed successfully.",
+        "trained_records": len(records),
+        "training_subset_size": training_subset_size,
+        "training_seed": training_seed,
+    }

@@ -297,20 +297,40 @@ curl -X POST "http://127.0.0.1:8000/detect-csv?enable_llm=true&download_csv=true
 
 ---
 
-## Training Detectors
+### Train Statistical Detectors From CSV
+
+```http
+POST /train-csv
+```
 
 Detectors that use statistics or models must be trained on your dataset before inference:
 
+Training is optional for rule-based detectors (RuleDetector, SemanticRuleDetector).
+
+Accepts a CSV file upload and trains statistical detectors on the provided dataset. This endpoint persists learned model parameters and statistics for detectors that require training, such as IQR, z-score, modified z-score, Isolation Forest, and HDBSCAN.  Trained models persists to `app/detectors/models/`
+
+**Form Fields:**
+- `file` (required): CSV file upload
+- `training_subset_size` (default: 500): Number of records sampled for detector training
+- `training_seed` (default: 42): Seed used for reproducible sampling
+
+**Example:**
 ```bash
-python -m app.train
+curl -X POST "http://127.0.0.1:8000/train-csv" \
+  -F "file=@training_data.csv" \
+  -F "training_subset_size=1000" \
+  -F "training_seed=42"
 ```
 
-This script:
-- Loads training data from `data/train.csv`
-- Samples a subset for efficiency
-- Trains and persists models to `app/detectors/models/`
-
-Training is optional for rule-based detectors (RuleDetector, SemanticRuleDetector).
+**Response:**
+```json
+{
+  "message": "Training completed successfully.",
+  "trained_records": 1234,
+  "training_subset_size": 500,
+  "training_seed": 42
+}
+```
 
 ---
 
