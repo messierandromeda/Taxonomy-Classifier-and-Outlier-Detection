@@ -5,7 +5,6 @@ import asyncio
 
 from process import process_row
 from config import log, BATCH_SIZE
-from land_taxonomy import wait_for_api
 from models import ClassifierResult
 
 async def check_batch(batch, client, use_ollama) -> list:
@@ -53,8 +52,7 @@ async def wait_for_ollama(client: httpx.AsyncClient, retries: int = 5) -> None:
             log.warning('Ollama warm-up attempt %d/%d failed, retrying', i+1, retries)
     raise RuntimeError('Ollama did not warm up in time')
 
-async def process_csv(input, use_ollama) -> None:
-    output_path = os.environ.get('OUTPUT_CSV', '../data/output.csv')
+async def process_csv(input, use_ollama, output_path='output.csv') -> None:
     results = []
     total = len(input)
     header_written = False
@@ -65,7 +63,6 @@ async def process_csv(input, use_ollama) -> None:
     log.info('Starting classification of %d rows (batch size %d, use_ollama=%s)', total, BATCH_SIZE, use_ollama)
  
     async with httpx.AsyncClient(timeout=300.0) as client:
-        await wait_for_api(client)
         
         if use_ollama:
             log.info('Ollama selected; warming up model...')
