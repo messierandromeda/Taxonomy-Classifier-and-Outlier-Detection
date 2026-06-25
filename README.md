@@ -22,54 +22,53 @@ The detection pipeline processes biodiversity specimen records through multiple 
 ## Project Structure
 
 ```
-app/
-├── __init__.py
-├── config.py                 # Configuration constants
-├── main.py                   # FastAPI application
-├── ollama_config.py          # Ollama service integration
-├── pipeline.py               # Main detection pipeline
-├── report.py                 # Result aggregation and scoring
-├── schemas.py                # Pydantic models (DetectionFlag, results)
-├── train.py                  # Offline detector training
-├── utils.py                  # Data normalization utilities
-│
-├── detectors/                # Detector implementations
-│   ├── base.py               # BaseDetector abstract class
-│   ├── rule_detector.py      # RuleDetector (syntactic validation)
-│   ├── semantic_rule_detector.py  # SemanticRuleDetector (ecological rules)
-│   ├── iqr_detector.py       # IQRDetector (interquartile range)
-│   ├── zscore_detector.py    # ZScoreDetector (z-score analysis)
-│   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
-│   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
-│   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
-│   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
-│   ├── llm_detector.py       # LLMDetector (semantic via LLM)
+.
+├── app/
+│   ├── __init__.py
+│   ├── config.py                        # Configuration constants
+│   ├── main.py                          # FastAPI application
+│   ├── ollama_config.py                 # Ollama service integration
+│   ├── pipeline.py                      # Main detection pipeline
+│   ├── report.py                        # Result aggregation and scoring
+│   ├── schemas.py                       # Pydantic models (DetectionFlag, results)
+│   ├── train.py                         # Offline detector training
+│   ├── utils.py                         # Data normalization utilities
 │   │
-│   └── models/               # Persisted detector models
-│       ├── z-score.json
-│       ├── modified-z-score.json
-│       ├── iqr_detector.json
-│       ├── date_outlier.json
-│       ├── isolation_forest_scaler.pkl
-│       ├── isolation_forest_model.pkl
-│       ├── hdbscan_scaler.pkl
-│       └── hdbscan_model.pkl
+│   ├── detectors/                       # Detector implementations
+│   │   ├── base.py                      # BaseDetector abstract class
+│   │   ├── rule_detector.py             # RuleDetector (syntactic validation)
+│   │   ├── semantic_rule_detector.py    # SemanticRuleDetector (ecological rules)
+│   │   ├── iqr_detector.py              # IQRDetector (interquartile range)
+│   │   ├── zscore_detector.py           # ZScoreDetector (z-score analysis)
+│   │   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
+│   │   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
+│   │   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
+│   │   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
+│   │   ├── llm_detector.py              # LLMDetector (semantic via LLM)
+│   │   │
+│   │   └── models/                      # Persisted detector models
+│   │       ├── z-score.json
+│   │       ├── modified-z-score.json
+│   │       ├── iqr_detector.json
+│   │       ├── date_outlier.json
+│   │       ├── isolation_forest_scaler.pkl
+│   │       ├── isolation_forest_model.pkl
+│   │       ├── hdbscan_scaler.pkl
+│   │       └── hdbscan_model.pkl
+│   │
+│   └── preprocessing/                   # Data preprocessing utilities
+│       ├── bgbm_normalizer.py           # BGBM field normalization
+│       └── process_csv.py               # Chunked CSV processing
 │
-└── preprocessing/            # Data preprocessing utilities
-    ├── bgbm_normalizer.py    # BGBM field normalization
-    └── process_csv.py        # Chunked CSV processing
-
-tests/
-├── test_service.py           # Integration tests
-
-docker-compose.yml
-Dockerfile
-requirements.txt
-README.md
-Detectors.md
+├── tests/                               # Integration tests
+│   └── test_service.py
+│
+├── Dockerfile
+├── README.md
+├── Detectors.md
+├── docker-compose.yml
+└── requirements.txt
 ```
-
----
 
 # Installation and Setup
 
@@ -305,7 +304,7 @@ POST /train-csv
 
 Detectors that use statistics or models must be trained on your dataset before inference:
 
-Training is optional for rule-based detectors (RuleDetector, SemanticRuleDetector).
+No training is required for rule-based detectors (RuleDetector, SemanticRuleDetector).
 
 Accepts a CSV file upload and trains statistical detectors on the provided dataset. This endpoint persists learned model parameters and statistics for detectors that require training, such as IQR, z-score, modified z-score, Isolation Forest, and HDBSCAN.  Trained models persists to `app/detectors/models/`
 

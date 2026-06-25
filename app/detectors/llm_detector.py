@@ -23,7 +23,7 @@ class LLMDetector:
         text_fields: list[str] | None = None,
         model: str = "llama3.2:3b",
         ollama_url: str = "http://localhost:11434",
-        timeout: int = 30,
+        timeout: int = 120,
     ):
         self.provider = provider
         self.text_fields = text_fields or [
@@ -172,20 +172,34 @@ Important rules:
 - Be conservative.
 - Only flag clearly suspicious combinations.
 
-Return ONLY valid JSON:
+Confidence Score & Reasoning Rubric:
+You must assign a confidence score from 0.0 (not confident) to 1.0 (highly confident) based on the following criteria:
+
+### CONFIDENCE SCORING RULES
+You must evaluate the data completeness starting from a high score and degrading downward. If the input data has all columns present and has no missing fields, it belongs in the high tiers (0.6 - 1.0).
+Based your scoring on the categories 1-6 mentioned above.
+
+If suspicious = false:
+- Score 0.90 to 1.0: Perfect Data. Every single field is present, rich with detail, and the metadata seamlessly aligns without a doubt.
+- Score 0.60 to 0.85: Standard Clean Data. All major columns are fully populated and clear. There are no missing columns and no contradictions. (IF THE DATA IS CLEAN AND NOT MISSING COLUMNS, YOU MUST SCORE IT HERE).
+- Score 0.30 to 0.55: Vague Data. The fields are populated, but descriptions are extremely brief, leaving room for hidden errors.
+- Score 0.0 to 0.25: Empty/Sparse Data. Critical fields are entirely blank, unpopulated, or missing, making the record completely unverifiable.
+
+If suspicious = true:
+- Score 0.90 to 1.0: Absolute Impossibility. Clear, definitive, rule-breaking contradiction.
+- Score 0.60 to 0.85: Highly Probable Anomaly. Strong conflict between fields.
+- Score 0.30 to 0.55: Possible Anomaly. Minor contradiction or historical variation.
+- Score 0.0 to 0.25: Unconfirmed Anomaly. Data is too sparse or empty to verify if the anomaly is real.
+
+
+Output Format:
+Evaluate using the full range of the scores. Do not default to 0.0 unless the record completely matches the 0.0-0.2 criteria. If the data is fully populated and clean, you must score it in the higher ranges (0.6 - 1.0).
+Return ONLY a valid JSON object. Use the following schema:
 
 {{
-  "suspicious": true,
-  "confidence": 0.0,
-  "reason": "Short reason."
-}}
-
-or
-
-{{
-  "suspicious": false,
-  "confidence": 0.0,
-  "reason": "Record appears plausible."
+  "suspicious": boolean,
+  "confidence": float,
+  "reason": "Detailed justification of your decision and confidence score, directly referencing the rubric criteia."
 }}
 
 Record:

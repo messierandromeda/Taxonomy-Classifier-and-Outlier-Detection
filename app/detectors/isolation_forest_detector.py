@@ -12,7 +12,7 @@ from app.detectors.base import BaseDetector, get_record_id
 from app.config import UNINITIALIZED_MSG
 
 CURRENT_DIR = Path(__file__).resolve().parent
-MODEL_PATH = CURRENT_DIR / "models" / "isolation_forest_mode.pkl"
+MODEL_PATH = CURRENT_DIR / "models" / "isolation_forest_model.pkl"
 MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 SCALER_PATH = CURRENT_DIR / "models" / "isolation_forest_scaler.pkl"
 
