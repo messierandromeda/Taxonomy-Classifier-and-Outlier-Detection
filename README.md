@@ -56,7 +56,7 @@ cp .env.example .env
 ### As a service (interactive)
 
 ```bash
-docker compose up --build
+docker compose --profile ollama up --build
 ```
 
 Open the interactive docs at `http://localhost:8000/docs`.
@@ -68,7 +68,7 @@ Input delimiter is auto-detected (comma/semicolon-separated inputs both accepted
 
 ### As a batch job (CLI)
 
-```bash
+```**bash**
 docker run --rm \
   -e OPENAI_API_KEY=$OPENAI_API_KEY \
   -v $(pwd)/input.csv:/in.csv \
