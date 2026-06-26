@@ -14,11 +14,3 @@ httpx==0.28.1
 
 cython
 hdbscan>=0.8.33
-
-# Optional future geo-validation.
-# shapely
-# pycountry
-
-# Optional HuggingFace backend.
-# transformers==4.47.1
-# torch
