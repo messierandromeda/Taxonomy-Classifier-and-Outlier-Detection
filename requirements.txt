@@ -4,3 +4,5 @@ pygbif
 fastapi
 python-multipart
 uvicorn
+openai
+python-dotenv

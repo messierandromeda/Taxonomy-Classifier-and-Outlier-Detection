@@ -1,13 +1,17 @@
 from pydantic import BaseModel
 from typing import Optional
 
+class TextRequest(BaseModel):
+    text: str
+    use_ollama: bool = False
+
 class TaxonMatch(BaseModel):
     identifier: str = ''
     confidence: Optional[float] = None
     status: str = 'unresolved'
 
 class CLCMatch(BaseModel):
-    code: int = -1
+    code: str = ''
     name: str = ''
     confidence: Optional[float] = None
     reason: str = ''
@@ -36,16 +40,3 @@ class ClassifierResult(BaseModel):
             **{f'taxon_{k}': v for k, v in self.taxon.model_dump().items()},
             'error': self.error,
         }
-
-class LandTaxonomyLevel(BaseModel):
-    clc_code: int
-    english_name: str
-    confidence: float
-
-class LandTaxonomyMatch(BaseModel):
-    reason: str
-    level3: LandTaxonomyLevel
-
-class LandTaxonomyResponse(BaseModel):
-    matches: list[LandTaxonomyMatch]
-    input_text: str

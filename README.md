@@ -1,84 +1,83 @@
-# Land Taxonomy Classifier
+# Land Taxonomy & Plant Classifier (WP3)
 
-A modular pipeline that classifies herbarium specimen records from the BGBM dataset against CORINE Land Cover (CLC) habitat categories and resolves the specimen taxonomy against the GBIF backbone. Part of the broader BiodivPipeline project for FAIR biodiversity data processing.
+A self-contained service that classifies herbarium specimen records from the BGBM dataset against CORINE Land Cover (CLC) habitat categories and resolves the specimen taxonomy against the GBIF backbone. Part of the broader BiodivPipeline project for FAIR biodiversity data processing.
 
 ## Overview
 
-The pipeline takes a CSV of herbarium records as input and returns a classified output CSV with CLC habitat codes derived from locality and habitat description fields, together with a GBIF identifier for each record.
-It consists of two services:
+Given a CSV of herbarium records, the service derives a CLC habitat code from each record's locality / habitat-description text (via an LLM) and a GBIF backbone identifier from its scientific name. It produces a structured output CSV joining both back to the input record.
 
-- **land-taxonomy-api**: a FastAPI service that classifies free-text habitat descriptions against the CLC categories using an LLM (Source: https://github.com/biodivportal/land-taxonomy-classifier). Modified to add Ollama support and an enhanced, rubric-based prompt for more objective confidence scoring.
-- **classifier-module**: a new async Python service that reads the input dataset, calls the land-taxonomy-api and GBIF for each record in batches, and returns structured output.
+It is a **single service**. An earlier design split this into two containers (a land-taxonomy API and a classifier that called it over HTTP) but the land-classification logic has since been merged in (`land_classifier.py`). There is no longer a separate API to start or a network hop between them.
+
+Two entry points share the same underlying code:
+
+- **`main.py`**: FastAPI service for interactive use. `POST /classify` classifies a single free-text string; `POST /classify/csv` runs the full pipeline over an uploaded CSV and returns the processed file. Useful for exploring the classifier without preparing a dataset.
+- **`classify.py`**: batch command-line entry point (`--input` / `--output`) that runs the full pipeline over a CSV. This is what the Nextflow integration uses.
 
 ## Project Structure
 
 ```
 land-taxonomy-classifier/
-├── land-taxonomy-api/        # Existing service, modified main.py only
-│   ├── main.py               # Added Ollama support and rubric-based prompt
+├── app
+│   ├── classify.py         # batch CLI entry point
+│   ├── config.py
+│   ├── land_classifier.py  # LLM land classifier (the merged API)
+│   ├── main.py             # FastAPI interactive service
+│   ├── models.py           # Pydantic models
+│   ├── pipeline.py         # batch orchestration over the input CSV
+│   ├── process.py          # per-row logic (land classification + GBIF)
 │   ├── taxonomy.csv
-│   ├── requirements.txt
-│   ├── .env.example
-│   ├── Dockerfile
-│   └── README.md
-│
-├── classifier-module/        # New service
-│   ├── main.py               # FastAPI app and /classify endpoint
-│   ├── pipeline.py           # Batch orchestration over the input CSV
-│   ├── process.py            # Per-row classification logic
-│   ├── land_taxonomy.py      # Client for the land-taxonomy-api
-│   ├── taxonomy_lookup.py    # GBIF identifier lookup
-│   ├── models.py             # Pydantic models (input, output, API responses)
-│   ├── config.py             # Constants, thresholds, logging setup
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── data/                     # Mount point for output CSVs (not versioned)
-│   └── output.csv
-│
+│   └── taxonomy_lookup.py  # GBIF identifier lookup, with in-memory cache
+├── changes.md
+├── .env.example
 ├── docker-compose.yml
-└── README.md
+├── Dockerfile
+├── README.md
+└── requirements.txt
 ```
 
 ## Requirements
 
-- Docker
-- Docker Compose
+- Docker (and Docker Compose for the convenience setup)
 - An OpenAI API key
   - Ollama can be used instead if there is no API key available (intended for testing the pipeline end to end).
 
 ## Setup
 
-### 1. Clone the repository
+Copy the environment template and add your key:
 
 ```bash
-git clone <repo-url>
-cd WP3-land-taxonomy-classifier
+cp .env.example .env
+# edit .env:
+# OPENAI_API_KEY=sk-your-key-here
 ```
 
-### 2. Configure environment
+## Running
 
-```bash
-cp land-taxonomy-api/.env.example land-taxonomy-api/.env
-```
-
-Edit `.env` and add your OpenAI API key:
-
-```
-OPENAI_API_KEY=sk-your-key-here
-```
-
-### 3. Run the pipeline
+### As a service (interactive)
 
 ```bash
 docker compose up --build
 ```
 
-### 4. Add input data
+Open the interactive docs at `http://localhost:8000/docs`.
 
-Open the interactive docs at http://0.0.0.0:8001/docs and use the POST /classify endpoint to upload an input CSV. Set the use_ollama flag if you are running without an OpenAI API key. \
-The endpoint returns the processed CSV as a semicolon-separated download. A copy is also written to ./data/output.csv (checkpointed periodically during long runs so progress is not lost). \
-The input delimiter is auto-detected, so comma- or semicolon-separated inputs are both accepted.
+- `POST /classify`: classify a single free-text locality/habitat string. Returns the matched CLC category. (land classification only)
+- `POST /classify/csv`: upload a CSV and receive the processed CSV as a download. 
+
+Input delimiter is auto-detected (comma/semicolon-separated inputs both accepted)
+
+### As a batch job (CLI)
+
+```bash
+docker run --rm \
+  -e OPENAI_API_KEY=$OPENAI_API_KEY \
+  -v $(pwd)/input.csv:/in.csv \
+  -v $(pwd):/out \
+  taxonomy-classify:0.1 \
+  python /app/classify.py --input /in.csv --output /out/output.csv
+```
+
+### Input Columns
 
 | Column | Description |
 |--------|-------------|
@@ -89,44 +88,44 @@ The input delimiter is auto-detected, so comma- or semicolon-separated inputs ar
 | `Genus` | Free-text plant genus |
 | `Family` | Free-text plant family |
 
-Output is written to `./data/output.csv`.
-
 ## Output Format
 
-Each row in the output CSV corresponds to one input record:
+Each row of the output CSV corresponds to one input record:
 
 | Column | Description |
 |--------|-------------|
 | `id` | Record identifier, for joining with input data |
-| `clc_code` | CORINE Land Cover level 3 code (e.g. `311`) |
-| `clc_name` | CLC category name (e.g. `Broadleaved Forest`) |
-| `clc_confidence` | Match confidence (0.0-1.0) |
+| `clc_code` | CORINE Land Cover Level-3 code (e.g. `311`) |
+| `clc_name` | CLC category name (canonical, looked up from the code) |
+| `clc_confidence` | LLM match confidence (`0.0`-`1.0`) |
 | `clc_reason` | LLM explanation for the match |
-| `clc_input` | Input that was given in row |
-| `clc_source` | Which model produced the classification (`ollama` or `openai`) |
+| `clc_input` | The text that was classified |
+| `clc_source` | Which model produced the classification (`openai` or `ollama`) |
 | `clc_field` | Whether `FundortUNdOeko` or `Locality` was used as input |
-| `taxon_identifier` | GBIF backbone key of given plant |
-| `taxon_confidence` | GBIF match confidence (0-100) |
-| `taxon_status` | Can be `resolved`, `fuzzy` or `unresolved` |
-| `error` | Contains any errors when processing row |
+| `taxon_identifier` | GBIF backbone key |
+| `taxon_confidence` | GBIF match confidence (`0`-`100`) |
+| `taxon_status` | `resolved`, `fuzzy`, `unresolved`, or `error` |
+| `error` | Any error encountered while processing the row |
+
+> **Confidence scales differ:** `clc_confidence` is `0.0`-`1.0` (LLM), `taxon_confidence` is `0`-`100` (GBIF). They are not comparable.
 
 ## Notes
 
-- Classification quality depends heavily on input text. Records with only place names (e.g. "Bayern, SW Grainau") produce lower-confidence, less specific results than records with actual habitat descriptions (e.g. "Weinbergshang").
+- Classification quality depends heavily on input text. Records with only place names (e.g. "Bayern, SW Grainau") produce lower-confidence, less specific results than records with real habitat descriptions (e.g. "Weinbergshang").
 - `FundortUNdOeko` is populated in approximately 26% of BGBM records; `Locality` covers 99.4%.
-- The OpenAI API is called once per record. At 100k records, costs are non-trivial; consider using a smaller sample for development.
-- `llama3.2` and `gpt-4o-mini` do not return the same results. The production model is currently intended to be an OpenAI model (e.g. gpt-4o), subject to change after evaluation. Ollama exists so the pipeline can be run without an API key, not as a production target.
-- On the first compose call, Ollama may need a few minutes to download the model image; it is cached for subsequent runs. The first inference also triggers a one-time model load, which the pipeline waits for via a warm-up request before processing begins.
-- Records are processed concurrently in batches (see BATCH_SIZE in config.py).
+- The LLM is called once per record. At 100k records, OpenAI costs are non-trivial; use a smaller sample for development.
+- GBIF results are cached in memory within a run, so repeated species names are looked up only once. The cache resets between runs.
+- A `taxon_status` of `error` marks a transient GBIF failure (timeout, rate limit) rather than a genuine no-match — those rows can be safely re-run.
+- `llama3.2` and `gpt-4o-mini` do not return the same results. The production model is intended to be an OpenAI model (e.g. `gpt-4o`), subject to evaluation. Ollama exists to run the service without an API key, not as a production target.
+- Records are processed concurrently in batches (see `BATCH_SIZE` in `config.py`).
 
 ## Planned Extensions
 
-- Nextflow module for nf-core pipeline integration
-- Caching of resolved GBIF identifiers to reduce repeated lookups and API load
+- Cross-run persistence of the GBIF cache (e.g. SQLite) to avoid re-querying across separate runs
 - Recording the GBIF match rank (species / genus / family) alongside the identifier
+
+This service is also integrated into the BiodivPipeline Nextflow workflow as the `TAXONOMY_CLASSIFY` module; see that repository for pipeline-level usage.
 
 ## AI Assistance
 
-This project was developed with the assistance of Claude for 
-architectural guidance, code review, and documentation. \
-All code has been reviewed and tested by the authors.
+This project was developed with the assistance of Claude for architectural guidance, code review, and documentation. All code has been reviewed and tested by the authors.
