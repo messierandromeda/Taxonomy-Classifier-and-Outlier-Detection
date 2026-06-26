@@ -1,1 +1,2 @@
 UNINITIALIZED_MSG = 'Outlier detection engine is uninitialized. Please run "python -m app.train" while the Docker container is started from the project\'s root directory first.'
+RULE_BASED_MSG = "Check for missing columns. If set to True, many entries will be incorrectly marked as outliers due to missing columns."
