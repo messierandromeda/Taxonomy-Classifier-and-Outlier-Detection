@@ -1,4 +1,4 @@
-# Outlier and Data-Quality Detection Service
+# Outlier and Data-Quality Detection Service (WP4)
 
 A production-ready REST API for biodiversity data-quality validation, statistical outlier detection, and semantic consistency analysis.
 
@@ -25,7 +25,9 @@ The detection pipeline processes biodiversity specimen records through multiple 
 .
 ├── app/
 │   ├── __init__.py
+│   ├── cli_functions.py                 # CLI functions in
 │   ├── config.py                        # Configuration constants
+│   ├── main_with_cli.py                 # Main function for parsing CLI arguments
 │   ├── main.py                          # FastAPI application
 │   ├── ollama_config.py                 # Ollama service integration
 │   ├── pipeline.py                      # Main detection pipeline
@@ -151,6 +153,29 @@ The API is available at `http://127.0.0.1:8000/docs`
 
 ---
 
+## CLI version 
+The overall structure of the command line arguments:
+
+```python
+python -m app.main_with_cli [function] --file [filename] --output [output.csv] [other optional arguments]
+```
+
+Use the following command to view all available functions:
+```python
+python -m app.main_with_cli -h
+```
+
+To view optional arguments for each function, such as ```detect-csv```:
+```python
+python -m app.main_with_cli detect-csv -h
+```
+
+Example usage: run in the main directory the following command:
+
+```python
+python -m app.main_with_cli detect-csv --file input.csv --output output.csv
+```
+
 ## Supported Input Formats
 
 The API accepts:
@@ -188,9 +213,9 @@ Returns service status and Ollama connectivity.
 POST /detect-json
 ```
 
-Accepts biodiversity records directly as JSON body or file upload.
+Accepts biodiversity records directly as file upload. The JSON should be in the format below:
 
-**Request (JSON body):**
+**Example JSON Request:**
 ```json
 {
   "records": [
@@ -207,26 +232,20 @@ Accepts biodiversity records directly as JSON body or file upload.
     }
   ],
   "enable_quality": true,
-  "enable_outliers": true,
   "enable_semantic": true,
   "enable_llm": false,
   "llm_provider": "none",
-  "training_subset_size": 500,
-  "training_seed": 42
 }
 ```
 
 **Parameters:**
-- `records` (required): List of record objects
-- `enable_quality` (default: true): Enable rule-based quality checks
-- `enable_outliers` (default: true): Enable statistical outlier detection
-- `enable_semantic` (default: true): Enable semantic rule checking
+- `file` (required): JSON file upload
 - `enable_llm` (default: false): Enable LLM-based semantic analysis
 - `llm_provider` (default: "none"): LLM provider ("ollama")
-- `numeric_fields` (optional): Fields to analyze for numeric outliers
-- `text_fields` (optional): Fields to include in LLM analysis
-- `training_subset_size` (default: 500): Records to use for training detectors
-- `training_seed` (default: 42): Randomization seed for consistent training
+- `download_csv` (default: false): Return results as CSV download
+- `enable_semantic` (default: true): Enable semantic rule checking
+- `enable_quality` (default: true): Enable rule-based quality checks (checks for missing columns)
+
 
 **Response:**
 ```json
@@ -279,14 +298,17 @@ POST /detect-csv
 Accepts CSV file uploads and processes them in configurable chunks.
 
 **Query Parameters:**
+- `file` (required): CSV file upload
 - `enable_llm` (default: false): Enable LLM analysis
 - `llm_provider` (default: "none"): LLM provider ("ollama")
 - `chunksize` (default: 1000): Records per chunk
 - `max_records` (optional): Maximum total records to process
 - `max_llm_records` (default: 25): Maximum records to send to LLM
 - `llm_only_flagged` (default: true): Only analyze flagged records with LLM
-- `training_subset_size` (default: 500): Records for training
 - `download_csv` (default: false): Return results as CSV download
+- `enable_semantic` (default: true): Enable semantic rule checking
+- `enable_quality` (default: true): Enable rule-based quality checks (checks for missing columns)
+
 
 **Example:**
 ```bash
@@ -375,36 +397,6 @@ The service expects records with optional BGBM-derived fields:
 
 **Metadata:**
 - `collector`, `collectorNumber`, `collectorNotes`, `labelText`, `expedition`
-
----
-
-# Example Requests
-
-## JSON Request
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect-json" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "records": [
-      {
-        "scientificName": "Quercus robur",
-        "country": "Germany",
-        "decimalLatitude": 52.52,
-        "decimalLongitude": 13.405,
-        "collectionDateBegin": "2020-06-15"
-      }
-    ],
-    "enable_llm": false
-  }'
-```
-
-## CSV Upload
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect-csv?download_csv=true" \
-  -F "file=@biodiversity_data.csv"
-```
 
 ---
 

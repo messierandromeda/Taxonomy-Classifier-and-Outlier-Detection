@@ -4,6 +4,7 @@ import io
 import logging
 from pathlib import Path
 import pandas as pd
+from typing import Annotated
 from fastapi import (
     FastAPI,
     UploadFile,
@@ -11,8 +12,8 @@ from fastapi import (
     Form,
     HTTPException,
     status,
+    Query
 )
-from pydantic import Field
 from fastapi.responses import StreamingResponse, Response
 
 from app.schemas import (
@@ -79,9 +80,6 @@ def health():
         "ollama_model": OLLAMA_MODEL,
     }
 
-from typing import Annotated 
-from fastapi import Query
-
 @app.post(
     "/detect-json",
     response_model=DetectResponse,
@@ -98,7 +96,7 @@ async def detect_json(
     llm_provider: str = "none",
     download_csv: bool = False,
     enable_semantic: bool = True,
-    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = False
+    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = False,
 ):
     if not file.filename.endswith(".json"):
         raise HTTPException(status_code=400, detail="Only JSON files are supported.")
@@ -159,7 +157,7 @@ async def detect_csv(
     llm_only_flagged: bool = True,
     download_csv: bool = False,
     enable_semantic: bool = True,
-    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = False
+    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = False,
 ):
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(
@@ -177,7 +175,7 @@ async def detect_csv(
         max_records=max_records,
         max_llm_records=max_llm_records,
         llm_only_flagged=llm_only_flagged,
-        enable_quality=enable_quality,     # checks for missing columns
+        enable_quality=enable_quality,  # checks for missing columns
         enable_semantic=enable_semantic,
     )
 
