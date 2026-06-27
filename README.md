@@ -22,7 +22,7 @@ The detection pipeline processes biodiversity specimen records through multiple 
 ## Project Structure
 
 ```
-.
+Taxonomy-Classifier-and-Outlier-Detection/
 ├── app/
 │   ├── __init__.py
 │   ├── cli_functions.py                 # CLI functions in
