@@ -5,15 +5,7 @@ import logging
 from pathlib import Path
 import pandas as pd
 from typing import Annotated
-from fastapi import (
-    FastAPI,
-    UploadFile,
-    File,
-    Form,
-    HTTPException,
-    status,
-    Query
-)
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, status, Query
 from fastapi.responses import StreamingResponse, Response
 
 from app.schemas import (
@@ -85,6 +77,7 @@ def health():
         "ollama_running": is_ollama_running(),
         "ollama_model": OLLAMA_MODEL,
     }
+
 
 @app.post(
     "/detect-json",

@@ -328,9 +328,7 @@ def run_llm_only(
         )
 
     print(
-        f"[PIPELINE] Running LLM only "
-        f"| use_ollama={use_ollama} "
-        f"| records={len(result)}"
+        f"[PIPELINE] Running LLM only | use_ollama={use_ollama} | records={len(result)}"
     )
 
     detector = LLMDetector(

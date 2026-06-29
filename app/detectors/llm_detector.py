@@ -1,6 +1,5 @@
 import json
 import re
-import requests
 from typing import Any
 import logging
 from openai import OpenAI
@@ -8,6 +7,7 @@ from openai import OpenAI
 from app.detectors.base import get_record_id
 from app.preprocessing.bgbm_normalizer import normalize_bgbm_record
 from app.config import OPENAI_API_KEY, OLLAMA_BASE_URL, OLLAMA_MODEL, OPENAI_MODEL
+
 
 class LLMDetector:
     """Performs semantic inconsistency detection using an LLM backend.
@@ -17,13 +17,12 @@ class LLMDetector:
     """
 
     method_name = "llm_detector"
-    
 
     def __init__(
         self,
         text_fields: list[str] | None = None,
         timeout: int = 30,
-        use_ollama: bool = True
+        use_ollama: bool = True,
     ):
         self.text_fields = text_fields or [
             "scientificName",
@@ -45,14 +44,14 @@ class LLMDetector:
 
         self.timeout = timeout
         if use_ollama:
-            self.client = OpenAI(base_url=OLLAMA_BASE_URL, api_key='ollama')
+            self.client = OpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
             self.model = OLLAMA_MODEL
         else:
             self.client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
             self.model = OPENAI_MODEL
 
             if self.client is None:
-                raise RuntimeError('OPENAI_API_KEY is not set and use_ollama is False')
+                raise RuntimeError("OPENAI_API_KEY is not set and use_ollama is False")
 
     def detect(self, records: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
         """Run the LLM-based semantic detector on a list of records."""
@@ -64,16 +63,16 @@ class LLMDetector:
             normalized_record = normalize_bgbm_record(record)
             record_id = get_record_id(normalized_record, index)
             logging.info(
-                    f"[LLM] checking record {index + 1}/{len(records)} "
-                    f"| record_id={record_id}"
-                )
+                f"[LLM] checking record {index + 1}/{len(records)} "
+                f"| record_id={record_id}"
+            )
 
             is_suspicious, explanation, confidence = self._ask_llm(normalized_record)
             logging.info(
-                    f"[LLM] done record_id={record_id} "
-                    f"| suspicious={is_suspicious} "
-                    f"| confidence={confidence}"
-                )
+                f"[LLM] done record_id={record_id} "
+                f"| suspicious={is_suspicious} "
+                f"| confidence={confidence}"
+            )
 
             if is_suspicious:
                 results.setdefault(record_id, []).append(
@@ -138,10 +137,15 @@ class LLMDetector:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {'role': 'system', 'content': SYSTEM_PROMPT},
-                    {'role': 'user', 'content': json.dumps(relevant_record, ensure_ascii=False, indent=2)},
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {
+                        "role": "user",
+                        "content": json.dumps(
+                            relevant_record, ensure_ascii=False, indent=2
+                        ),
+                    },
                 ],
-                response_format={'type': 'json_object'},
+                response_format={"type": "json_object"},
                 temperature=0,
             )
 
@@ -149,9 +153,8 @@ class LLMDetector:
             try:
                 data = json.loads(raw)
             except (json.JSONDecodeError, TypeError):
-                logging.warning('LLM returned invalid JSON for: %s', str(raw)[:80])
+                logging.warning("LLM returned invalid JSON for: %s", str(raw)[:80])
                 return False, "LLM returned invalid JSON.", 0.0
-
 
             parsed = data
 
@@ -181,7 +184,7 @@ class LLMDetector:
         end = text.rfind("}")
 
         if start != -1 and end != -1 and end > start:
-            json_candidate = text[start:end + 1]
+            json_candidate = text[start : end + 1]
 
             try:
                 return json.loads(json_candidate)
@@ -228,6 +231,7 @@ class LLMDetector:
             return 0.75
 
         return max(0.0, min(1.0, confidence))
+
 
 SYSTEM_PROMPT = """
 You are a biodiversity and herbarium data-quality analyst.
