@@ -107,7 +107,7 @@ async def detect(
 async def detect_csv(
     file: UploadFile = File(...),
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     chunksize: int = 1000,
     max_records: int | None = None,
     max_llm_records: int = 25,
@@ -126,7 +126,7 @@ async def detect_csv(
     response = process_csv_in_chunks(
         file_bytes=raw,
         enable_llm=enable_llm,
-        llm_provider=llm_provider,
+        use_ollama=use_ollama,
         chunksize=chunksize,
         max_records=max_records,
         max_llm_records=max_llm_records,

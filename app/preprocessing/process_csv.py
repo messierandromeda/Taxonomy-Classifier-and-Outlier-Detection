@@ -9,7 +9,7 @@ from app.pipeline import process_records_strategically, annotate_records
 def process_csv_in_chunks(
     file_bytes: bytes,
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     chunksize: int = 1000,
     max_records: int | None = None,
     max_llm_records: int = 25,
@@ -50,7 +50,7 @@ def process_csv_in_chunks(
             enable_outliers=True,
             enable_semantic=True,
             enable_llm=enable_llm,
-            llm_provider=llm_provider,
+            use_ollama=use_ollama,
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
             training_subset_size=training_subset_size,

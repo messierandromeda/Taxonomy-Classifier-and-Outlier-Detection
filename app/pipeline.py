@@ -349,7 +349,7 @@ def run_detectors(
 
 def run_llm_only(
     records: list[dict],
-    llm_provider: str = "ollama",
+    use_ollama: bool = False,
     text_fields: list[str] | None = None,
 ) -> DetectResponse:
     """Run only the LLM detector on normalized records.
@@ -369,15 +369,13 @@ def run_llm_only(
 
     print(
         f"[PIPELINE] Running LLM only "
-        f"| provider={llm_provider} "
+        f"| use_ollama={use_ollama} "
         f"| records={len(result)}"
     )
 
     detector = LLMDetector(
-        provider=llm_provider,
+        use_ollama=use_ollama,
         text_fields=text_fields,
-        model=OLLAMA_MODEL,
-        ollama_url=OLLAMA_URL,
         timeout=30,
     )
 
@@ -499,7 +497,7 @@ def process_records_strategically(
     enable_outliers: bool = True,
     enable_semantic: bool = True,
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
     training_subset_size: int = 500,
@@ -512,7 +510,7 @@ def process_records_strategically(
     print(
         f"[PIPELINE] process_records_strategically "
         f"| enable_llm={enable_llm} "
-        f"| provider={llm_provider} "
+        f"| use_ollama={use_ollama} "
         f"| max_llm_records={max_llm_records} "
         f"| llm_only_flagged={llm_only_flagged}"
     )
@@ -529,7 +527,7 @@ def process_records_strategically(
 
     llm_response = None
 
-    if enable_llm and llm_provider != "none" and max_llm_records > 0:
+    if enable_llm and max_llm_records > 0:
         print("[PIPELINE] LLM branch enabled.")
 
         if llm_only_flagged:
@@ -554,7 +552,7 @@ def process_records_strategically(
         if llm_records:
             llm_response = run_llm_only(
                 records=llm_records,
-                llm_provider=llm_provider,
+                use_ollama=use_ollama,
             )
         else:
             print("[PIPELINE] LLM skipped because selected record list is empty.")
