@@ -23,7 +23,7 @@ def main():
         "--enable-llm", action="store_true", help="Enable LLM reasoning"
     )
     json_parser.add_argument(
-        "--llm-provider", default="none", help="LLM provider choice"
+        "--use_ollama", action="store_true", help="Choice Ollama or OpenAI-o4"
     )
     json_parser.add_argument(
         "--semantic",
@@ -47,7 +47,7 @@ def main():
         "--enable-llm", action="store_true", help="Enable LLM reasoning"
     )
     csv_parser.add_argument(
-        "--llm-provider", default="none", help="LLM provider choice"
+        "--use_ollama", action="store_true", help="Choice Ollama or OpenAI-o4"
     )
     csv_parser.add_argument(
         "--chunksize", type=int, default=1000, help="Chunk tracking window size"

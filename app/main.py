@@ -92,7 +92,7 @@ def health():
 async def detect_json(
     file: UploadFile = File(...),
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     download_csv: bool = False,
     enable_semantic: bool = True,
     enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = False,
@@ -118,7 +118,7 @@ async def detect_json(
         enable_outliers=request.enable_outliers,
         enable_semantic=enable_semantic,
         enable_llm=enable_llm,
-        llm_provider=llm_provider,
+        use_ollama=use_ollama,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
     )

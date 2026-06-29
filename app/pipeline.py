@@ -212,7 +212,7 @@ def run_detectors(
     enable_outliers: bool = True,
     enable_semantic: bool = True,
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
 ) -> DetectResponse:
@@ -258,17 +258,15 @@ def run_detectors(
     if enable_outliers:
         detectors.extend(outlier_detectors)
 
-    if enable_llm and llm_provider != "none":
+    if enable_llm:
         logging.info(
             f"[PIPELINE] LLM detector added to main detector list "
-            f"| provider={llm_provider}"
+            f"| use_ollama={use_ollama}"
         )
         detectors.append(
             LLMDetector(
-                provider=llm_provider,
+                use_ollama=use_ollama,
                 text_fields=text_fields,
-                model=OLLAMA_MODEL,
-                ollama_url=OLLAMA_URL,
                 timeout=30,
             )
         )
@@ -462,7 +460,7 @@ def process_records_strategically(
         enable_outliers=enable_outliers,
         enable_semantic=enable_semantic,
         enable_llm=False,
-        llm_provider="none",
+        use_ollama=False,
     )
 
     llm_response = None
