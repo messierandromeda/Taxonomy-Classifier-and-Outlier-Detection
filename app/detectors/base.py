@@ -27,4 +27,9 @@ def get_record_id(record: Dict[str, Any], index: int) -> str:
 
     Falls back to the record index when no identifier field is present.
     """
-    return str(record.get("id") or record.get("occurrenceID") or record.get("catalogNumber") or index)
+    return str(
+        record.get("id")
+        or record.get("occurrenceID")
+        or record.get("catalogNumber")
+        or index
+    )

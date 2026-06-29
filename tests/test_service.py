@@ -8,6 +8,7 @@ client = TestClient(app)
 
 JSON_ENDPOINT = "/detect-json"
 CSV_ENDPOINT = "/detect-csv"
+TRAIN_ENDPOINT = "/train-csv"
 
 
 def make_record(**overrides):
@@ -57,9 +58,7 @@ def test_health():
 def test_detect_with_training_subset_size():
     payload = {
         "training_subset_size": 1,
-        "records": [
-            make_record(HerbariumID="subset-1")
-        ],
+        "records": [make_record(HerbariumID="subset-1")],
     }
 
     response = post_json_file(payload)
@@ -84,10 +83,7 @@ def test_detect_invalid_coordinate():
 
     flags = response.json()["results"][0]["flags"]
 
-    assert any(
-        flag["type"] == "invalid_coordinate_range"
-        for flag in flags
-    )
+    assert any(flag["type"] == "invalid_coordinate_range" for flag in flags)
 
 
 def test_detect_invalid_date_order():
@@ -107,10 +103,7 @@ def test_detect_invalid_date_order():
 
     flags = response.json()["results"][0]["flags"]
 
-    assert any(
-        flag["type"] == "invalid_date_order"
-        for flag in flags
-    )
+    assert any(flag["type"] == "invalid_date_order" for flag in flags)
 
 
 def test_detect_invalid_url():
@@ -129,10 +122,7 @@ def test_detect_invalid_url():
 
     flags = response.json()["results"][0]["flags"]
 
-    assert any(
-        flag["type"] == "invalid_url"
-        for flag in flags
-    )
+    assert any(flag["type"] == "invalid_url" for flag in flags)
 
 
 def test_detect_taxonomic_inconsistency():
@@ -152,10 +142,7 @@ def test_detect_taxonomic_inconsistency():
 
     flags = response.json()["results"][0]["flags"]
 
-    assert any(
-        flag["type"] == "taxonomic_internal_inconsistency"
-        for flag in flags
-    )
+    assert any(flag["type"] == "taxonomic_internal_inconsistency" for flag in flags)
 
 
 def test_detect_json_file_upload():
@@ -230,6 +217,39 @@ def test_detect_csv_download():
     assert "csv-1" in response.text
 
 
+def test_train_csv_upload():
+    csv_content = (
+        "HerbariumID,DB,Family,FullNameCache,NameCache,Genus,"
+        "CollectionDateBegin,CollectionDateEnd,Country,Locality,"
+        "Latitude,Longitude,Barcode,StableURI\n"
+        "train-1,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
+        "2020-05-12,2020-05-13,Germany,Berlin,50.0,13.0,BGBMTRAIN,https://example.org/record/train-1\n"
+        "train-2,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
+        "2020-05-12,2020-05-13,Germany,Berlin,50.1,13.1,BGBMTRAIN2,https://example.org/record/train-2\n"
+    )
+
+    files = {
+        "file": (
+            "train.csv",
+            csv_content,
+            "text/csv",
+        )
+    }
+
+    response = client.post(
+        TRAIN_ENDPOINT,
+        files=files,
+        data={"training_subset_size": "2", "training_seed": "42"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"] == "Training completed successfully."
+    assert payload["trained_records"] == 2
+    assert payload["training_subset_size"] == 2
+    assert payload["training_seed"] == 42
+
+
 def test_semantic_detector_species_habitat_contradiction():
     payload = {
         "records": [
@@ -250,10 +270,7 @@ def test_semantic_detector_species_habitat_contradiction():
 
     flags = response.json()["results"][0]["flags"]
 
-    assert any(
-        flag["method"] == "semantic_rule_detector"
-        for flag in flags
-    )
+    assert any(flag["method"] == "semantic_rule_detector" for flag in flags)
 
 
 def test_iqr_or_modified_zscore_detector_flags_far_coordinate():
@@ -273,7 +290,8 @@ def test_iqr_or_modified_zscore_detector_flags_far_coordinate():
     flags = response.json()["results"][3]["flags"]
 
     assert any(
-        flag["method"] in {
+        flag["method"]
+        in {
             "iqr_detector",
             "modified_zscore_detector",
             "zscore_detector",
@@ -290,7 +308,9 @@ def test_geo_outlier_is_flagged_by_any_numeric_detector():
             make_record(HerbariumID="normal-3", Latitude=50.25, Longitude=10.96),
             make_record(HerbariumID="normal-4", Latitude=50.28, Longitude=10.99),
             make_record(HerbariumID="normal-5", Latitude=50.24, Longitude=10.95),
-            make_record(HerbariumID="outlier-geo", Latitude=-33.8688, Longitude=151.2093),
+            make_record(
+                HerbariumID="outlier-geo", Latitude=-33.8688, Longitude=151.2093
+            ),
         ],
         "training_subset_size": 6,
     }
@@ -302,7 +322,8 @@ def test_geo_outlier_is_flagged_by_any_numeric_detector():
     flags = response.json()["results"][-1]["flags"]
 
     assert any(
-        flag["method"] in {
+        flag["method"]
+        in {
             "iqr_detector",
             "modified_zscore_detector",
             "zscore_detector",

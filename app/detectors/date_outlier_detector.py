@@ -13,6 +13,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 PATH = CURRENT_DIR / "models" / "date_outlier.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
+
 class DateOutlierDetector(BaseDetector):
     """Detects anomalous collection years using z-score and IQR logic.
 
@@ -84,16 +85,17 @@ class DateOutlierDetector(BaseDetector):
             with open(PATH, "r", encoding="utf-8") as f:
                 self.cached_stats = json.load(f)
         else:
-            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
-                
+            logging.critical(
+                f"Model file NOT found at {PATH}! API cannot process detections."
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
+                detail=UNINITIALIZED_MSG,
             )
-        
+
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         for field in self.date_fields:
@@ -110,7 +112,6 @@ class DateOutlierDetector(BaseDetector):
             lower = stats["lower"]
             upper = stats["upper"]
             iqr = stats["iqr"]
-
 
             for index, year in series.items():
                 if pd.isna(year):
@@ -201,7 +202,7 @@ class DateOutlierDetector(BaseDetector):
             "%d/%m/%Y",
             "%Y/%m/%d",
             "%d-%m-%Y",
-            "%m/%d/%Y"
+            "%m/%d/%Y",
         ]
 
         for fmt in formats:

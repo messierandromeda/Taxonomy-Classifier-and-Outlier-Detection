@@ -29,7 +29,6 @@ def merge_flags(*flag_maps):
 
     for flag_map in flag_maps:
         for record_id, flags in flag_map.items():
-
             if record_id not in merged:
                 merged[record_id] = []
 
@@ -47,10 +46,7 @@ def calculate_record_score(flags):
     if not flags:
         return 0
 
-    return max(
-        get_flag_value(flag, "score", 0)
-        for flag in flags
-    )
+    return max(get_flag_value(flag, "score", 0) for flag in flags)
 
 
 def calculate_record_severity(flags):
@@ -60,9 +56,6 @@ def calculate_record_severity(flags):
         return "info"
 
     return max(
-        (
-            get_flag_value(flag, "severity", "info")
-            for flag in flags
-        ),
+        (get_flag_value(flag, "severity", "info") for flag in flags),
         key=lambda severity: SEVERITY_ORDER.get(severity, 0),
     )

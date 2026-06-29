@@ -12,6 +12,7 @@ CURRENT_DIR = Path(__file__).resolve().parent
 PATH = CURRENT_DIR / "models" / "iqr_detector.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
+
 class IQRDetector(BaseDetector):
     """Detects numeric outliers using interquartile range fences.
 
@@ -57,7 +58,7 @@ class IQRDetector(BaseDetector):
 
             if iqr == 0:
                 continue
-   
+
             self.cached_stats[field] = {
                 "q1": float(q1),
                 "q3": float(q3),
@@ -76,18 +77,19 @@ class IQRDetector(BaseDetector):
             with open(PATH, "r", encoding="utf-8") as f:
                 self.cached_stats = json.load(f)
         else:
-            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
-                
+            logging.critical(
+                f"Model file NOT found at {PATH}! API cannot process detections."
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
+                detail=UNINITIALIZED_MSG,
             )
-        
+
         df = pd.DataFrame(records)
 
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         for field in self.numeric_fields:

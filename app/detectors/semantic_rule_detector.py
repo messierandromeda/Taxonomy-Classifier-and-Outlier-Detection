@@ -8,6 +8,7 @@ from app.detectors.base import BaseDetector, get_record_id
 
 class SemanticRuleDetector(BaseDetector):
     """Detects higher-level semantic contradictions in habitat, locality, and species."""
+
     name = "semantic_rule_detector"
 
     SPECIES_HABITAT_RULES = {
@@ -23,7 +24,6 @@ class SemanticRuleDetector(BaseDetector):
                 "describes cold or alpine conditions."
             ),
         },
-
         "carnegiea gigantea": {
             "contradiction": [
                 "swamp",
@@ -37,7 +37,6 @@ class SemanticRuleDetector(BaseDetector):
                 "but the habitat describes wet conditions."
             ),
         },
-
         "nymphaea alba": {
             "contradiction": [
                 "dry grassland",
@@ -113,8 +112,7 @@ class SemanticRuleDetector(BaseDetector):
         """Evaluate records for semantic contradictions using rule-based text matching."""
 
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         for index, record in enumerate(records):
@@ -127,18 +125,19 @@ class SemanticRuleDetector(BaseDetector):
             notes = self._norm(record.get("collectorNotes"))
             label_text = self._norm(record.get("labelText"))
 
-            combined_text = " ".join([
-                scientific_name,
-                country,
-                locality,
-                habitat,
-                notes,
-                label_text,
-            ])
+            combined_text = " ".join(
+                [
+                    scientific_name,
+                    country,
+                    locality,
+                    habitat,
+                    notes,
+                    label_text,
+                ]
+            )
 
-            if (
-                self._has(combined_text, self.MARINE_TERMS)
-                and self._has(combined_text, self.INLAND_TERMS)
+            if self._has(combined_text, self.MARINE_TERMS) and self._has(
+                combined_text, self.INLAND_TERMS
             ):
                 results[record_id].append(
                     DetectionFlag(
@@ -158,9 +157,8 @@ class SemanticRuleDetector(BaseDetector):
                     )
                 )
 
-            if (
-                self._has(combined_text, self.WATER_TERMS)
-                and self._has(combined_text, self.DRY_TERMS)
+            if self._has(combined_text, self.WATER_TERMS) and self._has(
+                combined_text, self.DRY_TERMS
             ):
                 results[record_id].append(
                     DetectionFlag(
@@ -170,8 +168,7 @@ class SemanticRuleDetector(BaseDetector):
                         severity="low",
                         score=0.45,
                         message=(
-                            "Record contains both water-related and "
-                            "dry-habitat terms."
+                            "Record contains both water-related and dry-habitat terms."
                         ),
                         value={
                             "locality": record.get("locality"),
@@ -180,9 +177,8 @@ class SemanticRuleDetector(BaseDetector):
                     )
                 )
 
-            if (
-                country in ["germany", "deutschland"]
-                and self._has(combined_text, self.FOREIGN_COUNTRY_TERMS)  
+            if country in ["germany", "deutschland"] and self._has(
+                combined_text, self.FOREIGN_COUNTRY_TERMS
             ):
                 results[record_id].append(
                     DetectionFlag(
@@ -211,7 +207,6 @@ class SemanticRuleDetector(BaseDetector):
 
             if species_flag is not None:
                 results[record_id].append(species_flag)
-
 
         return results
 
@@ -274,15 +269,9 @@ class SemanticRuleDetector(BaseDetector):
     ) -> bool:
         """Return True when any normalized term appears in the text."""
 
-        normalized_terms = [
-            cls._norm(term)
-            for term in terms
-        ]
+        normalized_terms = [cls._norm(term) for term in terms]
 
-        return any(
-            term in text
-            for term in normalized_terms
-        )
+        return any(term in text for term in normalized_terms)
 
     @staticmethod
     def _is_future_date(value: Any) -> bool:
@@ -292,14 +281,7 @@ class SemanticRuleDetector(BaseDetector):
 
         text = str(value).strip()
 
-        formats = [
-            "%Y-%m-%d",
-            "%Y-%m",
-            "%Y",
-            "%d.%m.%Y",
-            "%d/%m/%Y",
-            "%m/%d/%Y"
-        ]
+        formats = ["%Y-%m-%d", "%Y-%m", "%Y", "%d.%m.%Y", "%d/%m/%Y", "%m/%d/%Y"]
 
         for fmt in formats:
             try:

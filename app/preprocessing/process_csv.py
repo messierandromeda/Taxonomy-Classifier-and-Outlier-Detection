@@ -14,7 +14,8 @@ def process_csv_in_chunks(
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
-    training_subset_size: int = 500,
+    enable_quality: bool = False,
+    enable_semantic: bool = True,
 ) -> DetectResponse:
     """Processes an uploaded CSV payload incrementally using configured pipelines."""
 
@@ -46,21 +47,18 @@ def process_csv_in_chunks(
 
         chunk_results = process_records_strategically(
             records=records,
-            enable_quality=True,
+            enable_quality=enable_quality,
             enable_outliers=True,
-            enable_semantic=True,
+            enable_semantic=enable_semantic,
             enable_llm=enable_llm,
             use_ollama=use_ollama,
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
-            training_subset_size=training_subset_size,
         )
 
         all_results.extend(chunk_results)
 
-        all_annotated_records.extend(
-            annotate_records(records, chunk_results)
-        )
+        all_annotated_records.extend(annotate_records(records, chunk_results))
 
         total_seen += len(records)
 

@@ -68,11 +68,7 @@ class HDBSCANGeoDetector(BaseDetector):
         if not all(field in df.columns for field in required):
             return
 
-        coords = (
-            df[required]
-            .apply(pd.to_numeric, errors="coerce")
-            .dropna()
-        )
+        coords = df[required].apply(pd.to_numeric, errors="coerce").dropna()
 
         if len(coords) < self.min_cluster_size * 2:
             return
@@ -111,8 +107,7 @@ class HDBSCANGeoDetector(BaseDetector):
             A mapping from record identifiers to a list of DetectionFlag objects.
         """
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         if not records:
@@ -128,8 +123,7 @@ class HDBSCANGeoDetector(BaseDetector):
 
         else:
             logging.critical(
-                f"Model file NOT found at {MODEL_PATH}! "
-                f"API cannot process detections."
+                f"Model file NOT found at {MODEL_PATH}! API cannot process detections."
             )
 
             raise HTTPException(
@@ -147,11 +141,7 @@ class HDBSCANGeoDetector(BaseDetector):
         if not all(field in df.columns for field in required):
             return results
 
-        coords = (
-            df[required]
-            .apply(pd.to_numeric, errors="coerce")
-            .dropna()
-        )
+        coords = df[required].apply(pd.to_numeric, errors="coerce").dropna()
 
         if coords.empty:
             return results
@@ -207,12 +197,8 @@ class HDBSCANGeoDetector(BaseDetector):
                         "geographic cluster (HDBSCAN)."
                     ),
                     value={
-                        "decimalLatitude": records[row_index].get(
-                            "decimalLatitude"
-                        ),
-                        "decimalLongitude": records[row_index].get(
-                            "decimalLongitude"
-                        ),
+                        "decimalLatitude": records[row_index].get("decimalLatitude"),
+                        "decimalLongitude": records[row_index].get("decimalLongitude"),
                         "membership_strength": strength_val,
                     },
                 )

@@ -17,6 +17,7 @@ from app.pipeline import prepare_records
 
 from app.detectors.hdbscan_geo_detector import HDBSCANGeoDetector
 
+
 def sample_training_records(
     records: List[Dict[str, object]],
     subset_size: int = 500,
@@ -46,11 +47,10 @@ def train_detectors(
         try:
             detector.train(records)
         except Exception as e:
-            detector_name = getattr(
-                detector, "name", detector.__class__.__name__
-            )
+            detector_name = getattr(detector, "name", detector.__class__.__name__)
             logging.warning(f"Skipping training {detector_name}: {e}")
             continue
+
 
 def run_training(
     records: list[dict],
@@ -83,17 +83,19 @@ def run_training(
         )
         train_detectors(outlier_detectors, training_records)
 
+
+# offline training
 CURRENT_DIR = Path(__file__).resolve().parent
 RAW_PATH = CURRENT_DIR / "data" / "train.csv"
 SHUFFLED_PATH = Path("data/shuffled_training_data.csv")
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
-    
+
     if SHUFFLED_PATH.exists():
         df = pd.read_csv(SHUFFLED_PATH)
         logging.info(f"Loading {SHUFFLED_PATH} for training...")
@@ -101,12 +103,14 @@ if __name__ == "__main__":
         if RAW_PATH.exists():
             logging.info(f"Loading {RAW_PATH}...")
             df = pd.read_csv(RAW_PATH, low_memory=False)
-            shuffled_df = df.sample(frac=0.5, random_state=42).reset_index(drop=True) 
+            shuffled_df = df.sample(frac=0.5, random_state=42).reset_index(drop=True)
             try:
                 shuffled_df.to_csv(SHUFFLED_PATH, index=False)
                 logging.info(f"{SHUFFLED_PATH} is converted")
             except PermissionError as e:
-                logging.error(f"{e} -> Run the command \"sudo chown -R $(whoami):$(id -gn) .\"")
+                logging.error(
+                    f'{e} -> Run the command "sudo chown -R $(whoami):$(id -gn) ."'
+                )
             except Exception as e:
                 logging.error(f"{e}")
         else:

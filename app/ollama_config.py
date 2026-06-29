@@ -15,6 +15,7 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
 # Ollama health check
 # --------------------------------------------------
 
+
 def is_ollama_running() -> bool:
     """Return True when the configured Ollama server responds successfully."""
     try:
@@ -28,9 +29,11 @@ def is_ollama_running() -> bool:
     except requests.RequestException:
         return False
 
+
 # --------------------------------------------------
 # Start Ollama automatically if needed
 # --------------------------------------------------
+
 
 def start_ollama_if_needed() -> None:
     """Attempt to start the Ollama service if it is not already running."""
@@ -60,6 +63,3 @@ def start_ollama_if_needed() -> None:
             return
 
     print("Warning: Ollama could not be started automatically.")
-
-
-

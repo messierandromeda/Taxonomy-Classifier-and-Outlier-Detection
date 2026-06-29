@@ -1,4 +1,4 @@
-# Outlier and Data-Quality Detection Service
+# Outlier and Data-Quality Detection Service (WP4)
 
 A production-ready REST API for biodiversity data-quality validation, statistical outlier detection, and semantic consistency analysis.
 
@@ -22,54 +22,55 @@ The detection pipeline processes biodiversity specimen records through multiple 
 ## Project Structure
 
 ```
-app/
-├── __init__.py
-├── config.py                 # Configuration constants
-├── main.py                   # FastAPI application
-├── ollama_config.py          # Ollama service integration
-├── pipeline.py               # Main detection pipeline
-├── report.py                 # Result aggregation and scoring
-├── schemas.py                # Pydantic models (DetectionFlag, results)
-├── train.py                  # Offline detector training
-├── utils.py                  # Data normalization utilities
-│
-├── detectors/                # Detector implementations
-│   ├── base.py               # BaseDetector abstract class
-│   ├── rule_detector.py      # RuleDetector (syntactic validation)
-│   ├── semantic_rule_detector.py  # SemanticRuleDetector (ecological rules)
-│   ├── iqr_detector.py       # IQRDetector (interquartile range)
-│   ├── zscore_detector.py    # ZScoreDetector (z-score analysis)
-│   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
-│   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
-│   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
-│   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
-│   ├── llm_detector.py       # LLMDetector (semantic via LLM)
+Taxonomy-Classifier-and-Outlier-Detection/
+├── app/
+│   ├── __init__.py
+│   ├── cli_functions.py                 # CLI functions in
+│   ├── config.py                        # Configuration constants
+│   ├── main_with_cli.py                 # Main function for parsing CLI arguments
+│   ├── main.py                          # FastAPI application
+│   ├── ollama_config.py                 # Ollama service integration
+│   ├── pipeline.py                      # Main detection pipeline
+│   ├── report.py                        # Result aggregation and scoring
+│   ├── schemas.py                       # Pydantic models (DetectionFlag, results)
+│   ├── train.py                         # Offline detector training
+│   ├── utils.py                         # Data normalization utilities
 │   │
-│   └── models/               # Persisted detector models
-│       ├── z-score.json
-│       ├── modified-z-score.json
-│       ├── iqr_detector.json
-│       ├── date_outlier.json
-│       ├── isolation_forest_scaler.pkl
-│       ├── isolation_forest_model.pkl
-│       ├── hdbscan_scaler.pkl
-│       └── hdbscan_model.pkl
+│   ├── detectors/                       # Detector implementations
+│   │   ├── base.py                      # BaseDetector abstract class
+│   │   ├── rule_detector.py             # RuleDetector (syntactic validation)
+│   │   ├── semantic_rule_detector.py    # SemanticRuleDetector (ecological rules)
+│   │   ├── iqr_detector.py              # IQRDetector (interquartile range)
+│   │   ├── zscore_detector.py           # ZScoreDetector (z-score analysis)
+│   │   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
+│   │   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
+│   │   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
+│   │   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
+│   │   ├── llm_detector.py              # LLMDetector (semantic via LLM)
+│   │   │
+│   │   └── models/                      # Persisted detector models
+│   │       ├── z-score.json
+│   │       ├── modified-z-score.json
+│   │       ├── iqr_detector.json
+│   │       ├── date_outlier.json
+│   │       ├── isolation_forest_scaler.pkl
+│   │       ├── isolation_forest_model.pkl
+│   │       ├── hdbscan_scaler.pkl
+│   │       └── hdbscan_model.pkl
+│   │
+│   └── preprocessing/                   # Data preprocessing utilities
+│       ├── bgbm_normalizer.py           # BGBM field normalization
+│       └── process_csv.py               # Chunked CSV processing
 │
-└── preprocessing/            # Data preprocessing utilities
-    ├── bgbm_normalizer.py    # BGBM field normalization
-    └── process_csv.py        # Chunked CSV processing
-
-tests/
-├── test_service.py           # Integration tests
-
-docker-compose.yml
-Dockerfile
-requirements.txt
-README.md
-Detectors.md
+├── tests/                               # Integration tests
+│   └── test_service.py
+│
+├── Dockerfile
+├── README.md
+├── Detectors.md
+├── docker-compose.yml
+└── requirements.txt
 ```
-
----
 
 # Installation and Setup
 
@@ -152,6 +153,29 @@ The API is available at `http://127.0.0.1:8000/docs`
 
 ---
 
+## CLI version 
+The overall structure of the command line arguments:
+
+```python
+python -m app.main_with_cli [function] --file [filename] --output [output.csv] [other optional arguments]
+```
+
+Use the following command to view all available functions:
+```python
+python -m app.main_with_cli -h
+```
+
+To view optional arguments for each function, such as ```detect-csv```:
+```python
+python -m app.main_with_cli detect-csv -h
+```
+
+Example usage: run in the main directory the following command:
+
+```python
+python -m app.main_with_cli detect-csv --file input.csv --output output.csv
+```
+
 ## Supported Input Formats
 
 The API accepts:
@@ -189,9 +213,9 @@ Returns service status and Ollama connectivity.
 POST /detect-json
 ```
 
-Accepts biodiversity records directly as JSON body or file upload.
+Accepts biodiversity records directly as file upload. The JSON should be in the format below:
 
-**Request (JSON body):**
+**Example JSON Request:**
 ```json
 {
   "records": [
@@ -208,26 +232,20 @@ Accepts biodiversity records directly as JSON body or file upload.
     }
   ],
   "enable_quality": true,
-  "enable_outliers": true,
   "enable_semantic": true,
   "enable_llm": false,
   "llm_provider": "none",
-  "training_subset_size": 500,
-  "training_seed": 42
 }
 ```
 
 **Parameters:**
-- `records` (required): List of record objects
-- `enable_quality` (default: true): Enable rule-based quality checks
-- `enable_outliers` (default: true): Enable statistical outlier detection
-- `enable_semantic` (default: true): Enable semantic rule checking
+- `file` (required): JSON file upload
 - `enable_llm` (default: false): Enable LLM-based semantic analysis
 - `llm_provider` (default: "none"): LLM provider ("ollama")
-- `numeric_fields` (optional): Fields to analyze for numeric outliers
-- `text_fields` (optional): Fields to include in LLM analysis
-- `training_subset_size` (default: 500): Records to use for training detectors
-- `training_seed` (default: 42): Randomization seed for consistent training
+- `download_csv` (default: false): Return results as CSV download
+- `enable_semantic` (default: true): Enable semantic rule checking
+- `enable_quality` (default: true): Enable rule-based quality checks (checks for missing columns)
+
 
 **Response:**
 ```json
@@ -280,14 +298,17 @@ POST /detect-csv
 Accepts CSV file uploads and processes them in configurable chunks.
 
 **Query Parameters:**
+- `file` (required): CSV file upload
 - `enable_llm` (default: false): Enable LLM analysis
 - `llm_provider` (default: "none"): LLM provider ("ollama")
 - `chunksize` (default: 1000): Records per chunk
 - `max_records` (optional): Maximum total records to process
 - `max_llm_records` (default: 25): Maximum records to send to LLM
 - `llm_only_flagged` (default: true): Only analyze flagged records with LLM
-- `training_subset_size` (default: 500): Records for training
 - `download_csv` (default: false): Return results as CSV download
+- `enable_semantic` (default: true): Enable semantic rule checking
+- `enable_quality` (default: true): Enable rule-based quality checks (checks for missing columns)
+
 
 **Example:**
 ```bash
@@ -297,20 +318,40 @@ curl -X POST "http://127.0.0.1:8000/detect-csv?enable_llm=true&download_csv=true
 
 ---
 
-## Training Detectors
+### Train Statistical Detectors From CSV
+
+```http
+POST /train-csv
+```
 
 Detectors that use statistics or models must be trained on your dataset before inference:
 
+No training is required for rule-based detectors (RuleDetector, SemanticRuleDetector).
+
+Accepts a CSV file upload and trains statistical detectors on the provided dataset. This endpoint persists learned model parameters and statistics for detectors that require training, such as IQR, z-score, modified z-score, Isolation Forest, and HDBSCAN.  Trained models persists to `app/detectors/models/`
+
+**Form Fields:**
+- `file` (required): CSV file upload
+- `training_subset_size` (default: 500): Number of records sampled for detector training
+- `training_seed` (default: 42): Seed used for reproducible sampling
+
+**Example:**
 ```bash
-python -m app.train
+curl -X POST "http://127.0.0.1:8000/train-csv" \
+  -F "file=@training_data.csv" \
+  -F "training_subset_size=1000" \
+  -F "training_seed=42"
 ```
 
-This script:
-- Loads training data from `data/train.csv`
-- Samples a subset for efficiency
-- Trains and persists models to `app/detectors/models/`
-
-Training is optional for rule-based detectors (RuleDetector, SemanticRuleDetector).
+**Response:**
+```json
+{
+  "message": "Training completed successfully.",
+  "trained_records": 1234,
+  "training_subset_size": 500,
+  "training_seed": 42
+}
+```
 
 ---
 
@@ -356,36 +397,6 @@ The service expects records with optional BGBM-derived fields:
 
 **Metadata:**
 - `collector`, `collectorNumber`, `collectorNotes`, `labelText`, `expedition`
-
----
-
-# Example Requests
-
-## JSON Request
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect-json" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "records": [
-      {
-        "scientificName": "Quercus robur",
-        "country": "Germany",
-        "decimalLatitude": 52.52,
-        "decimalLongitude": 13.405,
-        "collectionDateBegin": "2020-06-15"
-      }
-    ],
-    "enable_llm": false
-  }'
-```
-
-## CSV Upload
-
-```bash
-curl -X POST "http://127.0.0.1:8000/detect-csv?download_csv=true" \
-  -F "file=@biodiversity_data.csv"
-```
 
 ---
 

@@ -12,8 +12,10 @@ CURRENT_DIR = Path(__file__).resolve().parent
 PATH = CURRENT_DIR / "models" / "z-score.json"
 PATH.parent.mkdir(parents=True, exist_ok=True)
 
+
 class ZScoreDetector(BaseDetector):
     """Detects numeric outliers by z-score relative to fitted field statistics."""
+
     name = "zscore_detector"
 
     def __init__(
@@ -50,7 +52,7 @@ class ZScoreDetector(BaseDetector):
 
             if std == 0:
                 continue
-            
+
             self.cached_stats[field] = {
                 "mean": float(mean),
                 "std": float(std),
@@ -66,18 +68,19 @@ class ZScoreDetector(BaseDetector):
             with open(PATH, "r", encoding="utf-8") as f:
                 self.cached_stats = json.load(f)
         else:
-            logging.critical(f"Model file NOT found at {PATH}! API cannot process detections.")
-                
+            logging.critical(
+                f"Model file NOT found at {PATH}! API cannot process detections."
+            )
+
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=UNINITIALIZED_MSG
+                detail=UNINITIALIZED_MSG,
             )
-        
+
         df = pd.DataFrame(records)
 
         results = {
-            get_record_id(record, index): []
-            for index, record in enumerate(records)
+            get_record_id(record, index): [] for index, record in enumerate(records)
         }
 
         for field in self.numeric_fields:
