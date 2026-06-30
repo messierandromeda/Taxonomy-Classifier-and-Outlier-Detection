@@ -11,7 +11,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
 
 # System packages required for pandas/sklearn.
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y procps \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
