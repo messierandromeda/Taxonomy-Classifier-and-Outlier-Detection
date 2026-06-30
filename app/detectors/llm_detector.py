@@ -16,8 +16,6 @@ class LLMDetector:
     to the configured Ollama service for semantic analysis.
     """
 
-    method_name = "llm_detector"
-
     def __init__(
         self,
         text_fields: list[str] | None = None,
@@ -46,9 +44,11 @@ class LLMDetector:
         if use_ollama:
             self.client = OpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
             self.model = OLLAMA_MODEL
+            self.name = "LLM: Ollama"
         else:
             self.client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
             self.model = OPENAI_MODEL
+            self.name = "LLM: OpenAI"
 
             if self.client is None:
                 raise RuntimeError("OPENAI_API_KEY is not set and use_ollama is False")
@@ -78,7 +78,7 @@ class LLMDetector:
                 results.setdefault(record_id, []).append(
                     {
                         "field": ",".join(self.text_fields),
-                        "method": self.method_name,
+                        "method": self.name,
                         "type": "semantic_inconsistency",
                         "severity": "medium" if confidence < 0.85 else "high",
                         "score": confidence,

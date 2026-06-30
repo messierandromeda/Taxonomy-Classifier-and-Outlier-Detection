@@ -21,7 +21,6 @@ from app.report import (
 )
 
 from app.schemas import DetectResponse, RecordQualityResult
-from app.ollama_config import OLLAMA_MODEL, OLLAMA_URL
 from app.utils import add_event_year, normalize_records
 
 
@@ -335,7 +334,7 @@ def run_llm_only(
         timeout=30,
     )
 
-    logging.info("[DETECTOR START] llm_detector")
+    logging.info(f"[DETECTOR START] {detector.name}")
 
     start_time = time.time()
     flag_map = detector.detect(result)

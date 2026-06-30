@@ -53,7 +53,7 @@ def detect_json(args):
         enable_outliers=request.enable_outliers,
         enable_semantic=args.enable_semantic,
         enable_llm=args.enable_llm,
-        llm_provider=args.llm_provider,
+        use_ollama=args.use_ollama,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
     )
@@ -84,7 +84,7 @@ def detect_csv(args):
     response = process_csv_in_chunks(
         file_bytes=raw_bytes,
         enable_llm=args.enable_llm,
-        llm_provider=args.llm_provider,
+        use_ollama=args.use_ollama,
         chunksize=args.chunksize,
         max_records=args.max_records,
         max_llm_records=args.max_llm_records,

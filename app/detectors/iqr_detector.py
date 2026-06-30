@@ -3,6 +3,7 @@ import pandas as pd
 import json
 from pathlib import Path
 import logging
+import sys
 from fastapi import HTTPException, status
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
@@ -67,8 +68,13 @@ class IQRDetector(BaseDetector):
                 "upper": float(q3 + self.k * iqr),
             }
 
-        with open(PATH, "w", encoding="utf-8") as f:
-            json.dump(self.cached_stats, f, indent=4)
+        IS_TESTING = "pytest" in sys.modules
+
+        if not IS_TESTING:
+            with open(PATH, "w", encoding="utf-8") as f:
+                json.dump(self.cached_stats, f, indent=4)
+        else:
+            logging.info(f"Pytest detected. Prevented overwrite on: {PATH}")
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         """Flag records whose numeric values fall outside learned IQR fences."""
