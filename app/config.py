@@ -23,3 +23,10 @@ logging.basicConfig(
 logging.getLogger('httpx').setLevel(logging.WARNING)
 
 log = logging.getLogger(__name__)
+
+# Columns
+ID = 'HerbariumID'
+LOCALITY_FIELDS = ['FundortUNdOeko', 'Locality'] # sorted from most to least important
+NAME = 'FullNameCache'
+GENUS = 'Genus'
+FAMILY = 'Family'
