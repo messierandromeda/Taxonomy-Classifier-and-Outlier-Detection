@@ -6,10 +6,10 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response
 
-from config import log
+from config import log, OPENAI_MODEL
 from land_classifier import classify_land
 from pipeline import process_csv
-from models import CLCMatch, TextRequest
+from models import CLCMatch, TextRequest, TestModels
 
 app = FastAPI(
     title='Land Taxonomy Classifier and Plant Taxonomy Service',
@@ -26,7 +26,29 @@ async def classify_text(req: TextRequest) -> CLCMatch:
     if not req.text.strip():
         raise HTTPException(status_code=400, detail='text must not be empty')
     return await classify_land(req.text, req.use_ollama)
+    
+@app.post('/test-models', response_model=list[TestModels])
+async def test_multiple_models(req: TextRequest) -> list[TestModels]:
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail='text must not be empty')
 
+    output = []
+    models = req.models
+    reps = req.reps
+
+    for model in models:
+        rows = []
+        for rep in range(reps):
+            r = await classify_land(req.text, req.use_ollama, model)
+            rows.append(r)
+        output.append({
+            'model': model,
+            'cost': -1,
+            'prob_code': 'TODO',
+            'output': rows,
+        })
+    
+    return output
 
 @app.post('/classify/csv')
 async def classify_csv(

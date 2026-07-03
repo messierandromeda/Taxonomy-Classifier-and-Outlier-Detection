@@ -71,7 +71,7 @@ _openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 _ollama_client = AsyncOpenAI(base_url=OLLAMA_BASE_URL, api_key='ollama')
 
 
-async def classify_land(text: str, use_ollama: bool) -> CLCMatch:
+async def classify_land(text: str, use_ollama: bool, model: str = OPENAI_MODEL) -> CLCMatch:
     """Classify free text into a CLC Level-3 category. Returns an empty CLCMatch
     when there is no usable text or the model gives nothing parseable."""
     if not text or not text.strip():
@@ -82,7 +82,7 @@ async def classify_land(text: str, use_ollama: bool) -> CLCMatch:
     else:
         if _openai_client is None:
             raise RuntimeError('OPENAI_API_KEY is not set and use_ollama is False')
-        client, model = _openai_client, OPENAI_MODEL
+        client = _openai_client
 
     response = await client.chat.completions.create(
         model=model,
@@ -117,5 +117,5 @@ async def classify_land(text: str, use_ollama: bool) -> CLCMatch:
         confidence=top.get('confidence'),
         reason=top.get('reason', ''),
         input=text,
-        source='ollama' if use_ollama else 'openai',
+        model=model,
     )

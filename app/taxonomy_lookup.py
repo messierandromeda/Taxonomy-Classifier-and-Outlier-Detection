@@ -40,8 +40,11 @@ async def _api_call(name: str, genus: str, family: str, client: httpx.AsyncClien
         log.debug('GBIF match for %s has no confidence; marking unresolved', name)
         return TaxonMatch()
 
+    key = str(usage['key'])
+
     return TaxonMatch(
-        identifier=str(usage['key']),
+        key=key,
+        link=f'http://www.gbif.org/species/{key}',
         confidence=confidence,
         status='resolved' if confidence >= GBIF_CONFIDENCE_RESOLVED else 'fuzzy',
     )

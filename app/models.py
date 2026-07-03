@@ -1,12 +1,15 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class TextRequest(BaseModel):
-    text: str
+    text: str = 'Germany: Schleswig-Holstein. Hamburg-Lehmsal, Ostrand des Wittmoores, Ericeetum. 1962-10-27, Leg.: Fr. [Frahm] 965.'
     use_ollama: bool = False
+    models: list = ['gpt-4o-mini']
+    reps: int = 1
 
 class TaxonMatch(BaseModel):
-    identifier: str = ''
+    key: str = ''
+    link: str = ''
     confidence: Optional[float] = None
     status: str = 'unresolved'
 
@@ -16,16 +19,14 @@ class CLCMatch(BaseModel):
     confidence: Optional[float] = None
     reason: str = ''
     input: str = ''
-    source: str = ''
+    model: str = ''
     field: str = ''
 
-class HerbariumRecord(BaseModel):
-    HerbariumID: str
-    FullNameCache: str = ''
-    Genus: str = ''
-    Family: str = ''
-    Locality: str = ''
-    FundortUNdOeko: str = ''
+class TestModels(BaseModel):
+    model: str = ''
+    cost: float = 0
+    prob_code: str = ''
+    output: list[CLCMatch] = Field(default_factory=list)
 
 class ClassifierResult(BaseModel):
     id: str    
