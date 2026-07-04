@@ -6,7 +6,7 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response
 
-from config import log, OPENAI_MODEL
+from config import log
 from land_classifier import classify_land
 from pipeline import process_csv
 from models import CLCMatch, TextRequest, TestModels
