@@ -35,6 +35,57 @@ land-taxonomy-classifier/
 └── requirements.txt
 ```
 
+## Diagram
+```mermaid
+graph TD
+    %% Core Styling
+    classDef entrypoint fill:#4a90e2,stroke:#1d5da3,stroke-width:2px,color:#fff;
+    classDef core fill:#50e3c2,stroke:#1bb394,stroke-width:2px,color:#000;
+    classDef data fill:#f5a623,stroke:#d47d00,stroke-width:2px,color:#000;
+    classDef external fill:#b5b5b5,stroke:#777,stroke-width:1px,color:#000;
+
+    %% Ingress & Interfaces
+    subgraph Ingress [User Entry Points]
+        A[classify.py<br>Batch CLI]:::entrypoint
+        B[main.py<br>FastAPI Service]:::entrypoint
+    end
+
+    %% Configuration & Settings Load
+    C[config.py<br>App Settings] --> A
+    C --> B
+
+    %% Orchestration Layer
+    subgraph Orchestration [Batch & API Orchestration]
+        A -->|Processes Input CSV| D[pipeline.py<br>Batch Orchestrator]
+        B -->|Handles HTTP Requests| D
+    end
+
+    %% Per-Row Processing Engine
+    subgraph Processing_Engine [Core Logic]
+        D -->|Loops Over Rows| E[process.py<br>Per-Row Core Logic]
+        
+        H[taxonomy.csv<br>Local Context Rules]:::data -->|Predefined Categories| F[land_classifier.py<br>LLM Classifier Engine]
+        
+        E -->|Run Classification| F
+        E -->|Check Taxonomy| G[taxonomy_lookup.py<br>GBIF Lookup Engine]
+    end
+
+    %% Data Layers & Memory Caching
+    subgraph Data_Storage [Data & Cache Resources]
+        G -->|Speeds up queries| I[(In-Memory<br>Taxonomy Cache)]:::data
+    end
+
+    %% External Network Interfaces
+    subgraph External_APIs [External Networks]
+        G -->|REST Queries| J[GBIF API<br>Identifier Lookup]:::external
+    end
+
+    %% Repositioned Outputs: Structured cleanly directly below all processing components
+    F -->|Saves Classification| K[Generated Output CSV]:::data
+    I -->|Saves Cached Metadata| K
+    J -->|Saves Resolved Keys| K
+```
+
 ## Requirements
 
 - Docker (and Docker Compose for the convenience setup)
