@@ -73,7 +73,6 @@ Taxonomy-Classifier-and-Outlier-Detection/
 ```
 
 ## Diagram
-%%{init: {"themeCSS": ".label foreignObject { overflow: visible; }"} }%%
 ```mermaid
 graph TD
     %% Base Styling Definitions
