@@ -5,10 +5,17 @@ import pandas as pd
 from app.schemas import DetectRequest
 from app.pipeline import run_detectors
 from app.train import run_training
-from app.ollama_config import (
-    OLLAMA_MODEL,
-    is_ollama_running,
+from app.config import (
+    ID,
+    NAME,
+    COUNTRY,
+    LOCALITY,
+    LATITUDE,
+    LONGITUDE,
+    DATE,
     start_ollama_if_needed,
+    is_ollama_running,
+    OLLAMA_MODEL,
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
 from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
@@ -96,13 +103,13 @@ def detect_csv(args):
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        "HerbariumID",
-        "FullNameCache",
-        "Country",
-        "Locality",
-        "Latitude",
-        "Longitude",
-        "CollectionDateBegin",
+        ID,
+        NAME,
+        COUNTRY,
+        LOCALITY,
+        LATITUDE,
+        LONGITUDE,
+        DATE,
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",

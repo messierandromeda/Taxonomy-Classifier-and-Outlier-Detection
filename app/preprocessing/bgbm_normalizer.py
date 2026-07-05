@@ -26,9 +26,6 @@ def safe_float(value: Any) -> float | None:
 def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(record)
 
-    # -------------------------
-    # IDs / technische Felder
-    # -------------------------
     normalized["id"] = first_present(
         record,
         [
@@ -106,9 +103,6 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         ],
     )
 
-    # -------------------------
-    # Taxonomie
-    # -------------------------
     normalized["family"] = first_present(
         record,
         [
@@ -152,9 +146,6 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         ],
     )
 
-    # -------------------------
-    # Geografie / Fundort
-    # -------------------------
     normalized["country"] = first_present(
         record,
         [
@@ -234,9 +225,6 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         ],
     )
 
-    # -------------------------
-    # Datum / Sammlung
-    # -------------------------
     normalized["eventDate"] = first_present(
         record,
         [
@@ -301,9 +289,6 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         ],
     )
 
-    # -------------------------
-    # Texte / Notizen / Label
-    # -------------------------
     normalized["labelText"] = first_present(
         record,
         [
@@ -330,9 +315,6 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         ],
     )
 
-    # -------------------------
-    # Kombinierter Text für LLM / semantische Checks
-    # -------------------------
     normalized["semanticText"] = " | ".join(
         str(value)
         for value in [

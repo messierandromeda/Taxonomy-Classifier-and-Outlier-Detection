@@ -6,10 +6,6 @@ from app.preprocessing.bgbm_normalizer import (
 )
 from fastapi import HTTPException
 
-# --------------------------------------------------
-# Expected BGBM CSV column order
-# --------------------------------------------------
-
 BGBM_COLUMNS = [
     "HerbariumID",
     "Bild",
@@ -35,10 +31,6 @@ BGBM_COLUMNS = [
     "Barcode",
     "StableURI",
 ]
-
-# --------------------------------------------------
-# Extract year from date string
-# --------------------------------------------------
 
 
 def extract_year(value: Any) -> int | None:
@@ -81,19 +73,9 @@ def extract_year(value: Any) -> int | None:
     return None
 
 
-# --------------------------------------------------
-# Normalize records into internal schema
-# --------------------------------------------------
-
-
 def normalize_records(records: list[dict]) -> list[dict]:
     """Normalize all records into the internal BGBM-derived schema."""
     return [normalize_bgbm_record(record) for record in records]
-
-
-# --------------------------------------------------
-# Add derived eventYear field
-# --------------------------------------------------
 
 
 def add_event_year(records: list[dict]) -> list[dict]:
@@ -106,19 +88,9 @@ def add_event_year(records: list[dict]) -> list[dict]:
     return records
 
 
-# --------------------------------------------------
-# Replace NaN with None
-# --------------------------------------------------
-
-
 def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Replace pandas missing values with Python None for downstream processing."""
     return df.where(pd.notnull(df), None)
-
-
-# --------------------------------------------------
-# Assign BGBM headers if CSV has no header row
-# --------------------------------------------------
 
 
 def apply_bgbm_columns_if_needed(

@@ -6,7 +6,7 @@ from openai import OpenAI
 
 from app.detectors.base import get_record_id
 from app.preprocessing.bgbm_normalizer import normalize_bgbm_record
-from app.config import OPENAI_API_KEY, OLLAMA_BASE_URL, OLLAMA_MODEL, OPENAI_MODEL
+from app.config import OPENAI_API_KEY, OLLAMA_URL, OLLAMA_MODEL, OPENAI_MODEL
 
 
 class LLMDetector:
@@ -42,7 +42,7 @@ class LLMDetector:
 
         self.timeout = timeout
         if use_ollama:
-            self.client = OpenAI(base_url=OLLAMA_BASE_URL, api_key="ollama")
+            self.client = OpenAI(base_url=OLLAMA_URL, api_key="ollama")
             self.model = OLLAMA_MODEL
             self.name = "LLM: Ollama"
         else:

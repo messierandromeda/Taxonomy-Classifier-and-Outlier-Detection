@@ -76,7 +76,6 @@ class DateOutlierDetector(BaseDetector):
                 "upper": float(upper),
             }
 
-
         IS_TESTING = "pytest" in sys.modules
 
         if not IS_TESTING:

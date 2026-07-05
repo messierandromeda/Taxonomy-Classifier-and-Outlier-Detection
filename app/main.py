@@ -15,14 +15,24 @@ from app.schemas import (
 
 from app.pipeline import run_detectors
 from app.train import run_training
-from app.ollama_config import (
+from app.config import (
     OLLAMA_MODEL,
     is_ollama_running,
     start_ollama_if_needed,
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
 from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
-from app.config import UNINITIALIZED_MSG, RULE_BASED_MSG
+from app.config import (
+    UNINITIALIZED_MSG,
+    RULE_BASED_MSG,
+    ID,
+    NAME,
+    COUNTRY,
+    LOCALITY,
+    LATITUDE,
+    LONGITUDE,
+    DATE,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -95,7 +105,9 @@ async def detect_json(
     use_ollama: bool = False,
     download_csv: bool = False,
     enable_semantic: bool = True,
-    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = True,   # needs to be true so that pytest passes
+    enable_quality: Annotated[
+        bool, Query(description=RULE_BASED_MSG)
+    ] = True,  # needs to be true so that pytest passes
 ):
     if not file.filename.endswith(".json"):
         raise HTTPException(status_code=400, detail="Only JSON files are supported.")
@@ -156,7 +168,9 @@ async def detect_csv(
     llm_only_flagged: bool = True,
     download_csv: bool = False,
     enable_semantic: bool = True,
-    enable_quality: Annotated[bool, Query(description=RULE_BASED_MSG)] = True,   # needs to be true so that pytest passes
+    enable_quality: Annotated[
+        bool, Query(description=RULE_BASED_MSG)
+    ] = True,  # needs to be true so that pytest passes
 ):
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(
@@ -184,13 +198,13 @@ async def detect_csv(
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        "HerbariumID",
-        "FullNameCache",
-        "Country",
-        "Locality",
-        "Latitude",
-        "Longitude",
-        "CollectionDateBegin",
+        ID,
+        NAME,
+        COUNTRY,
+        LOCALITY,
+        LATITUDE,
+        LONGITUDE,
+        DATE,
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",
