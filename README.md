@@ -72,6 +72,87 @@ Taxonomy-Classifier-and-Outlier-Detection/
 └── requirements.txt
 ```
 
+## Diagram
+```mermaid
+graph TD
+    %% Base Styling Definitions
+    classDef api fill:#4a90e2,stroke:#1d5da3,stroke-width:2px,color:#fff;
+    classDef pipeline fill:#50e3c2,stroke:#1bb394,stroke-width:2px,color:#000;
+    classDef modelFile fill:#f5a623,stroke:#d47d00,stroke-width:2px,color:#000;
+    classDef fallback fill:#eaeaea,stroke:#b5b5b5,stroke-width:1px,color:#333;
+    classDef data fill:#f5a623,stroke:#d47d00,stroke-width:2px,color:#000;
+
+    %% Configuration & Settings Load
+    C[config.py and ollama_config.py:<br>App Settings] --> M1
+    C --> M2
+
+    %% User Entry Points
+    subgraph Client_Interface [User Entry Points]
+        M1[main_with_cli.py<br>Batch CLI]:::api
+        M2[main.py<br>FastAPI Application]:::api
+    end
+
+    %% Ingress Payloads & Routing Architecture (Train moved to the right)
+    subgraph FastAPI_Endpoints [Ingress & API Service Layer]
+        M1 -->|detect-csv| F[cli_functions.py]
+        
+        D[detect_json Endpoint]
+        E[detect_csv Endpoint]
+        G[Train Detectors Endpoint]
+
+        M2 --> D
+        M2 --> E
+        M2 --> G
+    end
+
+    %% Training State Mechanism (Shifted right below G)
+    subgraph Offline_Training_State [Offline Training Loop]
+        G --> K[train.py]
+        K -->|Save Models, Statistical Data| L[(app/detectors/models/*)]:::modelFile
+    end
+
+    %% Normalization & Pipeline Engine
+    subgraph Core_Engine [Pipeline Engine]
+        D --> H[process_csv.py]
+        E --> H
+        F --> H
+        H -->|Field Mapping| I[bgbm_normalizer.py]
+        I -->|Clean Data| J[pipeline.py:<br> Main Detection Pipeline]
+    end
+
+    %% Invisible layout link to pull the Engine section down uniformly
+    L ~~~ H
+
+    %% Internal Sequenced Detector Logic
+    subgraph Pipeline_Execution_Stages [Sequenced Detection Pipeline Stages]
+        J --> Stage1[1. Quality Detection]
+        Stage1 -->S1A[Rule Detector:<br>Syntactic Checks]
+        
+        J --> Stage2[2. Statistical Detection]
+        Stage2 --->|Loads trained weights from models/| L
+        L --> S2A[IQRDetector]
+        L --> S2B[ZScoreDetector]
+        L --> S2C[ModifiedZScoreDetector]
+        L --> S2D[DateOutlierDetector]
+        L --> S2E[IsolationForestDetector]
+        L --> S2F[HDBSCANGeoDetector]
+        
+        J --> Stage3[3. Semantic Detection]
+        Stage3 --> S3A[Semantic Rule Detector:<br>Ecological Consistency]
+        
+        J --> Stage4["4. LLM Detector"]
+        Stage4 -->N[Ollama: llama3.2:3b or OpenAI: gpt-4o-mini]
+    end
+
+    %% Output Serialization & Reporting
+    subgraph Output_Aggregation [Output Serialization & Reporting]
+        S1A & S2A & S2B & S2C & S2D & S2E & S2F & S3A & N --> O[report.py<br>Result Aggregator]
+        O -->|JSON Output / CSV Export| Q[Annotated Report]:::data
+    end
+
+    class Stage1,Stage2,Stage3,Stage4 pipeline;
+```
+
 # Installation and Setup
 
 ## Prerequisites
