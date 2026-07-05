@@ -73,6 +73,7 @@ Taxonomy-Classifier-and-Outlier-Detection/
 ```
 
 ## Diagram
+%%{init: {"themeCSS": ".label foreignObject { overflow: visible; }"} }%%
 ```mermaid
 graph TD
     %% Base Styling Definitions
@@ -108,7 +109,7 @@ graph TD
     %% Training State Mechanism (Shifted right below G)
     subgraph Offline_Training_State [Offline Training Loop]
         G --> K[train.py]
-        K -->|Save Models, Statistical Data| L[(app/detectors/models/*)]:::modelFile
+        K -->|Save Models and<br>Statistical Data| L[(app/detectors/models/*)]:::modelFile
     end
 
     %% Normalization & Pipeline Engine
@@ -129,7 +130,7 @@ graph TD
         Stage1 -->S1A[Rule Detector:<br>Syntactic Checks]
         
         J --> Stage2[2. Statistical Detection]
-        Stage2 --->|Loads trained weights from models/| L
+        Stage2 --->|Loads trained weights<br>from models/| L
         L --> S2A[IQRDetector]
         L --> S2B[ZScoreDetector]
         L --> S2C[ModifiedZScoreDetector]
