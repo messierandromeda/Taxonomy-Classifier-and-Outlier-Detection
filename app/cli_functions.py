@@ -6,13 +6,13 @@ from app.schemas import DetectRequest
 from app.pipeline import run_detectors
 from app.train import run_training
 from app.config import (
-    ID,
-    NAME,
+    HERBARIUM_ID,
+    FULL_NAME_CACHE,
     COUNTRY,
     LOCALITY,
     LATITUDE,
     LONGITUDE,
-    DATE,
+    COLLECTION_DATE_BEGIN,
     start_ollama_if_needed,
     is_ollama_running,
     OLLAMA_MODEL,
@@ -103,13 +103,13 @@ def detect_csv(args):
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        ID,
-        NAME,
+        HERBARIUM_ID,
+        FULL_NAME_CACHE,
         COUNTRY,
         LOCALITY,
         LATITUDE,
         LONGITUDE,
-        DATE,
+        COLLECTION_DATE_BEGIN,
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",

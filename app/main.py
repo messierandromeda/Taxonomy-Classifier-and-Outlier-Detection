@@ -25,13 +25,13 @@ from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
 from app.config import (
     UNINITIALIZED_MSG,
     RULE_BASED_MSG,
-    ID,
-    NAME,
+    HERBARIUM_ID,
+    FULL_NAME_CACHE,
     COUNTRY,
     LOCALITY,
     LATITUDE,
     LONGITUDE,
-    DATE,
+    COLLECTION_DATE_BEGIN,
 )
 
 logging.basicConfig(
@@ -198,13 +198,13 @@ async def detect_csv(
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        ID,
-        NAME,
+        HERBARIUM_ID,
+        FULL_NAME_CACHE,
         COUNTRY,
         LOCALITY,
         LATITUDE,
         LONGITUDE,
-        DATE,
+        COLLECTION_DATE_BEGIN,
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",

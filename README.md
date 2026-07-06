@@ -72,6 +72,23 @@ Taxonomy-Classifier-and-Outlier-Detection/
 └── requirements.txt
 ```
 
+## Canonical Field Names
+
+The canonical BGBM header names used by the service are defined as constants in `app/config.py`. Use those constants when referring to CSV headers or integrating with the CSV ingestion pipeline. Key constants include:
+
+- `HERBARIUM_ID` (`HerbariumID`)
+- `FULL_NAME_CACHE` (`FullNameCache`)
+- `COLLECTION_DATE_BEGIN` (`CollectionDateBegin`)
+- `COLLECTION_DATE_END` (`CollectionDateEnd`)
+- `COUNTRY` (`Country`)
+- `LOCALITY` (`Locality`)
+- `LATITUDE` (`Latitude`)
+- `LONGITUDE` (`Longitude`)
+- `BARCODE` (`Barcode`)
+- `STABLE_URI` (`StableURI`)
+
+Refer to [app/config.py](app/config.py) for the full list of header constants.
+
 ## Diagram
 ```mermaid
 graph TD

@@ -15,6 +15,8 @@ Syntactic and format validation:
 - Barcode and URL format validation
 - Taxonomic consistency (genus matching scientific name)
 
+Note: canonical CSV header names (BGBM fields) are defined in `app/config.py`. The detectors operate on normalized internal keys (e.g., `collectionDateBegin`, `decimalLatitude`, `decimalLongitude`) produced by `app/preprocessing/bgbm_normalizer.py`.
+
 ## Statistical Outliers
 
 ### IQRDetector

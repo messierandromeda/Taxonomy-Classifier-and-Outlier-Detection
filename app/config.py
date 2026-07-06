@@ -6,14 +6,36 @@ import time
 
 load_dotenv()
 
-# Columns
-ID = "HerbariumID"
-NAME = "FullNameCache"
+# Columns (explicit constants for every expected column)
+# Primary fields
+HERBARIUM_ID = "HerbariumID"
+BILD = "Bild"
+DB = "DB"
+FAMILY = "Family"
+FULL_NAME_CACHE = "FullNameCache"
+ANMERKUNGEN = "Anmerkungen"
+SAMMLERTEAM = "Sammlerteam"
+SAMMELNUMMER = "Sammelnummer"
+COLLECTION_DATE_BEGIN = "CollectionDateBegin"
+COLLECTION_DATE_END = "CollectionDateEnd"
 COUNTRY = "Country"
 LOCALITY = "Locality"
+TITEL_ETIKETT = "TitelEtikett"
+EXPEDITIONSANGABE = "Expeditionsangabe"
+SHOW_ON_MAP = "ShowOnMap"
 LATITUDE = "Latitude"
 LONGITUDE = "Longitude"
-DATE = "CollectionDateBegin"
+FUNDORT_UND_OEKO = "FundortUNdOeko"
+NAME_CACHE = "NameCache"
+GENUS = "Genus"
+IDENTIFIER = "Identifier"
+BARCODE = "Barcode"
+STABLE_URI = "StableURI"
+
+# Backwards-compatible aliases used elsewhere in the codebase
+ID = HERBARIUM_ID
+NAME = FULL_NAME_CACHE
+DATE = COLLECTION_DATE_BEGIN
 
 # Messages
 RULE_BASED_MSG = "Check for missing columns. If set to True, many entries will be incorrectly marked as outliers due to missing columns."

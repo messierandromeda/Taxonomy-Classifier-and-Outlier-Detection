@@ -2,6 +2,22 @@ import json
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.config import (
+    HERBARIUM_ID,
+    DB,
+    FAMILY,
+    FULL_NAME_CACHE,
+    NAME_CACHE,
+    GENUS,
+    COLLECTION_DATE_BEGIN,
+    COLLECTION_DATE_END,
+    COUNTRY,
+    LOCALITY,
+    LATITUDE,
+    LONGITUDE,
+    BARCODE,
+    STABLE_URI,
+)
 
 
 client = TestClient(app)
@@ -11,25 +27,48 @@ CSV_ENDPOINT = "/detect-csv"
 TRAIN_ENDPOINT = "/train-csv"
 
 
+_HEADER_TO_CONST = {
+    "HerbariumID": HERBARIUM_ID,
+    "DB": DB,
+    "Family": FAMILY,
+    "FullNameCache": FULL_NAME_CACHE,
+    "NameCache": NAME_CACHE,
+    "Genus": GENUS,
+    "CollectionDateBegin": COLLECTION_DATE_BEGIN,
+    "CollectionDateEnd": COLLECTION_DATE_END,
+    "Country": COUNTRY,
+    "Locality": LOCALITY,
+    "Latitude": LATITUDE,
+    "Longitude": LONGITUDE,
+    "Barcode": BARCODE,
+    "StableURI": STABLE_URI,
+}
+
+
 def make_record(**overrides):
     record = {
-        "HerbariumID": "test-1",
-        "DB": "BGBM",
-        "Family": "Fagaceae",
-        "FullNameCache": "Quercus robur L.",
-        "NameCache": "Quercus robur",
-        "Genus": "Quercus",
-        "CollectionDateBegin": "2020-05-12",
-        "CollectionDateEnd": "2020-05-13",
-        "Country": "Germany",
-        "Locality": "Berlin",
-        "Latitude": 52.5,
-        "Longitude": 13.4,
-        "Barcode": "BGBM12345",
-        "StableURI": "https://example.org/record/test-1",
+        HERBARIUM_ID: "test-1",
+        DB: "BGBM",
+        FAMILY: "Fagaceae",
+        FULL_NAME_CACHE: "Quercus robur L.",
+        NAME_CACHE: "Quercus robur",
+        GENUS: "Quercus",
+        COLLECTION_DATE_BEGIN: "2020-05-12",
+        COLLECTION_DATE_END: "2020-05-13",
+        COUNTRY: "Germany",
+        LOCALITY: "Berlin",
+        LATITUDE: 52.5,
+        LONGITUDE: 13.4,
+        BARCODE: "BGBM12345",
+        STABLE_URI: "https://example.org/record/test-1",
     }
 
-    record.update(overrides)
+    converted = {}
+    for k, v in overrides.items():
+        converted_key = _HEADER_TO_CONST.get(k, k)
+        converted[converted_key] = v
+
+    record.update(converted)
     return record
 
 
@@ -188,10 +227,25 @@ def test_annotated_records_contains_confidence():
 
 
 def test_detect_csv_download():
+    header = ",".join([
+        HERBARIUM_ID,
+        DB,
+        FAMILY,
+        FULL_NAME_CACHE,
+        NAME_CACHE,
+        GENUS,
+        COLLECTION_DATE_BEGIN,
+        COLLECTION_DATE_END,
+        COUNTRY,
+        LOCALITY,
+        LATITUDE,
+        LONGITUDE,
+        BARCODE,
+        STABLE_URI,
+    ])
+
     csv_content = (
-        "HerbariumID,DB,Family,FullNameCache,NameCache,Genus,"
-        "CollectionDateBegin,CollectionDateEnd,Country,Locality,"
-        "Latitude,Longitude,Barcode,StableURI\n"
+        f"{header}\n"
         "csv-1,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
         "2020-05-12,2020-05-13,Germany,Berlin,"
         "999,13.4,BGBM999,https://example.org/record/csv-1\n"
@@ -218,10 +272,25 @@ def test_detect_csv_download():
 
 
 def test_train_csv_upload():
+    header = ",".join([
+        HERBARIUM_ID,
+        DB,
+        FAMILY,
+        FULL_NAME_CACHE,
+        NAME_CACHE,
+        GENUS,
+        COLLECTION_DATE_BEGIN,
+        COLLECTION_DATE_END,
+        COUNTRY,
+        LOCALITY,
+        LATITUDE,
+        LONGITUDE,
+        BARCODE,
+        STABLE_URI,
+    ])
+
     csv_content = (
-        "HerbariumID,DB,Family,FullNameCache,NameCache,Genus,"
-        "CollectionDateBegin,CollectionDateEnd,Country,Locality,"
-        "Latitude,Longitude,Barcode,StableURI\n"
+        f"{header}\n"
         "train-1,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
         "2020-05-12,2020-05-13,Germany,Berlin,50.0,13.0,BGBMTRAIN,https://example.org/record/train-1\n"
         "train-2,BGBM,Fagaceae,Quercus robur L.,Quercus robur,Quercus,"
