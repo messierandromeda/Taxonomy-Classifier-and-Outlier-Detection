@@ -108,6 +108,16 @@ async def detect_json(
     enable_quality: Annotated[
         bool, Query(description=RULE_BASED_MSG)
     ] = True,  # needs to be true so that pytest passes
+    enable_outliers: bool = True,
+    # Individual detector flags
+    enable_rule_detector: bool | None = Query(None),
+    enable_semantic_rule_detector: bool | None = Query(None),
+    enable_iqr_detector: bool | None = Query(None),
+    enable_zscore_detector: bool | None = Query(None),
+    enable_modified_zscore_detector: bool | None = Query(None),
+    enable_date_outlier_detector: bool | None = Query(None),
+    enable_isolation_forest_detector: bool | None = Query(None),
+    enable_hdbscan_geo_detector: bool | None = Query(None),
 ):
     if not file.filename.endswith(".json"):
         raise HTTPException(status_code=400, detail="Only JSON files are supported.")
@@ -127,12 +137,20 @@ async def detect_json(
     response = run_detectors(
         records=request.records,
         enable_quality=enable_quality,
-        enable_outliers=request.enable_outliers,
+        enable_outliers=enable_outliers,
         enable_semantic=enable_semantic,
         enable_llm=enable_llm,
         use_ollama=use_ollama,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
+        enable_rule_detector=enable_rule_detector,
+        enable_semantic_rule_detector=enable_semantic_rule_detector,
+        enable_iqr_detector=enable_iqr_detector,
+        enable_zscore_detector=enable_zscore_detector,
+        enable_modified_zscore_detector=enable_modified_zscore_detector,
+        enable_date_outlier_detector=enable_date_outlier_detector,
+        enable_isolation_forest_detector=enable_isolation_forest_detector,
+        enable_hdbscan_geo_detector=enable_hdbscan_geo_detector,
     )
 
     if not download_csv:
@@ -171,6 +189,16 @@ async def detect_csv(
     enable_quality: Annotated[
         bool, Query(description=RULE_BASED_MSG)
     ] = True,  # needs to be true so that pytest passes
+    enable_outliers: bool = True,
+    # Individual detector flags
+    enable_rule_detector: bool | None = Query(None),
+    enable_semantic_rule_detector: bool | None = Query(None),
+    enable_iqr_detector: bool | None = Query(None),
+    enable_zscore_detector: bool | None = Query(None),
+    enable_modified_zscore_detector: bool | None = Query(None),
+    enable_date_outlier_detector: bool | None = Query(None),
+    enable_isolation_forest_detector: bool | None = Query(None),
+    enable_hdbscan_geo_detector: bool | None = Query(None),
 ):
     if not file.filename or not file.filename.endswith(".csv"):
         raise HTTPException(
@@ -190,6 +218,15 @@ async def detect_csv(
         llm_only_flagged=llm_only_flagged,
         enable_quality=enable_quality,  # checks for missing columns
         enable_semantic=enable_semantic,
+        enable_outliers=enable_outliers,
+        enable_rule_detector=enable_rule_detector,
+        enable_semantic_rule_detector=enable_semantic_rule_detector,
+        enable_iqr_detector=enable_iqr_detector,
+        enable_zscore_detector=enable_zscore_detector,
+        enable_modified_zscore_detector=enable_modified_zscore_detector,
+        enable_date_outlier_detector=enable_date_outlier_detector,
+        enable_isolation_forest_detector=enable_isolation_forest_detector,
+        enable_hdbscan_geo_detector=enable_hdbscan_geo_detector,
     )
 
     if not download_csv:

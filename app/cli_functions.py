@@ -57,12 +57,20 @@ def detect_json(args):
     response = run_detectors(
         records=request.records,
         enable_quality=args.enable_quality,
-        enable_outliers=request.enable_outliers,
+        enable_outliers=args.enable_outliers if hasattr(args, 'enable_outliers') else True,
         enable_semantic=args.enable_semantic,
         enable_llm=args.enable_llm,
         use_ollama=args.use_ollama,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
+        enable_rule_detector=args.enable_rule_detector if hasattr(args, 'enable_rule_detector') else None,
+        enable_semantic_rule_detector=args.enable_semantic_rule_detector if hasattr(args, 'enable_semantic_rule_detector') else None,
+        enable_iqr_detector=args.enable_iqr_detector if hasattr(args, 'enable_iqr_detector') else None,
+        enable_zscore_detector=args.enable_zscore_detector if hasattr(args, 'enable_zscore_detector') else None,
+        enable_modified_zscore_detector=args.enable_modified_zscore_detector if hasattr(args, 'enable_modified_zscore_detector') else None,
+        enable_date_outlier_detector=args.enable_date_outlier_detector if hasattr(args, 'enable_date_outlier_detector') else None,
+        enable_isolation_forest_detector=args.enable_isolation_forest_detector if hasattr(args, 'enable_isolation_forest_detector') else None,
+        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector if hasattr(args, 'enable_hdbscan_geo_detector') else None,
     )
 
     json_output = response.model_dump_json(indent=4)
@@ -98,6 +106,15 @@ def detect_csv(args):
         llm_only_flagged=args.llm_only_flagged,
         enable_quality=args.enable_quality,
         enable_semantic=args.enable_semantic,
+        enable_outliers=args.enable_outliers if hasattr(args, 'enable_outliers') else True,
+        enable_rule_detector=args.enable_rule_detector if hasattr(args, 'enable_rule_detector') else None,
+        enable_semantic_rule_detector=args.enable_semantic_rule_detector if hasattr(args, 'enable_semantic_rule_detector') else None,
+        enable_iqr_detector=args.enable_iqr_detector if hasattr(args, 'enable_iqr_detector') else None,
+        enable_zscore_detector=args.enable_zscore_detector if hasattr(args, 'enable_zscore_detector') else None,
+        enable_modified_zscore_detector=args.enable_modified_zscore_detector if hasattr(args, 'enable_modified_zscore_detector') else None,
+        enable_date_outlier_detector=args.enable_date_outlier_detector if hasattr(args, 'enable_date_outlier_detector') else None,
+        enable_isolation_forest_detector=args.enable_isolation_forest_detector if hasattr(args, 'enable_isolation_forest_detector') else None,
+        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector if hasattr(args, 'enable_hdbscan_geo_detector') else None,
     )
 
     df = pd.DataFrame(response.annotated_records)

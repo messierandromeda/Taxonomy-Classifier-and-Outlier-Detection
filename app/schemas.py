@@ -48,6 +48,17 @@ class DetectRequest(BaseModel):
     enable_semantic: bool = True
     enable_llm: bool = False
     llm_provider: LLMProvider = "none"
+    # Quality detectors
+    enable_rule_detector: Optional[bool] = None
+    # Semantic detectors
+    enable_semantic_rule_detector: Optional[bool] = None
+    # Outlier detectors
+    enable_iqr_detector: Optional[bool] = None
+    enable_zscore_detector: Optional[bool] = None
+    enable_modified_zscore_detector: Optional[bool] = None
+    enable_date_outlier_detector: Optional[bool] = None
+    enable_isolation_forest_detector: Optional[bool] = None
+    enable_hdbscan_geo_detector: Optional[bool] = None
     numeric_fields: Optional[List[str]] = None
     text_fields: Optional[List[str]] = None
     training_subset_size: int = 500
