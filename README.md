@@ -176,7 +176,7 @@ graph TD
 
 - Python 3.13
 - Docker and Docker Compose (optional)
-- Ollama (for LLM detection)
+- Ollama or OpenAI API key (for LLM detection)
 
 ---
 
@@ -276,14 +276,14 @@ python -m app.main_with_cli detect-csv --file input.csv --output output.csv
 
 ## Optional flags to DetectRequest:
 
-enable_rule_detector - Quality detector (rule-based)
-enable_semantic_rule_detector - Semantic detector
-enable_iqr_detector - IQR outlier detector
-enable_zscore_detector - Z-score outlier detector
-enable_modified_zscore_detector - Modified Z-score outlier detector
-enable_date_outlier_detector - Date outlier detector
-enable_isolation_forest_detector - Isolation forest multivariate detector
-enable_hdbscan_geo_detector - HDBSCAN geo-spatial clustering detector
+- enable_rule_detector - Quality detector (rule-based)
+- enable_semantic_rule_detector - Semantic detector
+- enable_iqr_detector - IQR outlier detector
+- enable_zscore_detector - Z-score outlier detector
+- enable_modified_zscore_detector - Modified Z-score outlier detector
+- enable_date_outlier_detector - Date outlier detector
+- enable_isolation_forest_detector - Isolation forest multivariate detector
+- enable_hdbscan_geo_detector - HDBSCAN geo-spatial clustering detector
 
 ```python
 # Run detection with only IQR and Z-score detectors
