@@ -84,6 +84,7 @@ def run_training(
         train_detectors(outlier_detectors, training_records)
 
 
+# offline training
 CURRENT_DIR = Path(__file__).resolve().parent
 RAW_PATH = CURRENT_DIR / "data" / "train.csv"
 SHUFFLED_PATH = Path("data/shuffled_training_data.csv")

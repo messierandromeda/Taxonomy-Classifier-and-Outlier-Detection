@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 import json
 import logging
+import sys
 from pathlib import Path
 from fastapi import status, HTTPException
 from app.schemas import DetectionFlag
@@ -75,8 +76,13 @@ class DateOutlierDetector(BaseDetector):
                 "upper": float(upper),
             }
 
-        with open(PATH, "w", encoding="utf-8") as f:
-            json.dump(self.cached_stats, f, indent=4)
+        IS_TESTING = "pytest" in sys.modules
+
+        if not IS_TESTING:
+            with open(PATH, "w", encoding="utf-8") as f:
+                json.dump(self.cached_stats, f, indent=4)
+        else:
+            logging.info(f"Pytest detected. Prevented overwrite on: {PATH}")
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         """Flag records with anomalous years based on precomputed date statistics."""

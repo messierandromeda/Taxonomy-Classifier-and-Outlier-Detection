@@ -9,11 +9,13 @@ from app.pipeline import process_records_strategically, annotate_records
 def process_csv_in_chunks(
     file_bytes: bytes,
     enable_llm: bool = False,
-    llm_provider: str = "none",
+    use_ollama: bool = False,
     chunksize: int = 1000,
     max_records: int | None = None,
     max_llm_records: int = 25,
     llm_only_flagged: bool = True,
+    enable_quality: bool = False,
+    enable_semantic: bool = True,
 ) -> DetectResponse:
     """Processes an uploaded CSV payload incrementally using configured pipelines."""
 
@@ -45,11 +47,11 @@ def process_csv_in_chunks(
 
         chunk_results = process_records_strategically(
             records=records,
-            enable_quality=True,
+            enable_quality=enable_quality,
             enable_outliers=True,
-            enable_semantic=True,
+            enable_semantic=enable_semantic,
             enable_llm=enable_llm,
-            llm_provider=llm_provider,
+            use_ollama=use_ollama,
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
         )

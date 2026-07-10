@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 import pandas as pd
 import json
+import sys
 from pathlib import Path
 from app.schemas import DetectionFlag
 from app.detectors.base import BaseDetector, get_record_id
@@ -56,8 +57,13 @@ class ModifiedZScoreDetector(BaseDetector):
                 "mad": float(mad),
             }
 
-        with open(PATH, "w", encoding="utf-8") as f:
-            json.dump(self.cached_stats, f, indent=4)
+        IS_TESTING = "pytest" in sys.modules
+
+        if not IS_TESTING:
+            with open(PATH, "w", encoding="utf-8") as f:
+                json.dump(self.cached_stats, f, indent=4)
+        else:
+            logging.info(f"Pytest detected. Prevented overwrite on: {PATH}")
 
     def detect(self, records: List[Dict[str, Any]]) -> Dict[str, List[DetectionFlag]]:
         """Flag records with large modified z-scores indicating robust outliers."""

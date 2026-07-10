@@ -5,40 +5,57 @@ from app.preprocessing.bgbm_normalizer import (
     normalize_bgbm_record,
 )
 from fastapi import HTTPException
-
-# --------------------------------------------------
-# Expected BGBM CSV column order
-# --------------------------------------------------
+from app.config import (
+    HERBARIUM_ID,
+    BILD,
+    DB,
+    FAMILY,
+    FULL_NAME_CACHE,
+    ANMERKUNGEN,
+    SAMMLERTEAM,
+    SAMMELNUMMER,
+    COLLECTION_DATE_BEGIN,
+    COLLECTION_DATE_END,
+    COUNTRY,
+    LOCALITY,
+    TITEL_ETIKETT,
+    EXPEDITIONSANGABE,
+    SHOW_ON_MAP,
+    LATITUDE,
+    LONGITUDE,
+    FUNDORT_UND_OEKO,
+    NAME_CACHE,
+    GENUS,
+    IDENTIFIER,
+    BARCODE,
+    STABLE_URI,
+)
 
 BGBM_COLUMNS = [
-    "HerbariumID",
-    "Bild",
-    "DB",
-    "Family",
-    "FullNameCache",
-    "Anmerkungen",
-    "Sammlerteam",
-    "Sammelnummer",
-    "CollectionDateBegin",
-    "CollectionDateEnd",
-    "Country",
-    "Locality",
-    "TitelEtikett",
-    "Expeditionsangabe",
-    "ShowOnMap",
-    "Latitude",
-    "Longitude",
-    "FundortUNdOeko",
-    "NameCache",
-    "Genus",
-    "Identifier",
-    "Barcode",
-    "StableURI",
+    HERBARIUM_ID,
+    BILD,
+    DB,
+    FAMILY,
+    FULL_NAME_CACHE,
+    ANMERKUNGEN,
+    SAMMLERTEAM,
+    SAMMELNUMMER,
+    COLLECTION_DATE_BEGIN,
+    COLLECTION_DATE_END,
+    COUNTRY,
+    LOCALITY,
+    TITEL_ETIKETT,
+    EXPEDITIONSANGABE,
+    SHOW_ON_MAP,
+    LATITUDE,
+    LONGITUDE,
+    FUNDORT_UND_OEKO,
+    NAME_CACHE,
+    GENUS,
+    IDENTIFIER,
+    BARCODE,
+    STABLE_URI,
 ]
-
-# --------------------------------------------------
-# Extract year from date string
-# --------------------------------------------------
 
 
 def extract_year(value: Any) -> int | None:
@@ -81,19 +98,9 @@ def extract_year(value: Any) -> int | None:
     return None
 
 
-# --------------------------------------------------
-# Normalize records into internal schema
-# --------------------------------------------------
-
-
 def normalize_records(records: list[dict]) -> list[dict]:
     """Normalize all records into the internal BGBM-derived schema."""
     return [normalize_bgbm_record(record) for record in records]
-
-
-# --------------------------------------------------
-# Add derived eventYear field
-# --------------------------------------------------
 
 
 def add_event_year(records: list[dict]) -> list[dict]:
@@ -106,19 +113,9 @@ def add_event_year(records: list[dict]) -> list[dict]:
     return records
 
 
-# --------------------------------------------------
-# Replace NaN with None
-# --------------------------------------------------
-
-
 def prepare_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """Replace pandas missing values with Python None for downstream processing."""
     return df.where(pd.notnull(df), None)
-
-
-# --------------------------------------------------
-# Assign BGBM headers if CSV has no header row
-# --------------------------------------------------
 
 
 def apply_bgbm_columns_if_needed(
