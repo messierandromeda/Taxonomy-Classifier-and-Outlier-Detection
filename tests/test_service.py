@@ -227,22 +227,24 @@ def test_annotated_records_contains_confidence():
 
 
 def test_detect_csv_download():
-    header = ",".join([
-        HERBARIUM_ID,
-        DB,
-        FAMILY,
-        FULL_NAME_CACHE,
-        NAME_CACHE,
-        GENUS,
-        COLLECTION_DATE_BEGIN,
-        COLLECTION_DATE_END,
-        COUNTRY,
-        LOCALITY,
-        LATITUDE,
-        LONGITUDE,
-        BARCODE,
-        STABLE_URI,
-    ])
+    header = ",".join(
+        [
+            HERBARIUM_ID,
+            DB,
+            FAMILY,
+            FULL_NAME_CACHE,
+            NAME_CACHE,
+            GENUS,
+            COLLECTION_DATE_BEGIN,
+            COLLECTION_DATE_END,
+            COUNTRY,
+            LOCALITY,
+            LATITUDE,
+            LONGITUDE,
+            BARCODE,
+            STABLE_URI,
+        ]
+    )
 
     csv_content = (
         f"{header}\n"
@@ -272,22 +274,24 @@ def test_detect_csv_download():
 
 
 def test_train_csv_upload():
-    header = ",".join([
-        HERBARIUM_ID,
-        DB,
-        FAMILY,
-        FULL_NAME_CACHE,
-        NAME_CACHE,
-        GENUS,
-        COLLECTION_DATE_BEGIN,
-        COLLECTION_DATE_END,
-        COUNTRY,
-        LOCALITY,
-        LATITUDE,
-        LONGITUDE,
-        BARCODE,
-        STABLE_URI,
-    ])
+    header = ",".join(
+        [
+            HERBARIUM_ID,
+            DB,
+            FAMILY,
+            FULL_NAME_CACHE,
+            NAME_CACHE,
+            GENUS,
+            COLLECTION_DATE_BEGIN,
+            COLLECTION_DATE_END,
+            COUNTRY,
+            LOCALITY,
+            LATITUDE,
+            LONGITUDE,
+            BARCODE,
+            STABLE_URI,
+        ]
+    )
 
     csv_content = (
         f"{header}\n"
