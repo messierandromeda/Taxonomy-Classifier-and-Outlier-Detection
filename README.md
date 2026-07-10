@@ -274,6 +274,36 @@ Example usage: run in the main directory the following command:
 python -m app.main_with_cli detect-csv --file input.csv --output output.csv
 ```
 
+## Optional flags to DetectRequest:
+
+enable_rule_detector - Quality detector (rule-based)
+enable_semantic_rule_detector - Semantic detector
+enable_iqr_detector - IQR outlier detector
+enable_zscore_detector - Z-score outlier detector
+enable_modified_zscore_detector - Modified Z-score outlier detector
+enable_date_outlier_detector - Date outlier detector
+enable_isolation_forest_detector - Isolation forest multivariate detector
+enable_hdbscan_geo_detector - HDBSCAN geo-spatial clustering detector
+
+```python
+# Run detection with only IQR and Z-score detectors
+python -m app.main_with_cli detect-csv --file data.csv \
+  --enable-iqr-detector --enable-zscore-detector \
+  --disable-hdbscan-geo-detector --disable-isolation-forest-detector
+```
+
+```python
+# Disable specific detectors while keeping others
+python -m app.main_with_cli detect-json --file data.json \
+  --disable-date-outlier-detector
+```
+
+```python
+# Use group flag with individual overrides
+python -m app.main_with_cli detect-csv --file data.csv \
+  --enable-outliers --disable-isolation-forest-detector
+```
+
 ## Supported Input Formats
 
 The API accepts:
@@ -281,6 +311,7 @@ The API accepts:
 - JSON payloads with record objects
 - CSV file uploads (with automatic chunked processing)
 - BGBM-compatible CSV formats (with or without headers)
+- Individual detectors can be disabled
 
 ---
 
@@ -550,32 +581,6 @@ Each flag contains:
 
 ---
 
-# Detector Pipeline
+# Detector Reference
 
-The pipeline currently supports:
-
-## Quality Validation
-
-- rule-based validation
-- identifier checks
-- date validation
-- coordinate validation
-
----
-
-## Statistical Outlier Detection
-
-- IQR
-- z-score
-- modified z-score
-- Isolation Forest
-- DBSCAN
-
----
-
-## Semantic Validation
-
-- ecological plausibility
-- geographic plausibility
-- habitat consistency
-- semantic LLM analysis
+For detailed descriptions of each detector, their algorithms, configuration options, and output flag types, see [Detectors.md](Detectors.md).
