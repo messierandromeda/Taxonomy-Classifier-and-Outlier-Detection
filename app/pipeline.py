@@ -214,11 +214,40 @@ def run_detectors(
     use_ollama: bool = False,
     numeric_fields: list[str] | None = None,
     text_fields: list[str] | None = None,
+    # Individual quality detectors
+    enable_rule_detector: bool | None = None,
+    # Individual semantic detectors
+    enable_semantic_rule_detector: bool | None = None,
+    # Individual outlier detectors
+    enable_iqr_detector: bool | None = None,
+    enable_zscore_detector: bool | None = None,
+    enable_modified_zscore_detector: bool | None = None,
+    enable_date_outlier_detector: bool | None = None,
+    enable_isolation_forest_detector: bool | None = None,
+    enable_hdbscan_geo_detector: bool | None = None,
 ) -> DetectResponse:
     """Run the configured detector ensemble and return quality results.
 
     This pipeline normalizes records, executes each
     enabled detector, merges flag outputs, and produces a final DetectResponse.
+    
+    Parameters:
+        records: List of records to process
+        enable_quality: Enable all quality detectors (can be overridden by individual flags)
+        enable_outliers: Enable all outlier detectors (can be overridden by individual flags)
+        enable_semantic: Enable all semantic detectors (can be overridden by individual flags)
+        enable_llm: Enable LLM detector
+        use_ollama: Use Ollama instead of OpenAI for LLM
+        numeric_fields: Fields for numeric analysis
+        text_fields: Fields for text analysis
+        enable_rule_detector: Enable/disable rule detector individually
+        enable_semantic_rule_detector: Enable/disable semantic rule detector individually
+        enable_iqr_detector: Enable/disable IQR detector individually
+        enable_zscore_detector: Enable/disable Z-score detector individually
+        enable_modified_zscore_detector: Enable/disable modified Z-score detector individually
+        enable_date_outlier_detector: Enable/disable date outlier detector individually
+        enable_isolation_forest_detector: Enable/disable isolation forest detector individually
+        enable_hdbscan_geo_detector: Enable/disable HDBSCAN geo detector individually
     """
     result = prepare_records(records)
 
@@ -248,14 +277,74 @@ def run_detectors(
 
     detectors = []
 
-    if enable_quality:
-        detectors.extend(quality_detectors)
+    # Handle quality detectors
+    if enable_rule_detector is None:
+        # Use group flag if individual flag not set
+        use_rule_detector = enable_quality
+    else:
+        use_rule_detector = enable_rule_detector
+    
+    if use_rule_detector:
+        detectors.append(quality_detectors[0])
 
-    if enable_semantic:
-        detectors.extend(semantic_detectors)
+    # Handle semantic detectors
+    if enable_semantic_rule_detector is None:
+        # Use group flag if individual flag not set
+        use_semantic_rule_detector = enable_semantic
+    else:
+        use_semantic_rule_detector = enable_semantic_rule_detector
+    
+    if use_semantic_rule_detector:
+        detectors.append(semantic_detectors[0])
 
-    if enable_outliers:
-        detectors.extend(outlier_detectors)
+    # Handle outlier detectors
+    if enable_iqr_detector is None:
+        use_iqr_detector = enable_outliers
+    else:
+        use_iqr_detector = enable_iqr_detector
+    
+    if use_iqr_detector:
+        detectors.append(outlier_detectors[0])
+
+    if enable_zscore_detector is None:
+        use_zscore_detector = enable_outliers
+    else:
+        use_zscore_detector = enable_zscore_detector
+    
+    if use_zscore_detector:
+        detectors.append(outlier_detectors[1])
+
+    if enable_modified_zscore_detector is None:
+        use_modified_zscore_detector = enable_outliers
+    else:
+        use_modified_zscore_detector = enable_modified_zscore_detector
+    
+    if use_modified_zscore_detector:
+        detectors.append(outlier_detectors[2])
+
+    if enable_date_outlier_detector is None:
+        use_date_outlier_detector = enable_outliers
+    else:
+        use_date_outlier_detector = enable_date_outlier_detector
+    
+    if use_date_outlier_detector:
+        detectors.append(outlier_detectors[3])
+
+    if enable_isolation_forest_detector is None:
+        use_isolation_forest_detector = enable_outliers
+    else:
+        use_isolation_forest_detector = enable_isolation_forest_detector
+    
+    if use_isolation_forest_detector:
+        detectors.append(outlier_detectors[4])
+
+    if enable_hdbscan_geo_detector is None:
+        use_hdbscan_geo_detector = enable_outliers
+    else:
+        use_hdbscan_geo_detector = enable_hdbscan_geo_detector
+    
+    if use_hdbscan_geo_detector:
+        detectors.append(outlier_detectors[5])
 
     if enable_llm:
         logging.info(
@@ -439,6 +528,14 @@ def process_records_strategically(
     use_ollama: bool = False,
     max_llm_records: int = 10,
     llm_only_flagged: bool = True,
+    enable_rule_detector: bool | None = None,
+    enable_semantic_rule_detector: bool | None = None,
+    enable_iqr_detector: bool | None = None,
+    enable_zscore_detector: bool | None = None,
+    enable_modified_zscore_detector: bool | None = None,
+    enable_date_outlier_detector: bool | None = None,
+    enable_isolation_forest_detector: bool | None = None,
+    enable_hdbscan_geo_detector: bool | None = None,
 ) -> list[RecordQualityResult]:
     """Run the pipeline and optionally trigger an LLM refinement step.
 
@@ -460,6 +557,14 @@ def process_records_strategically(
         enable_semantic=enable_semantic,
         enable_llm=False,
         use_ollama=False,
+        enable_rule_detector=enable_rule_detector,
+        enable_semantic_rule_detector=enable_semantic_rule_detector,
+        enable_iqr_detector=enable_iqr_detector,
+        enable_zscore_detector=enable_zscore_detector,
+        enable_modified_zscore_detector=enable_modified_zscore_detector,
+        enable_date_outlier_detector=enable_date_outlier_detector,
+        enable_isolation_forest_detector=enable_isolation_forest_detector,
+        enable_hdbscan_geo_detector=enable_hdbscan_geo_detector,
     )
 
     llm_response = None

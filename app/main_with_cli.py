@@ -2,6 +2,122 @@ import argparse
 from app.cli_functions import handle_health, detect_csv, detect_json, train_csv
 
 
+def add_detector_flags(parser):
+    """Add individual detector control flags to a parser."""
+    parser.add_argument(
+        "--enable-outliers",
+        dest="enable_outliers",
+        action="store_true",
+        default=True,
+        help="Enable all outlier detectors (can be overridden by individual flags)",
+    )
+    parser.add_argument(
+        "--disable-outliers",
+        dest="enable_outliers",
+        action="store_false",
+        help="Disable all outlier detectors",
+    )
+    # Quality detectors
+    parser.add_argument(
+        "--enable-rule-detector",
+        dest="enable_rule_detector",
+        action="store_true",
+        help="Enable rule-based quality detector",
+    )
+    parser.add_argument(
+        "--disable-rule-detector",
+        dest="enable_rule_detector",
+        action="store_false",
+        help="Disable rule-based quality detector",
+    )
+    # Semantic detectors
+    parser.add_argument(
+        "--enable-semantic-rule-detector",
+        dest="enable_semantic_rule_detector",
+        action="store_true",
+        help="Enable semantic rule detector",
+    )
+    parser.add_argument(
+        "--disable-semantic-rule-detector",
+        dest="enable_semantic_rule_detector",
+        action="store_false",
+        help="Disable semantic rule detector",
+    )
+    # Outlier detectors
+    parser.add_argument(
+        "--enable-iqr-detector",
+        dest="enable_iqr_detector",
+        action="store_true",
+        help="Enable IQR detector for coordinate outliers",
+    )
+    parser.add_argument(
+        "--disable-iqr-detector",
+        dest="enable_iqr_detector",
+        action="store_false",
+        help="Disable IQR detector",
+    )
+    parser.add_argument(
+        "--enable-zscore-detector",
+        dest="enable_zscore_detector",
+        action="store_true",
+        help="Enable Z-score detector for coordinate outliers",
+    )
+    parser.add_argument(
+        "--disable-zscore-detector",
+        dest="enable_zscore_detector",
+        action="store_false",
+        help="Disable Z-score detector",
+    )
+    parser.add_argument(
+        "--enable-modified-zscore-detector",
+        dest="enable_modified_zscore_detector",
+        action="store_true",
+        help="Enable modified Z-score detector for coordinate outliers",
+    )
+    parser.add_argument(
+        "--disable-modified-zscore-detector",
+        dest="enable_modified_zscore_detector",
+        action="store_false",
+        help="Disable modified Z-score detector",
+    )
+    parser.add_argument(
+        "--enable-date-outlier-detector",
+        dest="enable_date_outlier_detector",
+        action="store_true",
+        help="Enable date outlier detector",
+    )
+    parser.add_argument(
+        "--disable-date-outlier-detector",
+        dest="enable_date_outlier_detector",
+        action="store_false",
+        help="Disable date outlier detector",
+    )
+    parser.add_argument(
+        "--enable-isolation-forest-detector",
+        dest="enable_isolation_forest_detector",
+        action="store_true",
+        help="Enable isolation forest detector for multivariate outliers",
+    )
+    parser.add_argument(
+        "--disable-isolation-forest-detector",
+        dest="enable_isolation_forest_detector",
+        action="store_false",
+        help="Disable isolation forest detector",
+    )
+    parser.add_argument(
+        "--enable-hdbscan-geo-detector",
+        dest="enable_hdbscan_geo_detector",
+        action="store_true",
+        help="Enable HDBSCAN geo-spatial clustering detector",
+    )
+    parser.add_argument(
+        "--disable-hdbscan-geo-detector",
+        dest="enable_hdbscan_geo_detector",
+        action="store_false",
+        help="Disable HDBSCAN geo-spatial clustering detector",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Biodiv Outlier and Data-Quality Detection CLI Toolkit"
@@ -37,6 +153,7 @@ def main():
         action="store_true",
         help="Quality rule-based engine",
     )
+    add_detector_flags(json_parser)
     json_parser.set_defaults(handle_func=detect_json)
 
     # 3. Detect CSV Command
@@ -80,6 +197,7 @@ def main():
         default=False,
         help="Enable quality checks",
     )
+    add_detector_flags(csv_parser)
     csv_parser.set_defaults(handle_func=detect_csv)
 
     # 4. Train CSV Command

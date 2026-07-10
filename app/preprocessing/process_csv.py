@@ -16,6 +16,15 @@ def process_csv_in_chunks(
     llm_only_flagged: bool = True,
     enable_quality: bool = False,
     enable_semantic: bool = True,
+    enable_outliers: bool = True,
+    enable_rule_detector: bool | None = None,
+    enable_semantic_rule_detector: bool | None = None,
+    enable_iqr_detector: bool | None = None,
+    enable_zscore_detector: bool | None = None,
+    enable_modified_zscore_detector: bool | None = None,
+    enable_date_outlier_detector: bool | None = None,
+    enable_isolation_forest_detector: bool | None = None,
+    enable_hdbscan_geo_detector: bool | None = None,
 ) -> DetectResponse:
     """Processes an uploaded CSV payload incrementally using configured pipelines."""
 
@@ -48,12 +57,20 @@ def process_csv_in_chunks(
         chunk_results = process_records_strategically(
             records=records,
             enable_quality=enable_quality,
-            enable_outliers=True,
+            enable_outliers=enable_outliers,
             enable_semantic=enable_semantic,
             enable_llm=enable_llm,
             use_ollama=use_ollama,
             max_llm_records=max_llm_records,
             llm_only_flagged=llm_only_flagged,
+            enable_rule_detector=enable_rule_detector,
+            enable_semantic_rule_detector=enable_semantic_rule_detector,
+            enable_iqr_detector=enable_iqr_detector,
+            enable_zscore_detector=enable_zscore_detector,
+            enable_modified_zscore_detector=enable_modified_zscore_detector,
+            enable_date_outlier_detector=enable_date_outlier_detector,
+            enable_isolation_forest_detector=enable_isolation_forest_detector,
+            enable_hdbscan_geo_detector=enable_hdbscan_geo_detector,
         )
 
         all_results.extend(chunk_results)
