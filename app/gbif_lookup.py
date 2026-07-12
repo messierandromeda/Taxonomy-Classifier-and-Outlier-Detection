@@ -1,14 +1,23 @@
 import httpx
 
-from config import GBIF_CONFIDENCE_RESOLVED, log
-from models import TaxonMatch
+from .config import GBIF_CONFIDENCE_RESOLVED, log
+from .models import TaxonMatch
 
 # temp cache: persists across run (not permanent)
 _gbif_cache: dict[tuple, TaxonMatch] = {}
 
 
 def _key(name: str, genus: str, family: str) -> tuple:
-    return (name.strip().lower(), genus.strip().lower(), family.strip().lower())
+    # coerce first: genus/family are only ~98% filled, and None.strip() raises
+    return tuple((v or '').strip().lower() for v in (name, genus, family))
+
+
+def _family_from(classification: list[dict]) -> str:
+    """GBIF's authoritative family — trust this over the CSV's Family column."""
+    return next(
+        (c.get('name', '') for c in classification if c.get('rank') == 'FAMILY'),
+        '',
+    )
 
 
 async def _api_call(name: str, genus: str, family: str, client: httpx.AsyncClient) -> TaxonMatch:
@@ -16,7 +25,7 @@ async def _api_call(name: str, genus: str, family: str, client: httpx.AsyncClien
     try:
         response = await client.get(
             'https://api.gbif.org/v2/species/match',
-            params={'name': name, 'genus': genus, 'family': family, 'strict': 'false'},
+            params={'scientificName': name, 'genus': genus, 'family': family, 'kingdom': 'Plantae', 'strict': 'false'},
             timeout=30.0,
         )
         response.raise_for_status()
@@ -41,12 +50,23 @@ async def _api_call(name: str, genus: str, family: str, client: httpx.AsyncClien
         return TaxonMatch()
 
     key = str(usage['key'])
+    match_type = diagnostics.get('matchType', '')
+
+    resolved = confidence >= GBIF_CONFIDENCE_RESOLVED and match_type in ('EXACT', 'FUZZY')
 
     return TaxonMatch(
         key=key,
         link=f'http://www.gbif.org/species/{key}',
         confidence=confidence,
-        status='resolved' if confidence >= GBIF_CONFIDENCE_RESOLVED else 'fuzzy',
+        status='resolved' if resolved else 'fuzzy',
+        # for the prompt
+        canonical_name=usage.get('canonicalName', ''),
+        rank=usage.get('rank', ''),                      # GENUS vs SPECIES
+        family=_family_from(data.get('classification', [])),
+        # for validation
+        match_type=match_type,                           # EXACT | FUZZY | HIGHERRANK
+        is_synonym=bool(data.get('synonym', False)),     # True => CSV name is outdated
+        accepted_status=usage.get('status', ''),         # ACCEPTED | SYNONYM | ...
     )
 
 
@@ -67,3 +87,14 @@ async def match_gbif(name: str, genus: str, family: str, client: httpx.AsyncClie
         _gbif_cache[key] = result
 
     return result
+
+
+def taxon_prompt_fields(match: TaxonMatch, csv_name: str = '') -> dict[str, str]:
+    if match.status != 'resolved' or not match.canonical_name:
+        return {'Species': csv_name} if csv_name else {}
+
+    label = 'Genus' if match.rank == 'GENUS' else 'Species'
+    fields = {label: match.canonical_name}
+    if match.family:
+        fields['Family'] = match.family
+    return fields

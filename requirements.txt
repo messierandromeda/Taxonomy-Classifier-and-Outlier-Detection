@@ -6,3 +6,6 @@ python-multipart
 uvicorn
 openai
 python-dotenv
+pyarrow
+earthengine-api
+geemap

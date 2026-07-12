@@ -1,0 +1,6 @@
+id,csv_name,gbif_name,rank,match_type,confidence,is_synonym,status
+W01,Samolus valerandi L.,Samolus valerandi,SPECIES,EXACT,100.0,False,resolved
+W02,Bellis perennis L.,Bellis perennis,SPECIES,EXACT,100.0,False,resolved
+W03,Gymnocolea inflata (Huds.) Dumort.,Gymnocolea inflata,SPECIES,EXACT,100.0,False,resolved
+W04,Amaranthus emarginatus subsp. pseudogracilis (Thell.) Hügin,Amaranthus emarginatus pseudogracilis,SUBSPECIES,EXACT,100.0,False,resolved
+W05,Arabis L.,Arabis,GENUS,EXACT,100.0,False,resolved

@@ -1,0 +1,16 @@
+Prompt structure
+Prompt content
+Model
+Pricing
+
+Optional:
+generate csv with all clc codes obtainable through coords
+per row get clc code using llm (model + prompt obtained through testing)
+compare llm clc with gee clc (if exists, otherwise just take llm clc):
+
+    if same, take
+    if diff, look at length of description and date of record
+        if short and recent, take gee clc
+        otherwise take llm clc
+
+also consider confidence

@@ -3,9 +3,9 @@ import pandas as pd
 import httpx
 import asyncio
 
-from process import process_row
-from config import log, BATCH_SIZE
-from models import ClassifierResult
+from .process import process_row
+from .config import log, BATCH_SIZE
+from .models import ClassifierResult
 
 async def check_batch(batch, client, use_ollama) -> list:
     results = []

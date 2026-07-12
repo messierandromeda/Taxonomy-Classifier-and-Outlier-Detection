@@ -12,6 +12,12 @@ class TaxonMatch(BaseModel):
     link: str = ''
     confidence: Optional[float] = None
     status: str = 'unresolved'
+    canonical_name: str = ''
+    rank: str = ''
+    family: str = ''
+    match_type: str = ''
+    is_synonym: bool = False
+    accepted_status: str = ''
 
 class CLCMatch(BaseModel):
     code: str = ''

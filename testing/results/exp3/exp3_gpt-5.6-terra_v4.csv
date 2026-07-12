@@ -1,0 +1,518 @@
+id,clc_id,clc_code,clc_name,clc_confidence,clc_reason,clc_input,clc_model,clc_prompt_variant,clc_top_n,clc_all_matches,clc_prompt_tokens,clc_completion_tokens,clc_cached_tokens,clc_parse_failure,clc_unknown_code,clc_error,taxon_key,taxon_link,taxon_confidence,taxon_status,taxon_canonical_name,taxon_rank,taxon_family,taxon_match_type,taxon_is_synonym,taxon_accepted_status,error,row_id,difficulty,rep,version,model_tested
+W001,,,,,,,,,1,[],,,,False,False,,,,,unresolved,,,,,False,,"Error code: 401 - {'error': {'message': 'You have insufficient permissions for this operation.', 'type': 'invalid_request_error', 'param': None, 'code': None}}",W001,boundary_candidate,0,4,gpt-5.6-terra
+W003,W003,412,Peat Bogs,0.9,"The collection site is explicitly at the ruderal edge of a peat-bog embankment, on wet Carex remains; the surrounding named habitat is a moor.","Top N: 1
+
+Locality: Germany: Schleswig-Holstein. NSG Wittenseer Moor, auf feuchtliegenden Carex Resten am ruderalen Rande eines Moordammes. 1971-04-15, Leg.: Frahm 1524.
+Species: Bryum cirrhatum
+Family: Bryaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The collection site is explicitly at the ruderal edge of a peat-bog embankment, on wet Carex remains; the surrounding named habitat is a moor.', 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.9}]",1953.0,113.0,0.0,False,False,,8672063,http://www.gbif.org/species/8672063,97.0,resolved,Bryum cirrhatum,SPECIES,Bryaceae,EXACT,True,SYNONYM,,W003,boundary_candidate,0,4,gpt-5.6-terra
+W004,W004,311,Broadleaved Forest,0.95,The habitat is explicitly described as a 'Laubwaldhain' (broadleaved woodland grove).,"Top N: 1
+
+Habitat and ecology: Germany: Thüringen. Kolknitz bei Uhlstädt-Kirchhasel, Waldstück an der Straße SW Weißeneck. Laubwaldhain.
+Species: Galeobdolon argentatum
+Family: Lamiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The habitat is explicitly described as a 'Laubwaldhain' (broadleaved woodland grove)."", 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.95}]",1943.0,73.0,0.0,False,False,,3896247,http://www.gbif.org/species/3896247,100.0,resolved,Galeobdolon argentatum,SPECIES,Lamiaceae,EXACT,True,SYNONYM,,W004,boundary_candidate,0,4,gpt-5.6-terra
+W006,W006,311,Broadleaved Forest,0.72,The collection site is explicitly described as being under broadleaved woody vegetation on a stream-bank slope.,"Top N: 1
+
+Habitat and ecology: Germany: Hamburg. Kollau-Wanderweg in Höhe Wehmerweg, Hamburg-Niendorf. Böschung am Ufer der Kollau, unter Laubgehölz.
+Species: Muscari botryoides
+Family: Asparagaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The collection site is explicitly described as being under broadleaved woody vegetation on a stream-bank slope.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.72}]",1948.0,96.0,0.0,False,False,,2772094,http://www.gbif.org/species/2772094,100.0,resolved,Muscari botryoides,SPECIES,Asparagaceae,EXACT,False,ACCEPTED,,W006,boundary_candidate,0,4,gpt-5.6-terra
+W008,W008,321,Natural Grassland,0.96,"The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), corresponding to semi-natural natural grassland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern. Eglsee am Inn, großen Brennenfläche SSW. Kalkmagerrasen.
+Species: Koeleria pyramidata pyramidata
+Family: Poaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), corresponding to semi-natural natural grassland.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.96}]",1931.0,75.0,0.0,False,False,,7262112,http://www.gbif.org/species/7262112,100.0,resolved,Koeleria pyramidata pyramidata,SUBSPECIES,Poaceae,EXACT,False,ACCEPTED,,W008,boundary_candidate,0,4,gpt-5.6-terra
+W009,W009,321,Natural Grassland,0.93,Explicitly described as gypsum dry grassland (Gipstrockenrasen) with only sparse tree cover; the dominant ground cover is semi-natural dry grassland.,"Top N: 1
+
+Habitat and ecology: Germany: Thüringen. Steinthaleben, Kippenhügel, Kuppenbereich. Gipstrockenrasen mit lockerem Baumbestand, halbschattig.
+Species: Galatella linosyris
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Explicitly described as gypsum dry grassland (Gipstrockenrasen) with only sparse tree cover; the dominant ground cover is semi-natural dry grassland.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.93}]",1947.0,108.0,0.0,False,False,,3091677,http://www.gbif.org/species/3091677,100.0,resolved,Galatella linosyris,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W009,boundary_candidate,0,4,gpt-5.6-terra
+W010,W010,231,Pastures and Meadows,0.9,"The locality explicitly refers to 'Wiesen' (meadows), indicating grassland cover.","Top N: 1
+
+Locality: Landkreis Märkisch Oderland, bei Strausberg (b. Berlin), Bohlenweg über die Lange-Damm-Wiesen
+Species: Chlorociboria aeruginascens
+Family: Chlorociboriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly refers to 'Wiesen' (meadows), indicating grassland cover."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.9}]",1938.0,96.0,0.0,False,False,,7245720,http://www.gbif.org/species/7245720,97.0,resolved,Chlorociboria aeruginascens,SPECIES,Chlorociboriaceae,EXACT,True,SYNONYM,,W010,boundary_candidate,0,4,gpt-5.6-terra
+W017,W017,511,Water Courses,0.38,"The locality is a named stream ('Forellenbach') in Meroder Wald, but no specific bank, wetland, or forest-floor habitat is described; the stream itself is the clearest physical land-cover clue.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Langerwehe-Merode, Forellenbach (Meroder Wald).
+Species: Carex flava
+Family: Cyperaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality is a named stream ('Forellenbach') in Meroder Wald, but no specific bank, wetland, or forest-floor habitat is described; the stream itself is the clearest physical land-cover clue."", 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.38}]",1928.0,99.0,0.0,False,False,,2726880,http://www.gbif.org/species/2726880,100.0,resolved,Carex flava,SPECIES,Cyperaceae,EXACT,False,ACCEPTED,,W017,boundary_candidate,0,4,gpt-5.6-terra
+W019,W019,332,Bare Rock,0.93,The original collection site is explicitly described as limestone scree and limestone rock crevices above the forest line; bare rocky ground is the dominant physical cover.,"Top N: 1
+
+Locality: Cultivated in the Botanic Garden Berlin Akz. nr. 231-05-81-10; originally collected in Greece, Thessalien,  Nomós und Eparchía Lárisa, Ossa-Gipfelbereich, Nordseite nordöstlich Spilia, Kalkschutt, Kalkfelsspalten und lehmige Senken oberhalb der aktuellen Waldgrenze, 1000-1400 m, 1981-09-13, leg.: T. Raus 5377 & E. Royl
+Species: Cirsium eriophorum
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The original collection site is explicitly described as limestone scree and limestone rock crevices above the forest line; bare rocky ground is the dominant physical cover.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.93}]",2019.0,104.0,0.0,False,False,,3112620,http://www.gbif.org/species/3112620,100.0,resolved,Cirsium eriophorum,SPECIES,Asteraceae,EXACT,True,SYNONYM,,W019,edge_cultivated,0,4,gpt-5.6-terra
+W020,W020,141,Green Urban Areas,0.38,"Cultivated specimen; the locality only mentions old silicate walls at Schloss Dyck, which are built infrastructure within a garden/estate setting rather than natural habitat.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Neuss (Kreis), bei Mönchengladbach, Schloss Dyck. alte Mauern, Silikat.
+
+Cultivated: yes — grown in a garden, not collected in the wild.
+",gpt-5.6-terra,v4,1,"[{'reason': 'Cultivated specimen; the locality only mentions old silicate walls at Schloss Dyck, which are built infrastructure within a garden/estate setting rather than natural habitat.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.38}]",1940.0,83.0,0.0,False,False,,3136512,http://www.gbif.org/species/3136512,100.0,resolved,Hieracium compositum,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W020,edge_cultivated,0,4,gpt-5.6-terra
+W021,W021,141,Green Urban Areas,0.42,"The specimen is explicitly cultivated in the Botanic Garden Berlin; no original collection-site habitat is described, so the garden setting is the only stated physical cover.","Top N: 1
+
+Locality: Cultivated in Botanic Garden Berlin; provided by: unknown; originally collected: Kenya: K 1: 4 km S. of Moyale, 950 m, leg.: Bally,P.R.O. 14892, 18.1.1972
+Species: Kalanchoe boranae
+Family: Crassulaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is explicitly cultivated in the Botanic Garden Berlin; no original collection-site habitat is described, so the garden setting is the only stated physical cover.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.42}]",1964.0,109.0,0.0,False,False,,4200765,http://www.gbif.org/species/4200765,100.0,resolved,Kalanchoe boranae,SPECIES,Crassulaceae,EXACT,False,ACCEPTED,,W021,edge_cultivated,0,4,gpt-5.6-terra
+W022,W022,312,Coniferous Forest,0.95,The habitat is explicitly described as herbaceous vegetation within a spruce forest; spruce is a coniferous tree.,"Top N: 1
+
+Habitat and ecology: Germany: Bayern, Lkr. Garmisch-Partenkirchen, NO Wallgau, TK 8433/4. Krautfluren in Fichtenwald.
+Species: Solidago gigantea
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as herbaceous vegetation within a spruce forest; spruce is a coniferous tree.', 'clc_code': '312', 'english_name': 'Coniferous Forest', 'confidence': 0.95}]",1941.0,95.0,0.0,False,False,,5389017,http://www.gbif.org/species/5389017,100.0,resolved,Solidago gigantea,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W022,thin,0,4,gpt-5.6-terra
+W031,W031,332,Bare Rock,0.95,"The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.","Top N: 1
+
+Locality: Germany: Hessen. Milseburg bei Kleinsassen, an Basaltblöcken der öslichen Blockhalde. 1964-10-30, Leg.: G. Schwab.
+Species: Gymnomitrion concinnatum
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.95}]",1950.0,89.0,0.0,False,False,,5286358,http://www.gbif.org/species/5286358,100.0,resolved,Gymnomitrion concinnatum,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W031,thin,0,4,gpt-5.6-terra
+W052,W052,412,Peat Bogs,0.95,"The locality explicitly describes a 'Flachmoor' (fen/low moor) with a terrestrialization community, and Sphagnum moss supports peat-forming wetland conditions.","Top N: 1
+
+Locality: Germany: Rheinland-Pfalz. Krs. Kaiserslautern, Pfälzerwald, südwestl.Kaisersl., Lindental w Gelterswoog, Verlandungsgesellschaft, Flachmoor 300 m. Mh. 1978-08-07, Leg.: H. Lauer.
+Species: Sphagnum rufescens
+Genus: Sphagnum
+Family: keine
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes a 'Flachmoor' (fen/low moor) with a terrestrialization community, and Sphagnum moss supports peat-forming wetland conditions."", 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.95}]",1980.0,120.0,0.0,False,False,,2668958,http://www.gbif.org/species/2668958,95.0,fuzzy,Sphagnum,GENUS,Sphagnaceae,HIGHERRANK,False,ACCEPTED,,W052,thin,0,4,gpt-5.6-terra
+W065,W065,141,Green Urban Areas,0.95,"The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is the relevant cover.","Top N: 1
+
+Locality: Germany: Sachsen-Anhalt. Herzogtum Anhalt: Im Schloßpark zu Zerbst angepflanzt. 1899-07-20, Leg.: R. Steinberg.
+Species: Chamaecyparis pisifera
+Family: Cupressaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is the relevant cover.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.95}]",1949.0,79.0,0.0,False,False,,2683880,http://www.gbif.org/species/2683880,100.0,resolved,Chamaecyparis pisifera,SPECIES,Cupressaceae,EXACT,False,ACCEPTED,,W065,unambiguous_candidate,0,4,gpt-5.6-terra
+W067,W067,512,Water Bodies,0.28,"Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.","Top N: 1
+
+Locality: Sachsen-Anhalt, S Steckby, Pfaffensee
+Species: Erysimum cheiranthoides
+Family: Brassicaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.', 'clc_code': '512', 'english_name': 'Water Bodies', 'confidence': 0.28}]",1920.0,82.0,0.0,False,False,,3048266,http://www.gbif.org/species/3048266,100.0,resolved,Erysimum cheiranthoides,SPECIES,Brassicaceae,EXACT,False,ACCEPTED,,W067,unambiguous_candidate,0,4,gpt-5.6-terra
+W068,W068,332,Bare Rock,0.91,"The specimen was collected on a west-facing wall of calcareous tufa, indicating exposed rocky substrate with little or no vegetation.","Top N: 1
+
+Locality: Germany: Niedersachsen. Harz. Sachsenstein bei Walkenried an der Westwand auf Kalktuff. 1971-05-23, Leg.: Frahm.
+Species: Gymnostomum rupestre
+Family: Pottiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen was collected on a west-facing wall of calcareous tufa, indicating exposed rocky substrate with little or no vegetation.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.91}]",1942.0,97.0,0.0,False,False,,8261708,http://www.gbif.org/species/8261708,100.0,resolved,Gymnostomum rupestre,SPECIES,Pottiaceae,EXACT,True,SYNONYM,,W068,unambiguous_candidate,0,4,gpt-5.6-terra
+W069,W069,421,Salt Marshes,0.96,The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation.,"Top N: 1
+
+Locality: Germany: Schleswig-Holstein. Großenbrode, beweidete Strandwiesen, an vor Verbiss geschützten Wasserlochrändem. 1977-09-10, Leg.: G. Hodapp.
+Species: Salicornia ramosissima
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation."", 'clc_code': '421', 'english_name': 'Salt Marshes', 'confidence': 0.96}]",1953.0,107.0,0.0,False,False,,5383958,http://www.gbif.org/species/5383958,100.0,resolved,Salicornia ramosissima,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W069,unambiguous_candidate,0,4,gpt-5.6-terra
+W070,W070,231,Pastures and Meadows,0.95,"The locality explicitly describes grazing areas ('Weideflächen'), indicating permanent pasture/meadow land; maple forests are also present but the named pasture cover is the strongest single match.","Top N: 1
+
+Locality: Germany: Bayern. Allgäu: Bärgündele im oberen Ostrachtal oberhalb des Giebelhaus bei Hinterstein Kr. Sonthofen, Weideflächen und Bergahornwälder in ca. 1000 msm. 1973-09-08, Leg.: J.-P. Frahm.
+Species: Brachythecium populeum
+Family: Brachytheciaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazing areas ('Weideflächen'), indicating permanent pasture/meadow land; maple forests are also present but the named pasture cover is the strongest single match."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1980.0,91.0,0.0,False,False,,12373401,http://www.gbif.org/species/12373401,100.0,resolved,Brachythecium populeum,SPECIES,Brachytheciaceae,EXACT,True,SYNONYM,,W070,unambiguous_candidate,0,4,gpt-5.6-terra
+W071,W071,331,Beaches Dunes and Sand Plains,0.95,The locality explicitly states 'Am Strand (Spülsaum)'—on the beach/strandline—of Alten Bessin; Salsola kali is also characteristic of sandy coastal strandlines.,"Top N: 1
+
+Locality: Germany: Mecklenburg-Vorpommern. Kloster/Hiddensee; Am Strand (Spülsaum) des Alten Bessin. 1963-09-07, Leg.: W. Hempel.
+Species: Salsola kali
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states 'Am Strand (Spülsaum)'—on the beach/strandline—of Alten Bessin; Salsola kali is also characteristic of sandy coastal strandlines."", 'clc_code': '331', 'english_name': 'Beaches Dunes and Sand Plains', 'confidence': 0.95}]",1948.0,94.0,0.0,False,False,,3083957,http://www.gbif.org/species/3083957,100.0,resolved,Salsola kali,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W071,unambiguous_candidate,0,4,gpt-5.6-terra
+W072,W072,243,Agricultural Land with Significant Natural Vegetation,0.86,"The locality explicitly describes a sandy abandoned arable field (""aufgelassener Acker, sandig""); despite adjacent pine forest, the collection site is best represented as former agricultural land with substantial natural vegetation.","Top N: 1
+
+Locality: Germany: Sachsen-Anhalt. LK Köthen, NW Kleinzerbst. Kiefernwald, aufgelassener Acker, sandig, 55 m. Des 056. 2007-07-15, Leg.: E. Willing 22.251 D.
+Species: Dianthus deltoides
+Family: Caryophyllaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly describes a sandy abandoned arable field (""aufgelassener Acker, sandig""); despite adjacent pine forest, the collection site is best represented as former agricultural land with substantial natural vegetation.', 'clc_code': '243', 'english_name': 'Agricultural Land with Significant Natural Vegetation', 'confidence': 0.86}]",1964.0,119.0,0.0,False,False,,3085424,http://www.gbif.org/species/3085424,100.0,resolved,Dianthus deltoides,SPECIES,Caryophyllaceae,EXACT,False,ACCEPTED,,W072,unambiguous_candidate,0,4,gpt-5.6-terra
+W078,W078,511,Water Courses,0.9,"The locality explicitly states the edge of a stream (“Rand eines Baches”), indicating running-water channel habitat.","Top N: 1
+
+Locality: Germany: Niedersachsen. Harz, Torfhaus, Rand eines Baches in 800 m. 1954-03-28, Leg.: Walsmann.
+Species: Marsupella emarginata
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states the edge of a stream (“Rand eines Baches”), indicating running-water channel habitat.', 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.9}]",1943.0,70.0,0.0,False,False,,2689264,http://www.gbif.org/species/2689264,100.0,resolved,Marsupella emarginata,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W078,unambiguous_candidate,0,4,gpt-5.6-terra
+W082,W082,131,Mineral Extraction Sites,0.95,"The locality explicitly states a wet clay pit (""feuchte Tongrube""), an active or former mineral-extraction excavation with waterlogged conditions.","Top N: 1
+
+Locality: Germany: Nordrhein-Westfalen. Kr. Kempen-Krefeld. Grenzwald w Heidhausen b. Kaldenkirchen, in einer feuchten Tongrube mit Equisetum variegatum. 1978-06-19, Leg.: Frahm.
+Species: Mnium pseudopunctatum
+Family: Mniaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states a wet clay pit (""feuchte Tongrube""), an active or former mineral-extraction excavation with waterlogged conditions.', 'clc_code': '131', 'english_name': 'Mineral Extraction Sites', 'confidence': 0.95}]",1963.0,76.0,0.0,False,False,,5711063,http://www.gbif.org/species/5711063,100.0,resolved,Mnium pseudopunctatum,SPECIES,Mniaceae,EXACT,True,SYNONYM,,W082,unambiguous_candidate,0,4,gpt-5.6-terra
+W083,W083,321,Natural Grassland,0.22,Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for semi-natural grassland or meadow habitat.,"Top N: 1
+
+Locality: Landkreis Märkisch-Oderland, bei Waldsieversdorf
+Species: Geoglossum fallax
+Family: Geoglossaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for semi-natural grassland or meadow habitat.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.22}]",1922.0,79.0,0.0,False,False,,2586856,http://www.gbif.org/species/2586856,100.0,resolved,Geoglossum fallax,SPECIES,Geoglossaceae,EXACT,False,ACCEPTED,,W083,unambiguous_candidate,0,4,gpt-5.6-terra
+W085,W085,132,Dump Sites and Spoil Heaps,0.9,"""Trümmerberg"" denotes a rubble/debris heap, indicating spoil or dumped material at the collection site.","Top N: 1
+
+Locality: Germany: Berlin. Berlin-Grunewald, Trümmerberg am Teufelssee. 1959-08-01, Leg.: H. Scholz.
+Species: Chenopodium strictum
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': '""Trümmerberg"" denotes a rubble/debris heap, indicating spoil or dumped material at the collection site.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.9}]",1942.0,82.0,0.0,False,False,,3083941,http://www.gbif.org/species/3083941,100.0,resolved,Chenopodium strictum,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W085,unambiguous_candidate,0,4,gpt-5.6-terra
+W086,W086,132,Dump Sites and Spoil Heaps,0.95,"The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), with sandy substrate.","Top N: 1
+
+Habitat and ecology: Germany: Rheinland-Pfalz. Landkreis Bad Dürkheim, Kirchheim an der Weinstraße, S der Autobahn, TK 6415/131. Erdmassendeponie, Sand.
+Species: Amaranthus blitoides
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), with sandy substrate.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.95}]",1952.0,86.0,0.0,False,False,,5384395,http://www.gbif.org/species/5384395,100.0,resolved,Amaranthus blitoides,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W086,unambiguous_candidate,0,4,gpt-5.6-terra
+W089,W089,231,Pastures and Meadows,0.95,The locality explicitly states 'auf einer Wiese' (on a meadow); Dactylorhiza majalis is also characteristic of moist meadows.,"Top N: 1
+
+Habitat and ecology: Germany: Sachsen-Anhalt. Harz, hinter Hayn auf einer Wiese.
+Species: Dactylorhiza majalis
+Family: Orchidaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states 'auf einer Wiese' (on a meadow); Dactylorhiza majalis is also characteristic of moist meadows."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1927.0,85.0,0.0,False,False,,2810155,http://www.gbif.org/species/2810155,100.0,resolved,Dactylorhiza majalis,SPECIES,Orchidaceae,EXACT,False,ACCEPTED,,W089,unambiguous_candidate,0,4,gpt-5.6-terra
+W091,W091,311,Broadleaved Forest,0.28,"Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.","Top N: 1
+
+Locality: Bayern, N Kleiner Arbersee
+Species: Mycelis muralis
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1915.0,89.0,0.0,False,False,,3139040,http://www.gbif.org/species/3139040,100.0,resolved,Mycelis muralis,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W091,unambiguous_candidate,0,4,gpt-5.6-terra
+W092,W092,311,Broadleaved Forest,0.28,"The locality is a stream valley in the Stubnitz area, but no explicit substrate or vegetation is given; the wooded landscape is only a weak inference.","Top N: 1
+
+Locality: Landkreis Rügen, Stubnitz, Tal des Briesnitzer Baches
+Species: Ramsbottomia asperior
+Family: Pyronemataceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is a stream valley in the Stubnitz area, but no explicit substrate or vegetation is given; the wooded landscape is only a weak inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1923.0,85.0,0.0,False,False,,2594307,http://www.gbif.org/species/2594307,100.0,resolved,Ramsbottomia asperior,SPECIES,Pyronemataceae,EXACT,False,ACCEPTED,,W092,unambiguous_candidate,0,4,gpt-5.6-terra
+W095,W095,231,Pastures and Meadows,0.96,"The locality explicitly states ""Mähwiesen"" (mown meadows), indicating managed permanent grassland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern. LK Regen, 0,6 km N Wiesing, am Haselbach, TK 6843/4. Mähwiesen.
+Species: Holcus lanatus
+Family: Poaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states ""Mähwiesen"" (mown meadows), indicating managed permanent grassland.', 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.96}]",1939.0,97.0,0.0,False,False,,2706164,http://www.gbif.org/species/2706164,100.0,resolved,Holcus lanatus,SPECIES,Poaceae,EXACT,False,ACCEPTED,,W095,unambiguous_candidate,0,4,gpt-5.6-terra
+W001,W001,412,Peat Bogs,0.98,"The locality explicitly describes a 'Hochmoorrest' (remnant raised bog), which corresponds directly to peat bog land cover.","Top N: 1
+
+Locality: Germany: Niedersachsen. Moor zwischen Kuhstedt und Dahldorf nördlich Bremen, Hochmoorrest und Ufer eines Ausstiches. 1991-03-09, Leg.: Frahm 918381.
+Species: Lophozia capitata
+Family: Lophoziaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes a 'Hochmoorrest' (remnant raised bog), which corresponds directly to peat bog land cover."", 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.98}]",1951.0,102.0,0.0,False,False,,4277256,http://www.gbif.org/species/4277256,100.0,resolved,Lophozia capitata,SPECIES,Lophoziaceae,EXACT,True,SYNONYM,,W001,boundary_candidate,1,4,gpt-5.6-terra
+W003,W003,412,Peat Bogs,0.9,"The collection site is explicitly at the ruderal edge of a peat-bog embankment, on wet Carex remains; the surrounding named habitat is a moor.","Top N: 1
+
+Locality: Germany: Schleswig-Holstein. NSG Wittenseer Moor, auf feuchtliegenden Carex Resten am ruderalen Rande eines Moordammes. 1971-04-15, Leg.: Frahm 1524.
+Species: Bryum cirrhatum
+Family: Bryaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The collection site is explicitly at the ruderal edge of a peat-bog embankment, on wet Carex remains; the surrounding named habitat is a moor.', 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.9}]",1953.0,113.0,1950.0,False,False,,8672063,http://www.gbif.org/species/8672063,97.0,resolved,Bryum cirrhatum,SPECIES,Bryaceae,EXACT,True,SYNONYM,,W003,boundary_candidate,1,4,gpt-5.6-terra
+W004,W004,311,Broadleaved Forest,0.95,The habitat is explicitly described as a 'Laubwaldhain' (broadleaved woodland grove).,"Top N: 1
+
+Habitat and ecology: Germany: Thüringen. Kolknitz bei Uhlstädt-Kirchhasel, Waldstück an der Straße SW Weißeneck. Laubwaldhain.
+Species: Galeobdolon argentatum
+Family: Lamiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The habitat is explicitly described as a 'Laubwaldhain' (broadleaved woodland grove)."", 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.95}]",1943.0,73.0,1940.0,False,False,,3896247,http://www.gbif.org/species/3896247,100.0,resolved,Galeobdolon argentatum,SPECIES,Lamiaceae,EXACT,True,SYNONYM,,W004,boundary_candidate,1,4,gpt-5.6-terra
+W006,W006,311,Broadleaved Forest,0.82,"The collection site is a bank slope beneath decididuous woody vegetation ('unter Laubgehölz'), indicating broadleaved woodland cover along the Kollau.","Top N: 1
+
+Habitat and ecology: Germany: Hamburg. Kollau-Wanderweg in Höhe Wehmerweg, Hamburg-Niendorf. Böschung am Ufer der Kollau, unter Laubgehölz.
+Species: Muscari botryoides
+Family: Asparagaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The collection site is a bank slope beneath decididuous woody vegetation ('unter Laubgehölz'), indicating broadleaved woodland cover along the Kollau."", 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.82}]",1948.0,103.0,1945.0,False,False,,2772094,http://www.gbif.org/species/2772094,100.0,resolved,Muscari botryoides,SPECIES,Asparagaceae,EXACT,False,ACCEPTED,,W006,boundary_candidate,1,4,gpt-5.6-terra
+W008,W008,321,Natural Grassland,0.95,"The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), which is semi-natural natural grassland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern. Eglsee am Inn, großen Brennenfläche SSW. Kalkmagerrasen.
+Species: Koeleria pyramidata pyramidata
+Family: Poaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), which is semi-natural natural grassland.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.95}]",1931.0,74.0,1928.0,False,False,,7262112,http://www.gbif.org/species/7262112,100.0,resolved,Koeleria pyramidata pyramidata,SUBSPECIES,Poaceae,EXACT,False,ACCEPTED,,W008,boundary_candidate,1,4,gpt-5.6-terra
+W009,W009,321,Natural Grassland,0.93,Explicitly described as gypsum dry grassland (Gipstrockenrasen) with sparse trees; the dominant cover is semi-natural dry grassland.,"Top N: 1
+
+Habitat and ecology: Germany: Thüringen. Steinthaleben, Kippenhügel, Kuppenbereich. Gipstrockenrasen mit lockerem Baumbestand, halbschattig.
+Species: Galatella linosyris
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Explicitly described as gypsum dry grassland (Gipstrockenrasen) with sparse trees; the dominant cover is semi-natural dry grassland.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.93}]",1947.0,106.0,1944.0,False,False,,3091677,http://www.gbif.org/species/3091677,100.0,resolved,Galatella linosyris,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W009,boundary_candidate,1,4,gpt-5.6-terra
+W010,W010,231,Pastures and Meadows,0.9,"The locality explicitly refers to the Lange-Damm-Wiesen ('meadows'), indicating grassland/meadow cover; the fungus is consistent with wooded material nearby but does not override the named site cover.","Top N: 1
+
+Locality: Landkreis Märkisch Oderland, bei Strausberg (b. Berlin), Bohlenweg über die Lange-Damm-Wiesen
+Species: Chlorociboria aeruginascens
+Family: Chlorociboriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly refers to the Lange-Damm-Wiesen ('meadows'), indicating grassland/meadow cover; the fungus is consistent with wooded material nearby but does not override the named site cover."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.9}]",1938.0,95.0,1935.0,False,False,,7245720,http://www.gbif.org/species/7245720,97.0,resolved,Chlorociboria aeruginascens,SPECIES,Chlorociboriaceae,EXACT,True,SYNONYM,,W010,boundary_candidate,1,4,gpt-5.6-terra
+W017,W017,311,Broadleaved Forest,0.32,"The locality is explicitly in Meroder Wald (forest), but no more specific ground-cover habitat is described; Carex flava may occur in wet forest openings or margins.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Langerwehe-Merode, Forellenbach (Meroder Wald).
+Species: Carex flava
+Family: Cyperaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is explicitly in Meroder Wald (forest), but no more specific ground-cover habitat is described; Carex flava may occur in wet forest openings or margins.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.32}]",1928.0,89.0,1925.0,False,False,,2726880,http://www.gbif.org/species/2726880,100.0,resolved,Carex flava,SPECIES,Cyperaceae,EXACT,False,ACCEPTED,,W017,boundary_candidate,1,4,gpt-5.6-terra
+W019,W019,332,Bare Rock,0.95,The original collection site is explicitly described as limestone scree and limestone rock crevices above the current forest line; exposed rocky ground is the dominant cover.,"Top N: 1
+
+Locality: Cultivated in the Botanic Garden Berlin Akz. nr. 231-05-81-10; originally collected in Greece, Thessalien,  Nomós und Eparchía Lárisa, Ossa-Gipfelbereich, Nordseite nordöstlich Spilia, Kalkschutt, Kalkfelsspalten und lehmige Senken oberhalb der aktuellen Waldgrenze, 1000-1400 m, 1981-09-13, leg.: T. Raus 5377 & E. Royl
+Species: Cirsium eriophorum
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The original collection site is explicitly described as limestone scree and limestone rock crevices above the current forest line; exposed rocky ground is the dominant cover.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.95}]",2019.0,81.0,2016.0,False,False,,3112620,http://www.gbif.org/species/3112620,100.0,resolved,Cirsium eriophorum,SPECIES,Asteraceae,EXACT,True,SYNONYM,,W019,edge_cultivated,1,4,gpt-5.6-terra
+W020,W020,112,Discontinuous Urban Fabric,0.42,"The specimen is cultivated, so the species is ignored; the locality is Schloss Dyck garden grounds, with old silicate walls indicating built urban/estate fabric rather than a natural habitat.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Neuss (Kreis), bei Mönchengladbach, Schloss Dyck. alte Mauern, Silikat.
+
+Cultivated: yes — grown in a garden, not collected in the wild.
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is cultivated, so the species is ignored; the locality is Schloss Dyck garden grounds, with old silicate walls indicating built urban/estate fabric rather than a natural habitat.', 'clc_code': '112', 'english_name': 'Discontinuous Urban Fabric', 'confidence': 0.42}]",1940.0,111.0,1937.0,False,False,,3136512,http://www.gbif.org/species/3136512,100.0,resolved,Hieracium compositum,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W020,edge_cultivated,1,4,gpt-5.6-terra
+W021,W021,141,Green Urban Areas,0.9,The specimen is explicitly marked as cultivated in Botanic Garden Berlin; the collection-site land cover is therefore urban botanical garden vegetation.,"Top N: 1
+
+Locality: Cultivated in Botanic Garden Berlin; provided by: unknown; originally collected: Kenya: K 1: 4 km S. of Moyale, 950 m, leg.: Bally,P.R.O. 14892, 18.1.1972
+Species: Kalanchoe boranae
+Family: Crassulaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is explicitly marked as cultivated in Botanic Garden Berlin; the collection-site land cover is therefore urban botanical garden vegetation.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.9}]",1964.0,73.0,1961.0,False,False,,4200765,http://www.gbif.org/species/4200765,100.0,resolved,Kalanchoe boranae,SPECIES,Crassulaceae,EXACT,False,ACCEPTED,,W021,edge_cultivated,1,4,gpt-5.6-terra
+W022,W022,312,Coniferous Forest,0.95,"The habitat is explicitly described as herbaceous vegetation within a spruce forest (Fichtenwald), indicating needle-leaved woodland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern, Lkr. Garmisch-Partenkirchen, NO Wallgau, TK 8433/4. Krautfluren in Fichtenwald.
+Species: Solidago gigantea
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as herbaceous vegetation within a spruce forest (Fichtenwald), indicating needle-leaved woodland.', 'clc_code': '312', 'english_name': 'Coniferous Forest', 'confidence': 0.95}]",1941.0,74.0,1938.0,False,False,,5389017,http://www.gbif.org/species/5389017,100.0,resolved,Solidago gigantea,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W022,thin,1,4,gpt-5.6-terra
+W031,W031,332,Bare Rock,0.95,"The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.","Top N: 1
+
+Locality: Germany: Hessen. Milseburg bei Kleinsassen, an Basaltblöcken der öslichen Blockhalde. 1964-10-30, Leg.: G. Schwab.
+Species: Gymnomitrion concinnatum
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.95}]",1950.0,89.0,1947.0,False,False,,5286358,http://www.gbif.org/species/5286358,100.0,resolved,Gymnomitrion concinnatum,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W031,thin,1,4,gpt-5.6-terra
+W052,W052,412,Peat Bogs,0.95,"The locality explicitly describes a ""Flachmoor"" (fen/low mire) with a terrestrialization community, and Sphagnum moss supports peat-forming wetland conditions.","Top N: 1
+
+Locality: Germany: Rheinland-Pfalz. Krs. Kaiserslautern, Pfälzerwald, südwestl.Kaisersl., Lindental w Gelterswoog, Verlandungsgesellschaft, Flachmoor 300 m. Mh. 1978-08-07, Leg.: H. Lauer.
+Species: Sphagnum rufescens
+Genus: Sphagnum
+Family: keine
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly describes a ""Flachmoor"" (fen/low mire) with a terrestrialization community, and Sphagnum moss supports peat-forming wetland conditions.', 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.95}]",1980.0,92.0,1977.0,False,False,,2668958,http://www.gbif.org/species/2668958,95.0,fuzzy,Sphagnum,GENUS,Sphagnaceae,HIGHERRANK,False,ACCEPTED,,W052,thin,1,4,gpt-5.6-terra
+W065,W065,141,Green Urban Areas,0.95,"The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is classified rather than the species' natural habitat.","Top N: 1
+
+Locality: Germany: Sachsen-Anhalt. Herzogtum Anhalt: Im Schloßpark zu Zerbst angepflanzt. 1899-07-20, Leg.: R. Steinberg.
+Species: Chamaecyparis pisifera
+Family: Cupressaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is classified rather than the species' natural habitat."", 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.95}]",1949.0,84.0,1946.0,False,False,,2683880,http://www.gbif.org/species/2683880,100.0,resolved,Chamaecyparis pisifera,SPECIES,Cupressaceae,EXACT,False,ACCEPTED,,W065,unambiguous_candidate,1,4,gpt-5.6-terra
+W067,W067,512,Water Bodies,0.28,"Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.","Top N: 1
+
+Locality: Sachsen-Anhalt, S Steckby, Pfaffensee
+Species: Erysimum cheiranthoides
+Family: Brassicaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.', 'clc_code': '512', 'english_name': 'Water Bodies', 'confidence': 0.28}]",1920.0,81.0,1917.0,False,False,,3048266,http://www.gbif.org/species/3048266,100.0,resolved,Erysimum cheiranthoides,SPECIES,Brassicaceae,EXACT,False,ACCEPTED,,W067,unambiguous_candidate,1,4,gpt-5.6-terra
+W068,W068,332,Bare Rock,0.91,"The collection site is explicitly described as a west-facing wall of calcareous tufa (Kalktuff), indicating exposed rocky substrate with little or no vegetation.","Top N: 1
+
+Locality: Germany: Niedersachsen. Harz. Sachsenstein bei Walkenried an der Westwand auf Kalktuff. 1971-05-23, Leg.: Frahm.
+Species: Gymnostomum rupestre
+Family: Pottiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The collection site is explicitly described as a west-facing wall of calcareous tufa (Kalktuff), indicating exposed rocky substrate with little or no vegetation.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.91}]",1942.0,104.0,1939.0,False,False,,8261708,http://www.gbif.org/species/8261708,100.0,resolved,Gymnostomum rupestre,SPECIES,Pottiaceae,EXACT,True,SYNONYM,,W068,unambiguous_candidate,1,4,gpt-5.6-terra
+W069,W069,421,Salt Marshes,0.96,The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation.,"Top N: 1
+
+Locality: Germany: Schleswig-Holstein. Großenbrode, beweidete Strandwiesen, an vor Verbiss geschützten Wasserlochrändem. 1977-09-10, Leg.: G. Hodapp.
+Species: Salicornia ramosissima
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation."", 'clc_code': '421', 'english_name': 'Salt Marshes', 'confidence': 0.96}]",1953.0,106.0,0.0,False,False,,5383958,http://www.gbif.org/species/5383958,100.0,resolved,Salicornia ramosissima,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W069,unambiguous_candidate,1,4,gpt-5.6-terra
+W070,W070,231,Pastures and Meadows,0.95,The locality explicitly describes grazing areas ('Weideflächen') at about 1000 m elevation; these are best classified as permanent pasture/meadow land.,"Top N: 1
+
+Locality: Germany: Bayern. Allgäu: Bärgündele im oberen Ostrachtal oberhalb des Giebelhaus bei Hinterstein Kr. Sonthofen, Weideflächen und Bergahornwälder in ca. 1000 msm. 1973-09-08, Leg.: J.-P. Frahm.
+Species: Brachythecium populeum
+Family: Brachytheciaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazing areas ('Weideflächen') at about 1000 m elevation; these are best classified as permanent pasture/meadow land."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1980.0,83.0,1977.0,False,False,,12373401,http://www.gbif.org/species/12373401,100.0,resolved,Brachythecium populeum,SPECIES,Brachytheciaceae,EXACT,True,SYNONYM,,W070,unambiguous_candidate,1,4,gpt-5.6-terra
+W071,W071,331,Beaches Dunes and Sand Plains,0.96,"The locality explicitly states a beach wrack line (""Am Strand (Spülsaum)"") at Alten Bessin; Salsola kali is also characteristic of sandy coastal strand habitats.","Top N: 1
+
+Locality: Germany: Mecklenburg-Vorpommern. Kloster/Hiddensee; Am Strand (Spülsaum) des Alten Bessin. 1963-09-07, Leg.: W. Hempel.
+Species: Salsola kali
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states a beach wrack line (""Am Strand (Spülsaum)"") at Alten Bessin; Salsola kali is also characteristic of sandy coastal strand habitats.', 'clc_code': '331', 'english_name': 'Beaches Dunes and Sand Plains', 'confidence': 0.96}]",1948.0,112.0,1945.0,False,False,,3083957,http://www.gbif.org/species/3083957,100.0,resolved,Salsola kali,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W071,unambiguous_candidate,1,4,gpt-5.6-terra
+W072,W072,243,Agricultural Land with Significant Natural Vegetation,0.82,"The locality explicitly describes a sandy abandoned arable field (""aufgelassener Acker, sandig""); despite adjacent pine forest, the collection-site cover is best represented as former agricultural land with substantial natural vegetation.","Top N: 1
+
+Locality: Germany: Sachsen-Anhalt. LK Köthen, NW Kleinzerbst. Kiefernwald, aufgelassener Acker, sandig, 55 m. Des 056. 2007-07-15, Leg.: E. Willing 22.251 D.
+Species: Dianthus deltoides
+Family: Caryophyllaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly describes a sandy abandoned arable field (""aufgelassener Acker, sandig""); despite adjacent pine forest, the collection-site cover is best represented as former agricultural land with substantial natural vegetation.', 'clc_code': '243', 'english_name': 'Agricultural Land with Significant Natural Vegetation', 'confidence': 0.82}]",1964.0,120.0,1961.0,False,False,,3085424,http://www.gbif.org/species/3085424,100.0,resolved,Dianthus deltoides,SPECIES,Caryophyllaceae,EXACT,False,ACCEPTED,,W072,unambiguous_candidate,1,4,gpt-5.6-terra
+W078,W078,511,Water Courses,0.9,The locality explicitly states the collection was at the edge of a stream ('Rand eines Baches').,"Top N: 1
+
+Locality: Germany: Niedersachsen. Harz, Torfhaus, Rand eines Baches in 800 m. 1954-03-28, Leg.: Walsmann.
+Species: Marsupella emarginata
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states the collection was at the edge of a stream ('Rand eines Baches')."", 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.9}]",1943.0,87.0,1940.0,False,False,,2689264,http://www.gbif.org/species/2689264,100.0,resolved,Marsupella emarginata,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W078,unambiguous_candidate,1,4,gpt-5.6-terra
+W082,W082,131,Mineral Extraction Sites,0.95,"The locality explicitly states a wet clay pit ('feuchte Tongrube'), indicating an active or former clay extraction site.","Top N: 1
+
+Locality: Germany: Nordrhein-Westfalen. Kr. Kempen-Krefeld. Grenzwald w Heidhausen b. Kaldenkirchen, in einer feuchten Tongrube mit Equisetum variegatum. 1978-06-19, Leg.: Frahm.
+Species: Mnium pseudopunctatum
+Family: Mniaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states a wet clay pit ('feuchte Tongrube'), indicating an active or former clay extraction site."", 'clc_code': '131', 'english_name': 'Mineral Extraction Sites', 'confidence': 0.95}]",1963.0,70.0,1960.0,False,False,,5711063,http://www.gbif.org/species/5711063,100.0,resolved,Mnium pseudopunctatum,SPECIES,Mniaceae,EXACT,True,SYNONYM,,W082,unambiguous_candidate,1,4,gpt-5.6-terra
+W083,W083,321,Natural Grassland,0.18,"Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for moist semi-natural grassland or woodland-edge habitat, but no site cover is described.","Top N: 1
+
+Locality: Landkreis Märkisch-Oderland, bei Waldsieversdorf
+Species: Geoglossum fallax
+Family: Geoglossaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for moist semi-natural grassland or woodland-edge habitat, but no site cover is described.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.18}]",1922.0,89.0,1919.0,False,False,,2586856,http://www.gbif.org/species/2586856,100.0,resolved,Geoglossum fallax,SPECIES,Geoglossaceae,EXACT,False,ACCEPTED,,W083,unambiguous_candidate,1,4,gpt-5.6-terra
+W085,W085,132,Dump Sites and Spoil Heaps,0.9,"""Trümmerberg"" denotes a rubble/debris heap, indicating spoil or dumped material at the collection site.","Top N: 1
+
+Locality: Germany: Berlin. Berlin-Grunewald, Trümmerberg am Teufelssee. 1959-08-01, Leg.: H. Scholz.
+Species: Chenopodium strictum
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': '""Trümmerberg"" denotes a rubble/debris heap, indicating spoil or dumped material at the collection site.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.9}]",1942.0,82.0,1939.0,False,False,,3083941,http://www.gbif.org/species/3083941,100.0,resolved,Chenopodium strictum,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W085,unambiguous_candidate,1,4,gpt-5.6-terra
+W086,W086,132,Dump Sites and Spoil Heaps,0.95,"The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), which is most consistent with a spoil heap or dump site; sand is the substrate.","Top N: 1
+
+Habitat and ecology: Germany: Rheinland-Pfalz. Landkreis Bad Dürkheim, Kirchheim an der Weinstraße, S der Autobahn, TK 6415/131. Erdmassendeponie, Sand.
+Species: Amaranthus blitoides
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), which is most consistent with a spoil heap or dump site; sand is the substrate.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.95}]",1952.0,112.0,1949.0,False,False,,5384395,http://www.gbif.org/species/5384395,100.0,resolved,Amaranthus blitoides,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W086,unambiguous_candidate,1,4,gpt-5.6-terra
+W089,W089,231,Pastures and Meadows,0.95,The locality explicitly states 'auf einer Wiese' (on a meadow); Dactylorhiza majalis is also characteristic of moist meadows.,"Top N: 1
+
+Habitat and ecology: Germany: Sachsen-Anhalt. Harz, hinter Hayn auf einer Wiese.
+Species: Dactylorhiza majalis
+Family: Orchidaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states 'auf einer Wiese' (on a meadow); Dactylorhiza majalis is also characteristic of moist meadows."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1927.0,85.0,1924.0,False,False,,2810155,http://www.gbif.org/species/2810155,100.0,resolved,Dactylorhiza majalis,SPECIES,Orchidaceae,EXACT,False,ACCEPTED,,W089,unambiguous_candidate,1,4,gpt-5.6-terra
+W091,W091,311,Broadleaved Forest,0.28,"Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.","Top N: 1
+
+Locality: Bayern, N Kleiner Arbersee
+Species: Mycelis muralis
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1915.0,89.0,1912.0,False,False,,3139040,http://www.gbif.org/species/3139040,100.0,resolved,Mycelis muralis,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W091,unambiguous_candidate,1,4,gpt-5.6-terra
+W092,W092,311,Broadleaved Forest,0.28,"The locality is a named stream valley in the Stubnitz area, but no explicit habitat or substrate is given; surrounding woodland is only a weak regional inference.","Top N: 1
+
+Locality: Landkreis Rügen, Stubnitz, Tal des Briesnitzer Baches
+Species: Ramsbottomia asperior
+Family: Pyronemataceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is a named stream valley in the Stubnitz area, but no explicit habitat or substrate is given; surrounding woodland is only a weak regional inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1923.0,86.0,1920.0,False,False,,2594307,http://www.gbif.org/species/2594307,100.0,resolved,Ramsbottomia asperior,SPECIES,Pyronemataceae,EXACT,False,ACCEPTED,,W092,unambiguous_candidate,1,4,gpt-5.6-terra
+W095,,,,,,,,,1,[],,,,False,False,,,,,unresolved,,,,,False,,"Error code: 401 - {'error': {'message': 'You have insufficient permissions for this operation.', 'type': 'invalid_request_error', 'param': None, 'code': None}}",W095,unambiguous_candidate,1,4,gpt-5.6-terra
+W001,W001,412,Peat Bogs,0.96,The locality explicitly describes a 'Hochmoorrest' (remnant raised bog); the ditch/excavation bank is within this bog setting.,"Top N: 1
+
+Locality: Germany: Niedersachsen. Moor zwischen Kuhstedt und Dahldorf nördlich Bremen, Hochmoorrest und Ufer eines Ausstiches. 1991-03-09, Leg.: Frahm 918381.
+Species: Lophozia capitata
+Family: Lophoziaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes a 'Hochmoorrest' (remnant raised bog); the ditch/excavation bank is within this bog setting."", 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.96}]",1951.0,86.0,1948.0,False,False,,4277256,http://www.gbif.org/species/4277256,100.0,resolved,Lophozia capitata,SPECIES,Lophoziaceae,EXACT,True,SYNONYM,,W001,boundary_candidate,2,4,gpt-5.6-terra
+W003,W003,412,Peat Bogs,0.91,The locality is explicitly within Wittenseer Moor and describes wet-lying Carex remains at the ruderal edge of a peatland embankment.,"Top N: 1
+
+Locality: Germany: Schleswig-Holstein. NSG Wittenseer Moor, auf feuchtliegenden Carex Resten am ruderalen Rande eines Moordammes. 1971-04-15, Leg.: Frahm 1524.
+Species: Bryum cirrhatum
+Family: Bryaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is explicitly within Wittenseer Moor and describes wet-lying Carex remains at the ruderal edge of a peatland embankment.', 'clc_code': '412', 'english_name': 'Peat Bogs', 'confidence': 0.91}]",1953.0,111.0,1950.0,False,False,,8672063,http://www.gbif.org/species/8672063,97.0,resolved,Bryum cirrhatum,SPECIES,Bryaceae,EXACT,True,SYNONYM,,W003,boundary_candidate,2,4,gpt-5.6-terra
+W004,W004,311,Broadleaved Forest,0.98,The habitat is explicitly described as a 'Laubwaldhain' (deciduous woodland grove).,"Top N: 1
+
+Habitat and ecology: Germany: Thüringen. Kolknitz bei Uhlstädt-Kirchhasel, Waldstück an der Straße SW Weißeneck. Laubwaldhain.
+Species: Galeobdolon argentatum
+Family: Lamiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The habitat is explicitly described as a 'Laubwaldhain' (deciduous woodland grove)."", 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.98}]",1943.0,74.0,0.0,False,False,,3896247,http://www.gbif.org/species/3896247,100.0,resolved,Galeobdolon argentatum,SPECIES,Lamiaceae,EXACT,True,SYNONYM,,W004,boundary_candidate,2,4,gpt-5.6-terra
+W006,W006,311,Broadleaved Forest,0.82,"The collection site is a bank slope beneath decididuous woody vegetation ('unter Laubgehölz'), indicating broadleaved woodland cover along the Kollau.","Top N: 1
+
+Habitat and ecology: Germany: Hamburg. Kollau-Wanderweg in Höhe Wehmerweg, Hamburg-Niendorf. Böschung am Ufer der Kollau, unter Laubgehölz.
+Species: Muscari botryoides
+Family: Asparagaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The collection site is a bank slope beneath decididuous woody vegetation ('unter Laubgehölz'), indicating broadleaved woodland cover along the Kollau."", 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.82}]",1948.0,103.0,1945.0,False,False,,2772094,http://www.gbif.org/species/2772094,100.0,resolved,Muscari botryoides,SPECIES,Asparagaceae,EXACT,False,ACCEPTED,,W006,boundary_candidate,2,4,gpt-5.6-terra
+W008,W008,321,Natural Grassland,0.95,"The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), which is semi-natural natural grassland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern. Eglsee am Inn, großen Brennenfläche SSW. Kalkmagerrasen.
+Species: Koeleria pyramidata pyramidata
+Family: Poaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as ""Kalkmagerrasen"" (calcareous dry grassland), which is semi-natural natural grassland.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.95}]",1931.0,74.0,1928.0,False,False,,7262112,http://www.gbif.org/species/7262112,100.0,resolved,Koeleria pyramidata pyramidata,SUBSPECIES,Poaceae,EXACT,False,ACCEPTED,,W008,boundary_candidate,2,4,gpt-5.6-terra
+W009,,,,,,,,,1,[],,,,False,False,,,,,unresolved,,,,,False,,"Error code: 401 - {'error': {'message': 'You have insufficient permissions for this operation.', 'type': 'invalid_request_error', 'param': None, 'code': None}}",W009,boundary_candidate,2,4,gpt-5.6-terra
+W010,W010,231,Pastures and Meadows,0.9,"The locality explicitly refers to the Lange-Damm-Wiesen ('meadows'), indicating grassland/meadow cover; the fungus is consistent with wooded material nearby but does not override the named site cover.","Top N: 1
+
+Locality: Landkreis Märkisch Oderland, bei Strausberg (b. Berlin), Bohlenweg über die Lange-Damm-Wiesen
+Species: Chlorociboria aeruginascens
+Family: Chlorociboriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly refers to the Lange-Damm-Wiesen ('meadows'), indicating grassland/meadow cover; the fungus is consistent with wooded material nearby but does not override the named site cover."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.9}]",1938.0,95.0,1935.0,False,False,,7245720,http://www.gbif.org/species/7245720,97.0,resolved,Chlorociboria aeruginascens,SPECIES,Chlorociboriaceae,EXACT,True,SYNONYM,,W010,boundary_candidate,2,4,gpt-5.6-terra
+W017,W017,311,Broadleaved Forest,0.32,"The locality is explicitly in Meroder Wald (forest), but no more specific ground-cover habitat is described; Carex flava may occur in wet forest openings or margins.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Langerwehe-Merode, Forellenbach (Meroder Wald).
+Species: Carex flava
+Family: Cyperaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is explicitly in Meroder Wald (forest), but no more specific ground-cover habitat is described; Carex flava may occur in wet forest openings or margins.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.32}]",1928.0,89.0,1925.0,False,False,,2726880,http://www.gbif.org/species/2726880,100.0,resolved,Carex flava,SPECIES,Cyperaceae,EXACT,False,ACCEPTED,,W017,boundary_candidate,2,4,gpt-5.6-terra
+W019,W019,332,Bare Rock,0.95,The original collection site is explicitly described as limestone scree and limestone rock crevices above the current forest line; exposed rocky ground is the dominant cover.,"Top N: 1
+
+Locality: Cultivated in the Botanic Garden Berlin Akz. nr. 231-05-81-10; originally collected in Greece, Thessalien,  Nomós und Eparchía Lárisa, Ossa-Gipfelbereich, Nordseite nordöstlich Spilia, Kalkschutt, Kalkfelsspalten und lehmige Senken oberhalb der aktuellen Waldgrenze, 1000-1400 m, 1981-09-13, leg.: T. Raus 5377 & E. Royl
+Species: Cirsium eriophorum
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The original collection site is explicitly described as limestone scree and limestone rock crevices above the current forest line; exposed rocky ground is the dominant cover.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.95}]",2019.0,81.0,2016.0,False,False,,3112620,http://www.gbif.org/species/3112620,100.0,resolved,Cirsium eriophorum,SPECIES,Asteraceae,EXACT,True,SYNONYM,,W019,edge_cultivated,2,4,gpt-5.6-terra
+W020,W020,141,Green Urban Areas,0.38,"Cultivated specimen; the locality only mentions old silicate walls at Schloss Dyck, which are built infrastructure within a garden/estate setting rather than natural habitat.","Top N: 1
+
+Habitat and ecology: Germany: Nordrhein-Westfalen. Neuss (Kreis), bei Mönchengladbach, Schloss Dyck. alte Mauern, Silikat.
+
+Cultivated: yes — grown in a garden, not collected in the wild.
+",gpt-5.6-terra,v4,1,"[{'reason': 'Cultivated specimen; the locality only mentions old silicate walls at Schloss Dyck, which are built infrastructure within a garden/estate setting rather than natural habitat.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.38}]",1940.0,83.0,1937.0,False,False,,3136512,http://www.gbif.org/species/3136512,100.0,resolved,Hieracium compositum,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W020,edge_cultivated,2,4,gpt-5.6-terra
+W021,W021,141,Green Urban Areas,0.9,The specimen is explicitly marked as cultivated in Botanic Garden Berlin; the collection-site land cover is therefore urban botanical garden vegetation.,"Top N: 1
+
+Locality: Cultivated in Botanic Garden Berlin; provided by: unknown; originally collected: Kenya: K 1: 4 km S. of Moyale, 950 m, leg.: Bally,P.R.O. 14892, 18.1.1972
+Species: Kalanchoe boranae
+Family: Crassulaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is explicitly marked as cultivated in Botanic Garden Berlin; the collection-site land cover is therefore urban botanical garden vegetation.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.9}]",1964.0,73.0,1961.0,False,False,,4200765,http://www.gbif.org/species/4200765,100.0,resolved,Kalanchoe boranae,SPECIES,Crassulaceae,EXACT,False,ACCEPTED,,W021,edge_cultivated,2,4,gpt-5.6-terra
+W022,W022,312,Coniferous Forest,0.95,The habitat is explicitly described as herbaceous vegetation within a spruce forest; spruce is a coniferous tree.,"Top N: 1
+
+Habitat and ecology: Germany: Bayern, Lkr. Garmisch-Partenkirchen, NO Wallgau, TK 8433/4. Krautfluren in Fichtenwald.
+Species: Solidago gigantea
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The habitat is explicitly described as herbaceous vegetation within a spruce forest; spruce is a coniferous tree.', 'clc_code': '312', 'english_name': 'Coniferous Forest', 'confidence': 0.95}]",1941.0,95.0,1938.0,False,False,,5389017,http://www.gbif.org/species/5389017,100.0,resolved,Solidago gigantea,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W022,thin,2,4,gpt-5.6-terra
+W031,W031,332,Bare Rock,0.95,"The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.","Top N: 1
+
+Locality: Germany: Hessen. Milseburg bei Kleinsassen, an Basaltblöcken der öslichen Blockhalde. 1964-10-30, Leg.: G. Schwab.
+Species: Gymnomitrion concinnatum
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states basalt blocks on an eastern block slope, indicating exposed rocky ground.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.95}]",1950.0,89.0,1947.0,False,False,,5286358,http://www.gbif.org/species/5286358,100.0,resolved,Gymnomitrion concinnatum,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W031,thin,2,4,gpt-5.6-terra
+W052,,,,,,,,,1,[],,,,False,False,,,,,unresolved,,,,,False,,"Error code: 401 - {'error': {'message': 'You have insufficient permissions for this operation.', 'type': 'invalid_request_error', 'param': None, 'code': None}}",W052,thin,2,4,gpt-5.6-terra
+W065,W065,141,Green Urban Areas,0.95,"The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is the relevant cover.","Top N: 1
+
+Locality: Germany: Sachsen-Anhalt. Herzogtum Anhalt: Im Schloßpark zu Zerbst angepflanzt. 1899-07-20, Leg.: R. Steinberg.
+Species: Chamaecyparis pisifera
+Family: Cupressaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen is explicitly described as planted in the Schlosspark (castle park) at Zerbst; as a cultivated specimen, the surrounding urban park vegetation is the relevant cover.', 'clc_code': '141', 'english_name': 'Green Urban Areas', 'confidence': 0.95}]",1949.0,79.0,1946.0,False,False,,2683880,http://www.gbif.org/species/2683880,100.0,resolved,Chamaecyparis pisifera,SPECIES,Cupressaceae,EXACT,False,ACCEPTED,,W065,unambiguous_candidate,2,4,gpt-5.6-terra
+W067,W067,512,Water Bodies,0.28,"Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.","Top N: 1
+
+Locality: Sachsen-Anhalt, S Steckby, Pfaffensee
+Species: Erysimum cheiranthoides
+Family: Brassicaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality and lake name are provided; Pfaffensee indicates a standing-water feature, but the exact collection-site cover is unspecified.', 'clc_code': '512', 'english_name': 'Water Bodies', 'confidence': 0.28}]",1920.0,82.0,1917.0,False,False,,3048266,http://www.gbif.org/species/3048266,100.0,resolved,Erysimum cheiranthoides,SPECIES,Brassicaceae,EXACT,False,ACCEPTED,,W067,unambiguous_candidate,2,4,gpt-5.6-terra
+W068,W068,332,Bare Rock,0.91,"The specimen was collected on a west-facing wall of calcareous tufa, indicating exposed rocky substrate with little or no vegetation.","Top N: 1
+
+Locality: Germany: Niedersachsen. Harz. Sachsenstein bei Walkenried an der Westwand auf Kalktuff. 1971-05-23, Leg.: Frahm.
+Species: Gymnostomum rupestre
+Family: Pottiaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The specimen was collected on a west-facing wall of calcareous tufa, indicating exposed rocky substrate with little or no vegetation.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.91}]",1942.0,97.0,1939.0,False,False,,8261708,http://www.gbif.org/species/8261708,100.0,resolved,Gymnostomum rupestre,SPECIES,Pottiaceae,EXACT,True,SYNONYM,,W068,unambiguous_candidate,2,4,gpt-5.6-terra
+W069,W069,421,Salt Marshes,0.96,The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation.,"Top N: 1
+
+Locality: Germany: Schleswig-Holstein. Großenbrode, beweidete Strandwiesen, an vor Verbiss geschützten Wasserlochrändem. 1977-09-10, Leg.: G. Hodapp.
+Species: Salicornia ramosissima
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazed coastal salt meadows ('beweidete Strandwiesen') around waterhole margins; Salicornia further supports saline coastal marsh vegetation."", 'clc_code': '421', 'english_name': 'Salt Marshes', 'confidence': 0.96}]",1953.0,107.0,1950.0,False,False,,5383958,http://www.gbif.org/species/5383958,100.0,resolved,Salicornia ramosissima,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W069,unambiguous_candidate,2,4,gpt-5.6-terra
+W070,W070,231,Pastures and Meadows,0.95,"The locality explicitly describes grazing areas ('Weideflächen'), indicating permanent pasture/meadow land; maple forests are also present but the named pasture cover is the strongest single match.","Top N: 1
+
+Locality: Germany: Bayern. Allgäu: Bärgündele im oberen Ostrachtal oberhalb des Giebelhaus bei Hinterstein Kr. Sonthofen, Weideflächen und Bergahornwälder in ca. 1000 msm. 1973-09-08, Leg.: J.-P. Frahm.
+Species: Brachythecium populeum
+Family: Brachytheciaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes grazing areas ('Weideflächen'), indicating permanent pasture/meadow land; maple forests are also present but the named pasture cover is the strongest single match."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1980.0,91.0,1977.0,False,False,,12373401,http://www.gbif.org/species/12373401,100.0,resolved,Brachythecium populeum,SPECIES,Brachytheciaceae,EXACT,True,SYNONYM,,W070,unambiguous_candidate,2,4,gpt-5.6-terra
+W071,W071,331,Beaches Dunes and Sand Plains,0.95,The locality explicitly states 'Am Strand (Spülsaum)'—on the beach/strandline—of Alten Bessin; Salsola kali is also characteristic of sandy coastal strandlines.,"Top N: 1
+
+Locality: Germany: Mecklenburg-Vorpommern. Kloster/Hiddensee; Am Strand (Spülsaum) des Alten Bessin. 1963-09-07, Leg.: W. Hempel.
+Species: Salsola kali
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states 'Am Strand (Spülsaum)'—on the beach/strandline—of Alten Bessin; Salsola kali is also characteristic of sandy coastal strandlines."", 'clc_code': '331', 'english_name': 'Beaches Dunes and Sand Plains', 'confidence': 0.95}]",1948.0,94.0,1945.0,False,False,,3083957,http://www.gbif.org/species/3083957,100.0,resolved,Salsola kali,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W071,unambiguous_candidate,2,4,gpt-5.6-terra
+W072,,,,,,,,,1,[],,,,False,False,,,,,unresolved,,,,,False,,"Error code: 401 - {'error': {'message': 'You have insufficient permissions for this operation.', 'type': 'invalid_request_error', 'param': None, 'code': None}}",W072,unambiguous_candidate,2,4,gpt-5.6-terra
+W078,W078,511,Water Courses,0.9,The locality explicitly states the collection was at the edge of a stream ('Rand eines Baches').,"Top N: 1
+
+Locality: Germany: Niedersachsen. Harz, Torfhaus, Rand eines Baches in 800 m. 1954-03-28, Leg.: Walsmann.
+Species: Marsupella emarginata
+Family: Gymnomitriaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly states the collection was at the edge of a stream ('Rand eines Baches')."", 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.9}]",1943.0,87.0,1940.0,False,False,,2689264,http://www.gbif.org/species/2689264,100.0,resolved,Marsupella emarginata,SPECIES,Gymnomitriaceae,EXACT,False,ACCEPTED,,W078,unambiguous_candidate,2,4,gpt-5.6-terra
+W082,W082,131,Mineral Extraction Sites,0.93,"The locality explicitly describes a wet clay pit ('feuchte Tongrube'), an active or former mineral-extraction excavation with waterlogged conditions.","Top N: 1
+
+Locality: Germany: Nordrhein-Westfalen. Kr. Kempen-Krefeld. Grenzwald w Heidhausen b. Kaldenkirchen, in einer feuchten Tongrube mit Equisetum variegatum. 1978-06-19, Leg.: Frahm.
+Species: Mnium pseudopunctatum
+Family: Mniaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The locality explicitly describes a wet clay pit ('feuchte Tongrube'), an active or former mineral-extraction excavation with waterlogged conditions."", 'clc_code': '131', 'english_name': 'Mineral Extraction Sites', 'confidence': 0.93}]",1963.0,96.0,1960.0,False,False,,5711063,http://www.gbif.org/species/5711063,100.0,resolved,Mnium pseudopunctatum,SPECIES,Mniaceae,EXACT,True,SYNONYM,,W082,unambiguous_candidate,2,4,gpt-5.6-terra
+W083,W083,321,Natural Grassland,0.18,"Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for moist semi-natural grassland or woodland-edge habitat, but no site cover is described.","Top N: 1
+
+Locality: Landkreis Märkisch-Oderland, bei Waldsieversdorf
+Species: Geoglossum fallax
+Family: Geoglossaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality near Waldsieversdorf is provided; the fungus offers weak indirect evidence for moist semi-natural grassland or woodland-edge habitat, but no site cover is described.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.18}]",1922.0,89.0,1919.0,False,False,,2586856,http://www.gbif.org/species/2586856,100.0,resolved,Geoglossum fallax,SPECIES,Geoglossaceae,EXACT,False,ACCEPTED,,W083,unambiguous_candidate,2,4,gpt-5.6-terra
+W085,W085,132,Dump Sites and Spoil Heaps,0.9,"""Trümmerberg"" denotes a rubble/debris mound, indicating spoil or dumped construction rubble rather than natural vegetation.","Top N: 1
+
+Locality: Germany: Berlin. Berlin-Grunewald, Trümmerberg am Teufelssee. 1959-08-01, Leg.: H. Scholz.
+Species: Chenopodium strictum
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': '""Trümmerberg"" denotes a rubble/debris mound, indicating spoil or dumped construction rubble rather than natural vegetation.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.9}]",1942.0,83.0,1939.0,False,False,,3083941,http://www.gbif.org/species/3083941,100.0,resolved,Chenopodium strictum,SPECIES,Amaranthaceae,EXACT,True,SYNONYM,,W085,unambiguous_candidate,2,4,gpt-5.6-terra
+W086,W086,132,Dump Sites and Spoil Heaps,0.95,"The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), which is most consistent with a spoil heap or dump site; sand is the substrate.","Top N: 1
+
+Habitat and ecology: Germany: Rheinland-Pfalz. Landkreis Bad Dürkheim, Kirchheim an der Weinstraße, S der Autobahn, TK 6415/131. Erdmassendeponie, Sand.
+Species: Amaranthus blitoides
+Family: Amaranthaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The site is explicitly described as an earth-mass disposal/deposition area (Erdmassendeponie), which is most consistent with a spoil heap or dump site; sand is the substrate.', 'clc_code': '132', 'english_name': 'Dump Sites and Spoil Heaps', 'confidence': 0.95}]",1952.0,112.0,1949.0,False,False,,5384395,http://www.gbif.org/species/5384395,100.0,resolved,Amaranthus blitoides,SPECIES,Amaranthaceae,EXACT,False,ACCEPTED,,W086,unambiguous_candidate,2,4,gpt-5.6-terra
+W089,W089,231,Pastures and Meadows,0.95,"The locality explicitly states ""auf einer Wiese"" (on a meadow); Dactylorhiza majalis is also consistent with moist meadow habitat.","Top N: 1
+
+Habitat and ecology: Germany: Sachsen-Anhalt. Harz, hinter Hayn auf einer Wiese.
+Species: Dactylorhiza majalis
+Family: Orchidaceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality explicitly states ""auf einer Wiese"" (on a meadow); Dactylorhiza majalis is also consistent with moist meadow habitat.', 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.95}]",1927.0,86.0,1924.0,False,False,,2810155,http://www.gbif.org/species/2810155,100.0,resolved,Dactylorhiza majalis,SPECIES,Orchidaceae,EXACT,False,ACCEPTED,,W089,unambiguous_candidate,2,4,gpt-5.6-terra
+W091,W091,311,Broadleaved Forest,0.28,"Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.","Top N: 1
+
+Locality: Bayern, N Kleiner Arbersee
+Species: Mycelis muralis
+Family: Asteraceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'Only a locality north of Kleiner Arbersee is provided; the species is commonly associated with woodland, so forest is a weak indirect inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1915.0,89.0,1912.0,False,False,,3139040,http://www.gbif.org/species/3139040,100.0,resolved,Mycelis muralis,SPECIES,Asteraceae,EXACT,False,ACCEPTED,,W091,unambiguous_candidate,2,4,gpt-5.6-terra
+W092,W092,311,Broadleaved Forest,0.28,"The locality is a named stream valley in the Stubnitz area, but no explicit habitat or substrate is given; surrounding woodland is only a weak regional inference.","Top N: 1
+
+Locality: Landkreis Rügen, Stubnitz, Tal des Briesnitzer Baches
+Species: Ramsbottomia asperior
+Family: Pyronemataceae
+",gpt-5.6-terra,v4,1,"[{'reason': 'The locality is a named stream valley in the Stubnitz area, but no explicit habitat or substrate is given; surrounding woodland is only a weak regional inference.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.28}]",1923.0,86.0,1920.0,False,False,,2594307,http://www.gbif.org/species/2594307,100.0,resolved,Ramsbottomia asperior,SPECIES,Pyronemataceae,EXACT,False,ACCEPTED,,W092,unambiguous_candidate,2,4,gpt-5.6-terra
+W095,W095,231,Pastures and Meadows,0.98,"The habitat is explicitly described as 'Mähwiesen' (mown meadows), corresponding to permanent grassland.","Top N: 1
+
+Habitat and ecology: Germany: Bayern. LK Regen, 0,6 km N Wiesing, am Haselbach, TK 6843/4. Mähwiesen.
+Species: Holcus lanatus
+Family: Poaceae
+",gpt-5.6-terra,v4,1,"[{'reason': ""The habitat is explicitly described as 'Mähwiesen' (mown meadows), corresponding to permanent grassland."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.98}]",1939.0,99.0,0.0,False,False,,2706164,http://www.gbif.org/species/2706164,100.0,resolved,Holcus lanatus,SPECIES,Poaceae,EXACT,False,ACCEPTED,,W095,unambiguous_candidate,2,4,gpt-5.6-terra

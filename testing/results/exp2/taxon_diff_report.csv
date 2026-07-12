@@ -1,0 +1,86 @@
+id,csv_name,gbif_name,rank,match_type,confidence,is_synonym,status
+W001,Lophozia capitata (Hook.) Macoun,Lophozia capitata,SPECIES,EXACT,100.0,True,resolved
+W002,Alnus glutinosa (L.) Gaertn.,Alnus glutinosa,SPECIES,EXACT,100.0,False,resolved
+W003,Bryum cirrhatum Vill.,Bryum cirrhatum,SPECIES,EXACT,97.0,True,resolved
+W004,Galeobdolon argentatum Smejkal,Galeobdolon argentatum,SPECIES,EXACT,100.0,True,resolved
+W005,Sorbus schwarziana N. Mey.,Sorbus schwarziana,SPECIES,EXACT,100.0,True,resolved
+W006,Muscari botryoides (L.) Mill.,Muscari botryoides,SPECIES,EXACT,100.0,False,resolved
+W007,Carex alba Scop.,Carex alba,SPECIES,EXACT,100.0,False,resolved
+W008,Koeleria pyramidata (Lam.) P.Beauv. subsp. pyramidata,Koeleria pyramidata pyramidata,SUBSPECIES,EXACT,100.0,False,resolved
+W009,Galatella linosyris (L.) Rchb.f.,Galatella linosyris,SPECIES,EXACT,100.0,False,resolved
+W010,"Chlorociboria aeruginascens (Nyl.) Kanouse ex C. S. Ramamurthi, Korf & L. R. Batra",Chlorociboria aeruginascens,SPECIES,EXACT,97.0,True,resolved
+W011,Filago pyramidata L.,Filago pyramidata,SPECIES,EXACT,100.0,False,resolved
+W012,Sanguisorba minor subsp. balearica (Nyman) Muñoz & C.Navarro,Sanguisorba minor balearica,SUBSPECIES,EXACT,100.0,True,resolved
+W013,Stellaria palustris Ehrh. ex Hoffm.,Stellaria palustris,SPECIES,EXACT,100.0,False,resolved
+W014,Petasites spurius (Retz.) Rchb.,Petasites spurius,SPECIES,EXACT,100.0,False,resolved
+W015,Persicaria lapathifolia subsp. brittingeri (Opiz) Soják,Persicaria lapathifolia brittingeri,SUBSPECIES,EXACT,100.0,False,resolved
+W017,Carex flava L. s. str.,Carex flava,SPECIES,EXACT,100.0,False,resolved
+W018,Euphorbia platyphyllos subsp. platyphyllos L.,Euphorbia platyphyllos platyphyllos,SUBSPECIES,EXACT,100.0,False,resolved
+W019,Cirsium eriophorum (L.) Scop.,Cirsium eriophorum,SPECIES,EXACT,100.0,True,resolved
+W020,Hieracium compositum Lapeyr.,Hieracium compositum,SPECIES,EXACT,100.0,False,resolved
+W021,Kalanchoë boranae Raadts,Kalanchoe boranae,SPECIES,EXACT,100.0,False,resolved
+W022,Solidago gigantea Aiton,Solidago gigantea,SPECIES,EXACT,100.0,False,resolved
+W023,Leptobryum pyriforme (Hedw.) Wilson,Leptobryum pyriforme,SPECIES,EXACT,100.0,False,resolved
+W025,Plantago lanceolata L.,Plantago lanceolata,SPECIES,EXACT,100.0,False,resolved
+W026,Byssonectria fusispora (Berk.) Rogerson & Korf,Byssonectria fusispora,SPECIES,EXACT,100.0,False,resolved
+W027,Byssonectria semiimmersa (P. Karst.) Benkert,Byssonectria semiimmersa,SPECIES,EXACT,100.0,True,resolved
+W028,Helvella lacunosa Afzel.,Helvella lacunosa,SPECIES,EXACT,100.0,False,resolved
+W030,Carex arenaria L.,Carex arenaria,SPECIES,EXACT,100.0,False,resolved
+W031,Gymnomitrion concinnatum (Lightf.) Corda,Gymnomitrion concinnatum,SPECIES,EXACT,100.0,False,resolved
+W033,Myosotis arvensis (L.) Hill,Myosotis arvensis,SPECIES,EXACT,100.0,False,resolved
+W034,Epilobium hirsutum L.,Epilobium hirsutum,SPECIES,EXACT,100.0,False,resolved
+W035,Fallopia bohemica (Chrtek & Chrtková) J.P.Bailey,Fallopia bohemica,SPECIES,EXACT,100.0,True,resolved
+W036,Impatiens parviflora DC.,Impatiens parviflora,SPECIES,EXACT,100.0,False,resolved
+W037,Peziza saniosa Schrad.,Peziza saniosa,SPECIES,EXACT,100.0,False,resolved
+W038,Viola tricolor L.,Viola tricolor,SPECIES,EXACT,100.0,False,resolved
+W039,Dactylorhiza majalis (Rchb.) Hunt & Summerh.,Dactylorhiza majalis,SPECIES,EXACT,100.0,False,resolved
+W040,Malva neglecta Wallr.,Malva neglecta,SPECIES,EXACT,100.0,False,resolved
+W041,Campanula rotundifolia L.,Campanula rotundifolia,SPECIES,EXACT,100.0,False,resolved
+W042,Ranunculus reptans L.,Ranunculus reptans,SPECIES,EXACT,100.0,False,resolved
+W043,Amaranthus capensis subsp. uncinatus (Thell.) Brenan,Amaranthus capensis uncinatus,SUBSPECIES,EXACT,100.0,False,resolved
+W044,Salix alba L.,Salix alba,SPECIES,EXACT,100.0,False,resolved
+W045,Vitis vinifera L.,Vitis vinifera,SPECIES,EXACT,100.0,False,resolved
+W046,Angelica archangelica subsp. litoralis (Fr.) Thell.,Angelica archangelica litoralis,SUBSPECIES,EXACT,100.0,False,resolved
+W047,Bromus hordeaceus subsp. pseudothominei (P.M.Sm.) H.Scholz,Bromus hordeaceus pseudothominei,SUBSPECIES,EXACT,100.0,True,resolved
+W049,Otidea bufonia (Pers.) Boud.,Otidea bufonia,SPECIES,EXACT,100.0,False,resolved
+W050,Galium mollugo L.,Galium mollugo,SPECIES,EXACT,100.0,False,resolved
+W052,Sphagnum rufescens,Sphagnum,GENUS,HIGHERRANK,95.0,False,fuzzy
+W053,Poa compressa L.,Poa compressa,SPECIES,EXACT,100.0,False,resolved
+W054,Hypericum perforatum L.,Hypericum perforatum,SPECIES,EXACT,100.0,False,resolved
+W055,Hypericum perforatum L.,Hypericum perforatum,SPECIES,EXACT,100.0,False,resolved
+W056,Pinus sylvestris var. parvifolia Heer,Pinus sylvestris parvifolia,VARIETY,EXACT,100.0,True,resolved
+W057,Iris pseudacorus L.,Iris pseudacorus,SPECIES,EXACT,100.0,False,resolved
+W058,Impatiens parviflora DC.,Impatiens parviflora,SPECIES,EXACT,100.0,False,resolved
+W059,Lycopsis arvensis L.,Lycopsis arvensis,SPECIES,EXACT,100.0,False,resolved
+W061,Galium saxatile L.,Galium saxatile,SPECIES,EXACT,100.0,False,resolved
+W062,Geopora sepulta (Fr.) Korf & Burds.,Geopora sepulta,SPECIES,EXACT,100.0,False,resolved
+W063,Festuca ovina L. s. l.,Festuca ovina,SPECIES,EXACT,100.0,False,resolved
+W064,Brassicaceae Burnett,Brassicaceae,FAMILY,EXACT,100.0,False,resolved
+W066,Stellaria media (L.) Vill.,Stellaria media,SPECIES,EXACT,100.0,False,resolved
+W067,Erysimum cheiranthoides L.,Erysimum cheiranthoides,SPECIES,EXACT,100.0,False,resolved
+W068,Gymnostomum rupestre Schleich. ex Schwägr.,Gymnostomum rupestre,SPECIES,EXACT,100.0,True,resolved
+W070,Brachythecium populeum (Hedw.) Schimp.,Brachythecium populeum,SPECIES,EXACT,100.0,True,resolved
+W073,Chenopodium glaucum L.,Chenopodium glaucum,SPECIES,EXACT,100.0,True,resolved
+W074,Campanula rotundifolia L.,Campanula rotundifolia,SPECIES,EXACT,100.0,False,resolved
+W075,Lotus corniculatus L.,Lotus corniculatus,SPECIES,EXACT,100.0,False,resolved
+W076,Juncus articulatus L.,Juncus articulatus,SPECIES,EXACT,100.0,False,resolved
+W077,Scutellinia olivascens (Cooke) Kuntze,Scutellinia olivascens,SPECIES,EXACT,100.0,False,resolved
+W078,Marsupella emarginata (Ehrh.) Dumort.,Marsupella emarginata,SPECIES,EXACT,100.0,False,resolved
+W079,Consolida ajacis (L.) Schur,Consolida ajacis,SPECIES,EXACT,100.0,True,resolved
+W081,Papaver rhoeas L.,Papaver rhoeas,SPECIES,EXACT,100.0,False,resolved
+W082,Mnium pseudopunctatum Bruch & Schimp.,Mnium pseudopunctatum,SPECIES,EXACT,100.0,True,resolved
+W083,Geoglossum fallax E. J. Durand,Geoglossum fallax,SPECIES,EXACT,100.0,False,resolved
+W084,Catapodium rigidum (L.) Dony subsp. rigidum,Catapodium rigidum rigidum,SUBSPECIES,EXACT,100.0,False,resolved
+W086,Amaranthus blitoides S.Watson,Amaranthus blitoides,SPECIES,EXACT,100.0,False,resolved
+W087,Lophozia laxa (Lindb.) Grolle,Lophozia laxa,SPECIES,EXACT,100.0,True,resolved
+W089,Dactylorhiza majalis (Rchb.) Hunt & Summerh.,Dactylorhiza majalis,SPECIES,EXACT,100.0,False,resolved
+W090,Pulvinula constellatio (Berk. & Broome) Boud.,Pulvinula constellatio,SPECIES,EXACT,98.0,True,resolved
+W091,Mycelis muralis (L.) Dumort.,Mycelis muralis,SPECIES,EXACT,100.0,False,resolved
+W092,Ramsbottomia asperior (Nyl.) Benkert & T. Schumach.,Ramsbottomia asperior,SPECIES,EXACT,100.0,False,resolved
+W095,Holcus lanatus L.,Holcus lanatus,SPECIES,EXACT,100.0,False,resolved
+W096,Mercurialis perennis L.,Mercurialis perennis,SPECIES,EXACT,100.0,False,resolved
+W097,Ranunculus alpestris L.,Ranunculus alpestris,SPECIES,EXACT,100.0,False,resolved
+W098,Muscari neglectum Ten.,Muscari neglectum,SPECIES,EXACT,100.0,False,resolved
+W099,Anchusa arvensis (L.) M. Bieb.,Anchusa arvensis,SPECIES,EXACT,100.0,True,resolved
+W101,Myosotis arvensis (L.) Hill,Myosotis arvensis,SPECIES,EXACT,100.0,False,resolved
+W102,Hepatica nobilis Schreb.,Hepatica nobilis,SPECIES,EXACT,100.0,False,resolved

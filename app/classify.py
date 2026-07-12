@@ -2,7 +2,7 @@
 
 import argparse, asyncio
 import pandas as pd
-from pipeline import process_csv
+from .pipeline import process_csv
 
 def main():
     p = argparse.ArgumentParser()

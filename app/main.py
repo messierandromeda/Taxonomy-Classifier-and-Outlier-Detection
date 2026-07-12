@@ -6,10 +6,10 @@ import pandas as pd
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response
 
-from config import log
-from land_classifier import classify_land
-from pipeline import process_csv
-from models import CLCMatch, TextRequest, TestModels
+from .config import log
+from .llm_lookup import classify_land
+from .pipeline import process_csv
+from .models import CLCMatch, TextRequest, TestModels
 
 app = FastAPI(
     title='Land Taxonomy Classifier and Plant Taxonomy Service',
