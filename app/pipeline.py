@@ -98,6 +98,8 @@ def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
             "outlier_primary_type": "",
             "outlier_reason": "",
             "outlier_summary": "",
+            "outlier_model_count": 0,
+            "llm_flagged": False,
         }
 
     strongest_flag = max(
@@ -116,6 +118,12 @@ def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
     else:
         status = "confirmed"
 
+    llm_flagged = any(
+        getattr(flag, "method", "").lower().startswith("llm")
+        or "llm" in getattr(flag, "method", "").lower()
+        for flag in result.flags
+    )
+
     return {
         "outlier_detected": True,
         "outlier_status": status,
@@ -130,6 +138,7 @@ def summarize_outlier_result(result: RecordQualityResult | None) -> dict:
             f"{result.severity.capitalize()} outlier detected in "
             f"{strongest_flag.field} by {strongest_flag.method}."
         ),
+        "llm_flagged": llm_flagged,
     }
 
 
@@ -162,6 +171,14 @@ def annotate_records(
         new_record["outlier_flagged_fields"] = sorted({flag.field for flag in flags})
 
         new_record["outlier_detector_methods"] = sorted({flag.method for flag in flags})
+
+        new_record["outlier_model_count"] = len({flag.method for flag in flags})
+
+        new_record["llm_flagged"] = any(
+            getattr(flag, "method", "").lower().startswith("llm")
+            or "llm" in getattr(flag, "method", "").lower()
+            for flag in flags
+        )
 
         new_record["outlier_flag_types"] = sorted({flag.type for flag in flags})
 

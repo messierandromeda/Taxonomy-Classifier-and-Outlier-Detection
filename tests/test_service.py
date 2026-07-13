@@ -224,6 +224,7 @@ def test_annotated_records_contains_confidence():
     assert annotated["outlier_severity"] == "critical"
     assert annotated["outlier_confidence"] == 100
     assert annotated["outlier_status"] == "confirmed"
+    assert annotated["llm_flagged"] is False
 
 
 def test_detect_csv_download():
@@ -431,5 +432,9 @@ def test_valid_record_endpoint_returns_annotated_result():
     assert "outlier_confidence" in annotated
     assert "outlier_severity" in annotated
     assert "outlier_primary_detector" in annotated
+    assert "outlier_model_count" in annotated
+    assert annotated["outlier_model_count"] == 0
+    assert "llm_flagged" in annotated
+    assert annotated["llm_flagged"] is False
     assert "outlier_reason" in annotated
     assert "outlier_summary" in annotated
