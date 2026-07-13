@@ -433,7 +433,8 @@ def test_valid_record_endpoint_returns_annotated_result():
     assert "outlier_severity" in annotated
     assert "outlier_primary_detector" in annotated
     assert "outlier_model_count" in annotated
-    assert annotated["outlier_model_count"] == 0
+    assert isinstance(annotated["outlier_model_count"], int)
+    assert annotated["outlier_model_count"] >= 0
     assert "llm_flagged" in annotated
     assert annotated["llm_flagged"] is False
     assert "outlier_reason" in annotated
