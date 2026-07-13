@@ -134,6 +134,8 @@ def detect_csv(args):
         "outlier_score",
         "outlier_primary_detector",
         "outlier_primary_field",
+        "outlier_model_count",
+        "llm_flagged",
         "outlier_reason",
         "outlier_summary",
     ]

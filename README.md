@@ -530,21 +530,7 @@ The service expects records with optional BGBM-derived fields:
 
 # Output Format
 
-All endpoints return a `DetectResponse` with:
-
-- **count**: Number of records processed
-- **results**: List of `RecordQualityResult` objects
-- **annotated_records** (optional): Original records with outlier annotations
-
-Each `DetectionFlag` contains:
-
-- `field`: Affected field name
-- `method`: Detector method
-- `type`: Flag type (e.g., "invalid_coordinate_range", "coordinate_iqr_outlier")
-- `severity`: "info", "low", "medium", "high", or "critical"
-- `score`: Confidence (0.0–1.0)
-- `message`: Human-readable explanation
-- `value`: Field value or additional context
+For detailed documentation of the annotated output fields, see [annotated_records.md](annotated_records.md).
 
 ---
 
