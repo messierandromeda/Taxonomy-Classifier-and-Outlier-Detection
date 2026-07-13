@@ -1,22 +1,5 @@
 """
 process.py — runs one prompt version over a DataFrame.
-
-Changes from the semaphore+bucket version:
-  - _llm_gate (Semaphore) REMOVED. The token bucket is the sole pacing
-    mechanism — it's the only one denominated in what OpenAI actually limits
-    (TPM). A semaphore caps *request count*, which is the wrong unit: 5
-    concurrent short calls and 5 concurrent long calls look identical to a
-    semaphore but are very different token loads.
-  - BATCH_SIZE is now purely a chunking/memory concern. Batches can be large;
-    the bucket paces the actual wire traffic regardless of how many tasks are
-    "in flight" waiting on acquire().
-  - Per-call token estimate from the real prompt (estimate_tokens), reconciled
-    against actual usage after the response — see throttle.py.
-  - A retry pass: rows that still failed after the SDK's own retries (i.e. hit
-    a genuine, non-transient error) get ONE more attempt, sequentially, after
-    the rest of the batch. Previously a row that exhausted retries just became
-    a permanent `error` — the six version files would then have silently
-    different missing rows, corrupting any row-aligned comparison.
 """
 
 from __future__ import annotations

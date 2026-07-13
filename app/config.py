@@ -41,9 +41,31 @@ log = logging.getLogger(__name__)
 
 # Columns
 ID = 'HerbariumID'
-LOCALITY_FIELDS = ['FundortUNdOeko', 'Locality'] # sorted from most to least important
 NAME = 'FullNameCache'
+NAME_S = 'NameCache'
 GENUS = 'Genus'
 FAMILY = 'Family'
 LAT = 'Latitude'
 LON = 'Longitude'
+CULTIVATED_FIELD = 'Anmerkungen'
+
+LOCALITY_LABELS = {
+    'FundortUNdOeko': 'Habitat and ecology',   # primary
+    'Locality':       'Locality',              # secondary
+}
+
+FIELD_LABELS = {
+    'FundortUNdOeko':  'Habitat and ecology',
+    'Locality':        'Locality',
+    'NameCache':       'Collected species',
+    'Genus':           'Genus',
+    'Family':          'Family',
+}
+
+DEFAULT_CONFIG = {
+    'model': 'gpt-5.4-mini',
+    'version': 5,
+    'variant': None,
+    'taxa': None,
+    'use_species': True
+}

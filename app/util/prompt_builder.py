@@ -19,9 +19,9 @@ priors). Do not stack on the losing prompt.
 from __future__ import annotations
 import pandas as pd
 
-from app.util.taxon_ref import TAXONOMY_REFERENCE
-from app.models import TaxonMatch
-from .config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
+from .taxon_ref import TAXONOMY_REFERENCE
+from .models import TaxonMatch
+from ..config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
 
 # --- the single source of truth ----------------------------------------------
 

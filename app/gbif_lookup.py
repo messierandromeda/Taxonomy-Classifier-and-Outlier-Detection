@@ -1,7 +1,7 @@
 import httpx
 
 from .config import GBIF_CONFIDENCE_RESOLVED, log
-from .models import TaxonMatch
+from .util.models import TaxonMatch
 
 # temp cache: persists across run (not permanent)
 _gbif_cache: dict[tuple, TaxonMatch] = {}

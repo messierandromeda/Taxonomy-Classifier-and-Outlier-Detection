@@ -1,94 +1,142 @@
+''''''
+
 import json
-import pandas as pd
+import hashlib
+import re
+
 from openai import AsyncOpenAI
 
-from .config import (
-    log, OPENAI_API_KEY, OLLAMA_BASE_URL,
-    OPENAI_MODEL, OLLAMA_MODEL, TAXONOMY_PATH,
-)
-from .models import CLCMatch
-from .prompts import write_prompt
+from .config import log, OPENAI_API_KEY 
+from .util.taxon_ref import _by_code
+from .util.models import LLMMatch
 
-# --- Taxonomy loaded once at import (was the land-taxonomy-api startup block) ---
-_df = pd.read_csv(TAXONOMY_PATH, sep=';', encoding='utf-8-sig', dtype=str).fillna('')
+_clients: dict[str, AsyncOpenAI] = {}
+_warmed: set[str] = set()          # prefix hashes already written to the cache
 
-TAXONOMY_ENTRIES = [
-    {
-        'clc_code': r['CLC Code'].strip(),
-        'level': r['Level'].strip(),
-        'english_name': r['English Name'].strip(),
-        'german_name': r['German Name'].strip(),
-        'synonyms': r['Synonyms'].strip(),
-    }
-    for _, r in _df.iterrows()
-    if r['English Name'].strip()
-]
+# Per-model API quirks. Explicit table > prefix matching: prefix checks break on
+# every new family (and the SDK does not yet expose capability metadata).
+MODEL_PARAMS = {
+    'gpt-4.1-nano':  {'temperature': 0},
+    'gpt-5-nano':    {'reasoning_effort': 'minimal'},   # no 'none' option -> temp unavailable
+    'gpt-5.4-nano':  {'temperature': 0, 'reasoning_effort': 'none'},
+    'gpt-5.4-mini':  {'temperature': 0, 'reasoning_effort': 'none'},
+    'gpt-5.6-terra': {'temperature': 0, 'reasoning_effort': 'none'},
+}
 
-_by_code = {e['clc_code']: e for e in TAXONOMY_ENTRIES}
-_l3 = [e for e in TAXONOMY_ENTRIES if e['level'] == '3']
-
-TAXONOMY_REFERENCE = '\n'.join(
-    f"- [CLC {e['clc_code']}] {e['english_name']}"
-    + (f" (aka: {e['synonyms']})" if e['synonyms'] else '')
-    for e in _l3
-)
-
-# --- Clients built once and reused, instead of one per request ---
-_openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
-_ollama_client = AsyncOpenAI(base_url=OLLAMA_BASE_URL, api_key='ollama')
+def _client_for(model: str) -> AsyncOpenAI:
+    if not OPENAI_API_KEY:
+        raise RuntimeError('OPENAI_API_KEY is not set')
+    if 'openai' not in _clients:
+        _clients['openai'] = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=8)
+    return _clients['openai']
 
 
-async def classify_land(text: str, use_ollama: bool, model: str = OPENAI_MODEL) -> CLCMatch:
-    """Classify free text into a CLC Level-3 category. Returns an empty CLCMatch
-    when there is no usable text or the model gives nothing parseable."""
-    if not text or not text.strip():
-        return CLCMatch()
+def cache_key_for(model: str, system_prompt: str) -> str:
+    '''Stable routing key for one (model, system prompt) pair. Combined with the
+    prefix hash server-side, so identical prefixes land on the same machine.'''
+    h = hashlib.sha1(system_prompt.encode()).hexdigest()[:12]
+    return f'clc-{model}-{h}'
 
-    if use_ollama:
-        client, model = _ollama_client, OLLAMA_MODEL
-    else:
-        if _openai_client is None:
-            raise RuntimeError('OPENAI_API_KEY is not set and use_ollama is False')
-        client = _openai_client
 
-    prompt = write_prompt(TAXONOMY_REFERENCE)
+async def warm_cache(model: str, system_prompt: str) -> bool:
+    '''One throwaway call to write this system prompt into OpenAI's prefix cache.
+
+    A cache entry is only written by a request that COMPLETES, so a burst of N
+    parallel rows against a cold cache is N guaranteed misses. Calling this once
+    before the burst turns those into hits.
+
+    Idempotent: safe to call at the top of every rep. Returns True if a call was
+    actually made. Never raises — a failed warmup costs hits, not the run.
+    '''
+    key = cache_key_for(model, system_prompt)
+    if key in _warmed:
+        return False
+
+    client = _client_for(model)
+    try:
+        await client.chat.completions.create(
+            model=model,
+            messages=[
+                {'role': 'system', 'content': system_prompt},   # the prefix — identical
+                {'role': 'user', 'content': 'Top N: 1\n\nText: warmup'},
+            ],
+            response_format={'type': 'json_object'},
+            max_completion_tokens=16,      # we throw the answer away; don't pay for it
+            prompt_cache_key=key,
+            **MODEL_PARAMS.get(model, {}),
+        )
+    except Exception as exc:
+        log.warning('cache warmup failed (model=%s): %s', model, exc)
+        return False
+
+    _warmed.add(key)
+    log.info('warmed prompt cache: %s (%d chars)', key, len(system_prompt))
+    return True
+
+
+def _code_from(raw_code: str) -> str:
+    m = re.search(r'\d{3}', raw_code or '')
+    return m.group(0) if m else ''
+
+
+async def classify_land(
+    id: str,
+    model: str,
+    system_prompt: str,
+    user_prompt: str,
+    prompt_variant: str,
+    top_n: int = 1,
+) -> LLMMatch:
+    result = LLMMatch(
+        id=id, input=user_prompt, model=model,
+        prompt_variant=prompt_variant, top_n=top_n,
+    )
+
+
+    client = _client_for(model)
 
     response = await client.chat.completions.create(
         model=model,
         messages=[
-            {'role': 'system', 'content': prompt},
-            {'role': 'user', 'content': f'Top N: 1\n\nText: {text}'},
+            {'role': 'system', 'content': system_prompt},
+            {'role': 'user', 'content': user_prompt},
         ],
         response_format={'type': 'json_object'},
-        temperature=0,
+        prompt_cache_key=cache_key_for(model, system_prompt),
+        **MODEL_PARAMS.get(model, {}),
     )
+
+    usage = response.usage
+    if usage:
+        result.prompt_tokens = usage.prompt_tokens
+        result.completion_tokens = usage.completion_tokens
+        details = getattr(usage, 'prompt_tokens_details', None)
+        result.cached_tokens = getattr(details, 'cached_tokens', None) if details else None
 
     raw = response.choices[0].message.content
     try:
         data = json.loads(raw)
     except (json.JSONDecodeError, TypeError):
-        log.warning('LLM returned invalid JSON for: %s', text[:80])
-        return CLCMatch()
+        log.warning('LLM returned invalid JSON (model=%s, variant=%s): %s',
+                    model, prompt_variant, user_prompt[:80])
+        result.parse_failure = True
+        return result
 
     matches = data.get('matches', [])
     if not matches:
-        return CLCMatch()
+        return result
 
+    result.all_matches = matches
     top = matches[0]
-    code = top.get('clc_code', '')
-    
-    if len(code) > 3:
-        code = code[-3:]
-    
+    code = _code_from(top.get('clc_code', ''))
     entry = _by_code.get(code)
-    if entry is None:
+    if code and entry is None:
         log.warning('LLM returned unknown CLC code: %s', code)
+        result.unknown_code = True
 
-    return CLCMatch(
-        code=code,
-        name=entry['english_name'] if entry else '',   # canonical name, not the LLM's
-        confidence=top.get('confidence'),
-        reason=top.get('reason', ''),
-        input=text,
-        model=model,
-    )
+    result.code = code
+    result.name = entry['english_name'] if entry else ''
+    result.confidence = top.get('confidence')
+    result.reason = top.get('reason', '')
+
+    return result
