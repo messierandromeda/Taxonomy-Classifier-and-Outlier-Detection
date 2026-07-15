@@ -1,7 +1,7 @@
 import ee
 import pandas as pd
 
-from ..config import LAT, LON, GEE_PROJECT
+from ..config import LAT, LON, GEE_PROJECT, GEE_MAP
 
 def get_clc_mapping(input: str, output: str):
     ee.Initialize(project=GEE_PROJECT)
@@ -17,7 +17,7 @@ def get_clc_mapping(input: str, output: str):
 
     fc = ee.FeatureCollection(features)
 
-    corine = ee.Image('COPERNICUS/CORINE/V20/100m/2018').select('landcover')
+    corine = ee.Image(GEE_MAP).select('landcover')
 
     sampled = corine.sampleRegions(collection=fc, scale=100, geometries=True)
     rows = [f['properties'] for f in sampled.getInfo()['features']]
@@ -25,4 +25,3 @@ def get_clc_mapping(input: str, output: str):
 
 if __name__ == '__main__':
     pass
-    # get_clc_mapping(WORKING_DATA)

@@ -1,0 +1,21 @@
+[project]
+name = "taxonomy-classifier"
+version = "0.1.0"
+requires-python = ">=3.12"
+dynamic = ["dependencies"]
+
+[project.scripts]
+taxonomy-classify = "app.cli:main"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["*.csv"]
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"

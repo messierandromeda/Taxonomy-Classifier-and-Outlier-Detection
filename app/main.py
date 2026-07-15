@@ -69,7 +69,7 @@ async def classify_csv(
 
     content = await file.read()
     df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
-    log.info('Received %s with %d rows (use_ollama=)', file.filename, len(df)) #use_ollama)
+    log.info('Received %s with %d rows', file.filename, len(df))
 
 
     # process_csv writes to temp file

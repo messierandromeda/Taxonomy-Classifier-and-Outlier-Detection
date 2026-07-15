@@ -1,0 +1,62 @@
+id,llm_code,llm_name,llm_confidence,llm_reason,llm_input,llm_model,llm_prompt_variant,llm_top_n,llm_all_matches,llm_prompt_tokens,llm_completion_tokens,llm_cached_tokens,llm_parse_failure,llm_unknown_code,llm_error,taxon_key,taxon_link,taxon_confidence,taxon_status,taxon_canonical_name,taxon_rank,taxon_family,taxon_match_type,taxon_is_synonym,taxon_accepted_status,error
+B300330259,333,Sparsely Vegetated Areas,0.78,West-exposed slope on soil with pioneer mosses indicates sparsely vegetated open ground.,"Top N: 3
+
+Locality: Germany: Nordrhein-Westfalen. Krefeld, Hülser Bruch. Inrather Berg, W-exponierter Hang auf Erde mit Ceratodonp purpureus, Barbula convoluta. 1992-10-22, Leg.: J.-P. Frahm.
+Species: Ceratodon purpureus
+Family: Ditrichaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'West-exposed slope on soil with pioneer mosses indicates sparsely vegetated open ground.', 'clc_code': '333', 'english_name': 'Sparsely Vegetated Areas', 'confidence': 0.78}, {'reason': 'The locality is on a slope with exposed earth and pioneer bryophytes, which can also fit transitional scrub or early successional woodland edges.', 'clc_code': '324', 'english_name': 'Transitional Woodland Scrub', 'confidence': 0.42}, {'reason': 'No explicit forest or grassland cover is given, but the site is in a natural area and could include semi-natural grassland on the hillside.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.24}]",1965,225,1792,False,False,,5281381,http://www.gbif.org/species/5281381,100.0,resolved,Ceratodon purpureus,SPECIES,Ditrichaceae,EXACT,False,ACCEPTED,
+B101304339,211,Non-Irrigated Arable Land,0.18,"Only a place abbreviation and direction are given; no habitat or land-cover description is provided, so this is a weak speculative guess.","Top N: 3
+
+Locality: BLK, NW Hohenmölsen
+Species: Sonchus oleraceus
+Family: Asteraceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Only a place abbreviation and direction are given; no habitat or land-cover description is provided, so this is a weak speculative guess.', 'clc_code': '211', 'english_name': 'Non-Irrigated Arable Land', 'confidence': 0.18}, {'reason': 'The locality lacks environmental detail; a second plausible guess is open agricultural or disturbed land often associated with ruderal species.', 'clc_code': '242', 'english_name': 'Complex Cultivation Patterns', 'confidence': 0.14}, {'reason': 'With no site habitat described, a generic low-density human-modified landscape is a fallback guess.', 'clc_code': '112', 'english_name': 'Discontinuous Urban Fabric', 'confidence': 0.11}]",1917,231,1792,False,False,,8228544,http://www.gbif.org/species/8228544,100.0,resolved,Sonchus oleraceus,SPECIES,Asteraceae,EXACT,False,ACCEPTED,
+JACQID1061960,211,Non-Irrigated Arable Land,0.28,"Only a place name is given with no habitat description; Brandenburg and Herzberg could plausibly include agricultural and semi-natural land, but this is speculative.","Top N: 3
+
+Locality: Brandenburg, N Herzberg
+Species: Ballota nigra
+Family: Lamiaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Only a place name is given with no habitat description; Brandenburg and Herzberg could plausibly include agricultural and semi-natural land, but this is speculative.', 'clc_code': '211', 'english_name': 'Non-Irrigated Arable Land', 'confidence': 0.28}, {'reason': 'The locality could also be in a rural mosaic with grassland or field margins, but there is no direct evidence.', 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.22}, {'reason': 'A weak fallback guess for a rural German locality where mixed farmland and small habitat patches are common, but not stated.', 'clc_code': '242', 'english_name': 'Complex Cultivation Patterns', 'confidence': 0.18}]",1911,236,1792,False,False,,2926894,http://www.gbif.org/species/2926894,100.0,resolved,Ballota nigra,SPECIES,Lamiaceae,EXACT,False,ACCEPTED,
+B300311555,311,Broadleaved Forest,0.22,Only a place name is given with no habitat description; in Bayern the most plausible broad land cover guess is forested land.,"Top N: 3
+
+Locality: Germany: Bayern. 1860, Leg.: Allescher.
+Species: Rhodobryum ontariense
+Family: Bryaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Only a place name is given with no habitat description; in Bayern the most plausible broad land cover guess is forested land.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.22}, {'reason': 'The locality lacks environmental detail, but moss specimens are often collected from moist, shaded woodland substrates, making mixed forest a secondary guess.', 'clc_code': '313', 'english_name': 'Mixed Forest', 'confidence': 0.18}, {'reason': 'With no site habitat stated, a generic semi-natural ground cover such as grassland is a weak fallback possibility.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.12}]",1920,229,1792,False,False,,5282526,http://www.gbif.org/species/5282526,95.0,resolved,Rhodobryum ontariense,SPECIES,Bryaceae,EXACT,False,ACCEPTED,
+B101104888,523,Sea and Ocean,0.58,"Kieler Förde is a coastal fjord/inlet, so the most likely land cover at the site is marine/coastal water.","Top N: 3
+
+Locality: Kreis [...]: Bei Mönckeberg an der Kieler Förde
+Species: Juncus effusus L. x Juncus inflexus L.
+Genus: Juncus
+Family: JUNCACEAE
+",gpt-5.4-mini,v5,3,"[{'reason': 'Kieler Förde is a coastal fjord/inlet, so the most likely land cover at the site is marine/coastal water.', 'clc_code': '523', 'english_name': 'Sea and Ocean', 'confidence': 0.58}, {'reason': 'The locality is at a shoreline on the fjord, which commonly includes intertidal coastal margins even though this is not explicitly stated.', 'clc_code': '423', 'english_name': 'Intertidal Flats', 'confidence': 0.34}, {'reason': 'Juncus effusus x Juncus inflexus is a rush hybrid often associated with damp, wet ground, suggesting nearby marshy or waterlogged habitat.', 'clc_code': '411', 'english_name': 'Marshes', 'confidence': 0.31}]",1939,251,1792,False,False,,2701072,http://www.gbif.org/species/2701072,100.0,fuzzy,Juncus,GENUS,Juncaceae,HIGHERRANK,False,ACCEPTED,
+B101000386,511,Water Courses,0.93,"The locality name 'Gräben' indicates ditches/drainage channels with standing or slow-moving freshwater, which best fits inland water channels.","Top N: 3
+
+Locality: Germany: Brandenburg. Dahme: Gräben der Ihlower Wiesen. 1950-08-13, Leg.: E. Patzke.
+Species: Potamogeton acutifolius
+Family: Potamogetonaceae
+",gpt-5.4-mini,v5,3,"[{'reason': ""The locality name 'Gräben' indicates ditches/drainage channels with standing or slow-moving freshwater, which best fits inland water channels."", 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.93}, {'reason': ""The site is in 'Ihlower Wiesen' (meadows), suggesting surrounding grassland or meadow vegetation near the watercourse."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.62}, {'reason': 'The species Potamogeton acutifolius is an aquatic plant typically found in shallow freshwater habitats, supporting the presence of inland standing water or ditch water.', 'clc_code': '512', 'english_name': 'Water Bodies', 'confidence': 0.58}]",1945,230,1792,False,False,,7361877,http://www.gbif.org/species/7361877,100.0,resolved,Potamogeton acutifolius,SPECIES,Potamogetonaceae,EXACT,False,ACCEPTED,
+B300332709,332,Bare Rock,0.78,Traßfelsen indicates a rock outcrop/cliff locality; the site is likely exposed stone.,"Top N: 3
+
+Locality: Germany: Rheinland-Pfalz. Kr. Ahrweiler, Brohltal, Bad Tönisstein, Traßfelsen. 2005-01-08, Leg.: Frahm 8245.
+Species: Barbula unguiculata
+Family: Pottiaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Traßfelsen indicates a rock outcrop/cliff locality; the site is likely exposed stone.', 'clc_code': '332', 'english_name': 'Bare Rock', 'confidence': 0.78}, {'reason': 'The moss species Barbula unguiculata commonly occurs on open soil, walls, and disturbed substrates, suggesting sparsely vegetated ground nearby.', 'clc_code': '333', 'english_name': 'Sparsely Vegetated Areas', 'confidence': 0.46}, {'reason': 'Bad Tönisstein in the Brohltal is a valley setting where small streams or moist ravines are plausible, but this is only a weak geographic inference.', 'clc_code': '511', 'english_name': 'Water Courses', 'confidence': 0.18}]",1950,231,1792,False,False,,5280516,http://www.gbif.org/species/5280516,100.0,resolved,Barbula unguiculata,SPECIES,Pottiaceae,EXACT,False,ACCEPTED,
+B100088510,231,Pastures and Meadows,0.34,"The locality only says 'Rain beim Haus' (roadside/edge near a house), which suggests a disturbed grassy verge or unmanaged edge vegetation, but no specific habitat is given.","Top N: 3
+
+Locality: Rheinprovinz, Rain beim Haus Herl bei Köln
+Species: Hieracium schultesii amauriforme
+Family: Asteraceae
+",gpt-5.4-mini,v5,3,"[{'reason': ""The locality only says 'Rain beim Haus' (roadside/edge near a house), which suggests a disturbed grassy verge or unmanaged edge vegetation, but no specific habitat is given."", 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.34}, {'reason': 'A house-edge roadside setting near Cologne could include scattered urban greenery and mixed residential vegetation, but this is only a weak inference from the place description.', 'clc_code': '112', 'english_name': 'Discontinuous Urban Fabric', 'confidence': 0.22}, {'reason': ""The mention of a 'Rain' (verge/edge) also fits a narrow strip of unmanaged herbaceous vegetation along a path or road, though the text is too vague to be diagnostic."", 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.18}]",1925,258,1792,False,False,,8819376,http://www.gbif.org/species/8819376,100.0,resolved,Hieracium schultesii amauriforme,SUBSPECIES,Asteraceae,EXACT,True,SYNONYM,
+JACQID1082274,242,Complex Cultivation Patterns,0.28,"Only a place name is given with no habitat description; best guess is a rural mosaic around Kleinkühnau, likely agricultural land.","Top N: 3
+
+Locality: Sachsen-Anhalt, W Kleinkühnau
+Species: Robinia pseudoacacia
+Family: Fabaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Only a place name is given with no habitat description; best guess is a rural mosaic around Kleinkühnau, likely agricultural land.', 'clc_code': '242', 'english_name': 'Complex Cultivation Patterns', 'confidence': 0.28}, {'reason': 'The locality in Sachsen-Anhalt could also plausibly include surrounding fields or cropland, but this is not explicitly stated.', 'clc_code': '211', 'english_name': 'Non-Irrigated Arable Land', 'confidence': 0.22}, {'reason': 'As a secondary guess for a semi-rural locality, nearby grassland or meadow cover is possible, though unsupported by the text.', 'clc_code': '231', 'english_name': 'Pastures and Meadows', 'confidence': 0.16}]",1916,246,1792,False,False,,5352251,http://www.gbif.org/species/5352251,100.0,resolved,Robinia pseudoacacia,SPECIES,Fabaceae,EXACT,False,ACCEPTED,
+B100595581,311,Broadleaved Forest,0.34,"Only a place name is given (Harz, Germany) with no specific habitat description; best guess is montane forested terrain common in the Harz.","Top N: 3
+
+Habitat and ecology: Germany: Harz.
+Species: Alchemilla vulgaris
+Family: Rosaceae
+",gpt-5.4-mini,v5,3,"[{'reason': 'Only a place name is given (Harz, Germany) with no specific habitat description; best guess is montane forested terrain common in the Harz.', 'clc_code': '311', 'english_name': 'Broadleaved Forest', 'confidence': 0.34}, {'reason': 'The Harz is also widely covered by mixed woodland, so this is a plausible alternative land cover from the vague locality.', 'clc_code': '313', 'english_name': 'Mixed Forest', 'confidence': 0.31}, {'reason': 'As a weaker fallback for the Harz uplands, open grassland or meadow habitats may occur, but this is not supported by the text.', 'clc_code': '321', 'english_name': 'Natural Grassland', 'confidence': 0.18}]",1912,252,1792,False,False,,7890713,http://www.gbif.org/species/7890713,100.0,resolved,Alchemilla vulgaris,SPECIES,Rosaceae,EXACT,False,ACCEPTED,

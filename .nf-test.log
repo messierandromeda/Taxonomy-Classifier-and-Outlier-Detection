@@ -1,0 +1,8 @@
+Jul-15 13:20:14.374 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.5
+Jul-15 13:20:14.394 [main] INFO  com.askimed.nf.test.App - Arguments: [test, modules/local/taxonomy_classify/tests/main.nf.test]
+Jul-15 13:20:15.407 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 26.04.4
+Jul-15 13:20:15.411 [main] WARN  com.askimed.nf.test.commands.RunTestsCommand - No nf-test config file found.
+Jul-15 13:20:15.453 [main] INFO  com.askimed.nf.test.lang.dependencies.DependencyResolver - Loaded 0 files from directory /home/username/uni/sose26/SoPr/project/SWP-SS2026-Classifier-and-Outlier-Detection in 0.039 sec
+Jul-15 13:20:15.455 [main] INFO  com.askimed.nf.test.lang.dependencies.DependencyResolver - Found 0 files containing tests.
+Jul-15 13:20:15.455 [main] DEBUG com.askimed.nf.test.lang.dependencies.DependencyResolver - Found files: []
+Jul-15 13:20:15.458 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Found 0 tests to execute.

@@ -1,5 +1,5 @@
 """
-process.py — runs one prompt version over a DataFrame.
+pipeline.py: Takes a DF in process_csv and builds the output in batches.
 """
 
 from __future__ import annotations

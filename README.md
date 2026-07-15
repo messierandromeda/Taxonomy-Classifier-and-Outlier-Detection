@@ -1,182 +1,158 @@
-# Land Taxonomy & Plant Classifier (WP3)
+# Land Taxonomy Classifier (WP3)
 
-A self-contained service that classifies herbarium specimen records from the BGBM dataset against CORINE Land Cover (CLC) habitat categories and resolves the specimen taxonomy against the GBIF backbone. Part of the broader BiodivPipeline project for FAIR biodiversity data processing.
+Takes a CSV of herbarium specimen records and returns a CORINE Land Cover (CLC) code and a GBIF backbone identifier for each row. The GBIF backbone identifier is resolved from the plant name, family and genus. To obtain the CLC code, an LLM uses free-text locality description and plant data (refined through GBIF output) and analyzes those. \
+Both are returned together, joined by record ID.
 
-## Overview
+Part of the BiodivPipeline project, where it runs as the `TAXONOMY_CLASSIFY` Nextflow module. It also runs standalone as a FastAPI service or a batch CLI.
 
-Given a CSV of herbarium records, the service derives a CLC habitat code from each record's locality / habitat-description text (via an LLM) and a GBIF backbone identifier from its scientific name. It produces a structured output CSV joining both back to the input record.
+**Scope.** Land classification is inferred from text, not from coordinates.
 
-It is a **single service**. An earlier design split this into two containers (a land-taxonomy API and a classifier that called it over HTTP) but the land-classification logic has since been merged in (`land_classifier.py`). There is no longer a separate API to start or a network hop between them.
+## Quickstart
 
-Two entry points share the same underlying code:
-
-- **`main.py`**: FastAPI service for interactive use. `POST /classify` classifies a single free-text string; `POST /classify/csv` runs the full pipeline over an uploaded CSV and returns the processed file. Useful for exploring the classifier without preparing a dataset.
-- **`classify.py`**: batch command-line entry point (`--input` / `--output`) that runs the full pipeline over a CSV. This is what the Nextflow integration uses.
-
-## Project Structure
-
-```
-land-taxonomy-classifier/
-├── app
-│   ├── classify.py         # batch CLI entry point
-│   ├── config.py
-│   ├── land_classifier.py  # LLM land classifier (the merged API)
-│   ├── main.py             # FastAPI interactive service
-│   ├── models.py           # Pydantic models
-│   ├── pipeline.py         # batch orchestration over the input CSV
-│   ├── process.py          # per-row logic (land classification + GBIF)
-│   ├── taxonomy.csv
-│   └── taxonomy_lookup.py  # GBIF identifier lookup, with in-memory cache
-├── changes.md
-├── .env.example
-├── docker-compose.yml
-├── Dockerfile
-├── README.md
-└── requirements.txt
-```
-
-## Diagram
-```mermaid
-graph TD
-    %% Core Styling
-    classDef entrypoint fill:#4a90e2,stroke:#1d5da3,stroke-width:2px,color:#fff;
-    classDef core fill:#50e3c2,stroke:#1bb394,stroke-width:2px,color:#000;
-    classDef data fill:#f5a623,stroke:#d47d00,stroke-width:2px,color:#000;
-    classDef external fill:#b5b5b5,stroke:#777,stroke-width:1px,color:#000;
-
-    %% Ingress & Interfaces
-    subgraph Ingress [User Entry Points]
-        A[classify.py<br>Batch CLI]:::entrypoint
-        B[main.py<br>FastAPI Service]:::entrypoint
-    end
-
-    %% Configuration & Settings Load
-    C[config.py<br>App Settings] --> A
-    C --> B
-
-    %% Orchestration Layer
-    subgraph Orchestration [Batch & API Orchestration]
-        A -->|Processes Input CSV| D[pipeline.py<br>Batch Orchestrator]
-        B -->|Handles HTTP Requests| D
-    end
-
-    %% Per-Row Processing Engine
-    subgraph Processing_Engine [Core Logic]
-        D -->|Loops Over Rows| E[process.py<br>Per-Row Core Logic]
-        
-        H[taxonomy.csv<br>Local Context Rules]:::data -->|Predefined Categories| F[land_classifier.py<br>LLM Classifier Engine]
-        
-        E -->|Run Classification| F
-        E -->|Check Taxonomy| G[taxonomy_lookup.py<br>GBIF Lookup Engine]
-    end
-
-    %% Data Layers & Memory Caching
-    subgraph Data_Storage [Data & Cache Resources]
-        G -->|Speeds up queries| I[(In-Memory<br>Taxonomy Cache)]:::data
-    end
-
-    %% External Network Interfaces
-    subgraph External_APIs [External Networks]
-        G -->|REST Queries| J[GBIF API<br>Identifier Lookup]:::external
-    end
-
-    %% Repositioned Outputs: Structured cleanly directly below all processing components
-    F -->|Saves Classification| K[Generated Output CSV]:::data
-    I -->|Saves Cached Metadata| K
-    J -->|Saves Resolved Keys| K
-```
-
-## Requirements
-
-- Docker (and Docker Compose for the convenience setup)
+### Requirements
+- Docker + Docker Compose
 - An OpenAI API key
-  - Ollama can be used instead if there is no API key available (intended for testing the pipeline end to end).
 
-## Setup
-
-Copy the environment template and add your key:
-
+### Setup
 ```bash
 cp .env.example .env
-# edit .env:
-# OPENAI_API_KEY=sk-your-key-here
+# edit .env: OPENAI_API_KEY=sk-...
 ```
 
-## Running
-
-### As a service (interactive)
-
+### Run the batch CLI (what the pipeline uses)
 ```bash
-docker compose --profile ollama up --build
+docker compose run --build --rm classifier \
+  python -m app.cli --input <path-with-input.csv> --output <path-with-outpu.csv>
 ```
 
-Open the interactive docs at `http://localhost:8000/docs`.
+### Run as an interactive service
+```bash
+docker compose up --build
+```
+Open `http://localhost:8000/docs`.
+- `POST /classify/csv`: upload a CSV, get back either a JSON or a processed CSV
 
-- `POST /classify`: classify a single free-text locality/habitat string. Returns the matched CLC category. (land classification only)
-- `POST /classify/csv`: upload a CSV and receive the processed CSV as a download. 
-
-Input delimiter is auto-detected (comma/semicolon-separated inputs both accepted)
-
-### As a batch job (CLI)
-
-```**bash**
-docker run --rm \
-  -e OPENAI_API_KEY=$OPENAI_API_KEY \
-  -v $(pwd)/input.csv:/in.csv \
-  -v $(pwd):/out \
-  taxonomy-classify:0.1 \
-  python /app/classify.py --input /in.csv --output /out/output.csv
+### Run NF pipeline test
+From the root folder:
+```bash
+nf-test test modules/local/taxonomy_classify/tests/main.nf.test
 ```
 
-### Input Columns
+## Input
 
+A CSV of herbarium records. Delimiter is auto-detected (comma or semicolon). Extra columns are ignored.
+
+| Column | Role |
+|---|---|
+| `HerbariumID` | Record identifier. Falls back to the row index if absent. |
+| `FullNameCache` | Scientific name (with authorship) sent to GBIF |
+| `Genus`, `Family` | Sent to GBIF as matching context |
+| `FundortUNdOeko` | Habitat/ecology text — **preferred** input for classification |
+| `Locality` | Free-text locality — used when `FundortUNdOeko` is empty or redundant |
+| `Anmerkungen` | Checked for cultivation markers (`cult.`, `kult`, `garten`, `garden`) so garden-grown specimens aren't classified by their natural habitat |
+| `Latitude`, `Longitude` | Not used at runtime. |
+
+**Column names are configurable.** Every column above is defined in `app/config.py` (`ID`, `NAME`, `GENUS`, `FAMILY`,  `LOCALITY_LABELS`, `CULTIVATED_FIELD`). For a dataset with different headers, remap them there. Because
+the labels the LLM sees are built from these same settings, remapping columns also controls what the prompt contains.
+
+### Row handling
+Every input row produces exactly one output row; nothing is filtered out.
+
+- **No usable locality text**: a warning is logged, no LLM call is made, and the land-cover fields come back empty (`llm_confidence` null, `llm_code` empty).
+- **No scientific name**: no GBIF call; taxonomy fields come back empty with `taxon_status: unresolved`.
+
+## Output
+
+One row per input record, joinable on `id`. The pipeline runs in two phases: GBIF taxonomy is resolved once for the whole dataset first, then land classification runs in batches. This approach allows the classifier to use taxonomy results as additional context.
+
+### Land cover (LLM)
 | Column | Description |
-|--------|-------------|
-| `HerbariumID` | Unique record identifier |
-| `Locality` | Free-text locality string |
-| `FundortUNdOeko` | Habitat and ecology description (optional, preferred over `Locality` when present) |
-| `FullNameCache` | Free-text scientific plant name |
-| `Genus` | Free-text plant genus |
-| `Family` | Free-text plant family |
+|---|---|
+| `id` | `HerbariumID` from the input |
+| `llm_code` | CORINE Level-3 code, e.g. `311` |
+| `llm_name` | CLC category name for that code |
+| `llm_confidence` | `0.0`-`1.0`, self-assigned by the model against a fixed rubric |
+| `llm_reason` | The model's justification for the top match |
+| `llm_input` | The exact text sent to the model |
+| `llm_all_matches` | The top-N candidates (default 3): code, name, confidence, reason. JSON string in CSV output, nested array in JSON output. |
+| `llm_model`, `llm_prompt_variant`, `llm_top_n` | Run configuration |
+| `llm_prompt_tokens`, `llm_completion_tokens`, `llm_cached_tokens` | Cost accounting |
+| `llm_parse_failure` | Model output could not be parsed as JSON |
+| `llm_unknown_code` | Model returned a code not in the CLC taxonomy (should not happen!) |
+| `llm_error` | Error text; empty on success |
 
-## Output Format
-
-Each row of the output CSV corresponds to one input record:
-
+### Taxonomy (GBIF)
 | Column | Description |
-|--------|-------------|
-| `id` | Record identifier, for joining with input data |
-| `clc_code` | CORINE Land Cover Level-3 code (e.g. `311`) |
-| `clc_name` | CLC category name (canonical, looked up from the code) |
-| `clc_confidence` | LLM match confidence (`0.0`-`1.0`) |
-| `clc_reason` | LLM explanation for the match |
-| `clc_input` | The text that was classified |
-| `clc_source` | Which model produced the classification (`openai` or `ollama`) |
-| `clc_field` | Whether `FundortUNdOeko` or `Locality` was used as input |
-| `taxon_identifier` | GBIF backbone key |
-| `taxon_confidence` | GBIF match confidence (`0`-`100`) |
-| `taxon_status` | `resolved`, `fuzzy`, `unresolved`, or `error` |
-| `error` | Any error encountered while processing the row |
+|---|---|
+| `taxon_key` | GBIF backbone key |
+| `taxon_link` | Resolvable GBIF species URL |
+| `taxon_confidence` | GBIF match confidence, `0`-`100` |
+| `taxon_status` | `resolved` / `fuzzy` / `unresolved` / `error` (see below) |
+| `taxon_canonical_name` | The name GBIF matched (may differ from the input name) |
+| `taxon_rank` | `SPECIES`, `GENUS`, `SUBSPECIES`, … |
+| `taxon_family` | Family from GBIF's classification — authoritative, may correct the input |
+| `taxon_match_type` | `EXACT`, `FUZZY`, `HIGHERRANK`, `NONE` |
+| `taxon_is_synonym`, `taxon_accepted_status` | Whether the matched name is a synonym |
+| `error` | Row-level error; empty on success |
 
-> **Confidence scales differ:** `clc_confidence` is `0.0`-`1.0` (LLM), `taxon_confidence` is `0`-`100` (GBIF). They are not comparable.
+### `taxon_status`, precisely
+- **`resolved`** — confidence ≥ 80 (`GBIF_CONFIDENCE_RESOLVED`) **and** match type
+  is `EXACT` or `FUZZY`.
+- **`fuzzy`** — a match was returned but didn't meet that bar. Note this includes `HIGHERRANK` hits *even at confidence 100*: hybrid resolving to its genus is
+  `fuzzy`, not `resolved`.
+- **`unresolved`** — no name supplied, or GBIF returned no match / no confidence.
+- **`error`** — a transient GBIF failure (timeout, rate limit, auth). Safe to re-run; these rows are deliberately not cached.
 
-## Notes
+### Reading the output correctly
 
-- Classification quality depends heavily on input text. Records with only place names (e.g. "Bayern, SW Grainau") produce lower-confidence, less specific results than records with real habitat descriptions (e.g. "Weinbergshang").
-- `FundortUNdOeko` is populated in approximately 26% of BGBM records; `Locality` covers 99.4%.
-- The LLM is called once per record. At 100k records, OpenAI costs are non-trivial; use a smaller sample for development.
-- GBIF results are cached in memory within a run, so repeated species names are looked up only once. The cache resets between runs.
-- A `taxon_status` of `error` marks a transient GBIF failure (timeout, rate limit) rather than a genuine no-match — those rows can be safely re-run.
-- `llama3.2` and `gpt-4o-mini` do not return the same results. The production model is intended to be an OpenAI model (e.g. `gpt-4o`), subject to evaluation. Ollama exists to run the service without an API key, not as a production target.
-- Records are processed concurrently in batches (see `BATCH_SIZE` in `config.py`).
+- **Only a `resolved` taxon feeds the classifier as a clean name.** When status is `resolved`, the LLM receives GBIF's canonical name (rank-labelled, so a genus-only hit isn't presented as a species). For **any** other status — including `fuzzy` — the classifier falls back to the raw `FullNameCache` / `Genus` / `Family` from the input row. The GBIF *key* is never sent to the model. So an unresolved or fuzzy taxon still yields a land classification, just from unnormalised input.
 
-## Planned Extensions
+- **Check `taxon_rank` before consuming `taxon_key`.** A `HIGHERRANK` match returns a valid key at *genus* level. The hybrid `Juncus effusus × Juncus inflexus` resolves to genus `Juncus` (key 2701072, rank `GENUS`) — a real key, but not a species. Consuming keys without checking rank silently mixes taxonomic levels.
 
-- Cross-run persistence of the GBIF cache (e.g. SQLite) to avoid re-querying across separate runs
-- Recording the GBIF match rank (species / genus / family) alongside the identifier
+- **The two confidences are unrelated.** `taxon_confidence` (0-100) is GBIF's `llm_confidence` (0.0-1.0) is the model scoring itself against a rubric that rewards specific habitat evidence in the text; it drives no logic and is not a calibrated probability. Do not threshold on it without validating it first.
 
-This service is also integrated into the BiodivPipeline Nextflow workflow as the `TAXONOMY_CLASSIFY` module; see that repository for pipeline-level usage.
+- **High confidence ≠ correct.** The model reflects the text it was shown, not truth.
 
-## AI Assistance
+- **`taxon_is_synonym: true`** means the input name is outdated; `taxon_canonical_name` carries the currently accepted name.
 
-This project was developed with the assistance of Claude for architectural guidance, code review, and documentation. All code has been reviewed and tested by the authors.
+- **Empty vs failed.** Empty fields mean the step was skipped (missing input); `llm_error` / `error` mean it was attempted and failed.
+
+## Parameters
+
+### Environment (`.env`)
+| Variable | Default | Purpose |
+|---|---|---|
+| `OPENAI_API_KEY` | — | Required unless using other providers (to be implemented). |
+
+### CLI arguments
+| Argument | Purpose |
+|---|---|
+| `--input` | Path to the input CSV |
+| `--output` | Path for the output CSV |
+
+### Settings you may change (`app/config.py`)
+
+These are the knobs meant to be tuned per dataset or per run.
+
+| Setting | Default | What it does |
+|---|---|---|
+| `OPENAI_MODEL` | `gpt-5.4-mini` | Production model. Must appear in `MODEL_PARAMS` (`llm_lookup.py`) — an unlisted model runs without its per-model options (temperature / reasoning effort). |
+| `GBIF_CONFIDENCE_RESOLVED` | `80` | Confidence threshold (0–100) at or above which a GBIF match counts as `resolved`. Below it, the match is `fuzzy` and the classifier falls back to the raw input name. |
+| `BATCH_SIZE` | `10` | Rows classified concurrently per batch. Isolation/chunking only — it does **not** control throughput (the token bucket does). |
+| Column names | see file | `ID`, `NAME`, `GENUS`, `FAMILY`, `LAT`, `LON`, `CULTIVATED_FIELD`, `LOCALITY_LABELS`, `FIELD_LABELS`. Remap these to match a dataset with different headers. `LOCALITY_LABELS` is priority-ordered — the first present field wins. |
+
+### Settings you should recognise but rarely touch
+
+| Setting | Default | Notes |
+|---|---|---|
+| `DEFAULT_CONFIG['version']` | `5` | Prompt-staircase version, read by the CLI. v5 = structured fields + cultivation guardrail + top-3. Lower versions exist for evaluation and drop features (the cultivation guard only activates at v4+). This is the main lever on classifier behaviour. |
+| `PRICES` | — | Per-model token prices used for cost estimates. Update when OpenAI pricing changes; has no effect on classification. |
+| `GEE_PROJECT`, `GEE_MAP` | — | Used only by the evaluation tooling (`util/gee_mapping.py`) during evaluation. Not currently in the pipeline. |
+| `DEFAULT_MODEL` | = `OPENAI_MODEL` | Convenience alias. |
+
+### Fixed internals (not in config)
+
+These are hard-coded and documented here only so their behaviour isn't surprising: the token bucket runs at 200k tokens/min × 0.8 safety with a small burst cap (`throttle.py`), and the failed-row retry pass is sequential. \
+The limit (200k tokens/min) is dependent on the OpenAI tier of the account that provides the OpenAI API key that is used (this limit is the base limit).
+
+> The CLI reads only `model` and `version` from `DEFAULT_CONFIG`. The other keys (`variant`, `taxa`, `use_species`) are defaults for calling `process_csv` directly, e.g. from the evaluation notebooks — setting them in config has no effect on a CLI run.

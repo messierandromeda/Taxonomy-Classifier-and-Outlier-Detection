@@ -11,16 +11,16 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 GBIF_CONFIDENCE_RESOLVED = 80
 BATCH_SIZE = 10
 
+
 OPENAI_API_KEY  = os.getenv('OPENAI_API_KEY')
 OLLAMA_BASE_URL = 'http://ollama:11434/v1'
-OPENAI_MODEL    = 'gpt-5.4-nano'
+OPENAI_MODEL    = 'gpt-5.4-mini'
 OLLAMA_MODEL    = 'llama3.2'
 TAXONOMY_PATH = os.path.join(_HERE, 'taxonomy.csv')
 
 DEFAULT_MODEL = OPENAI_MODEL
 GEE_PROJECT = 'clc-code'
-WORKING_DATA = Path(__file__).resolve().parent.parent / 'testing' / 'data' / 'working20.csv'
-RESULT_PATH = Path(__file__).resolve().parent.parent / 'testing' / 'results'
+GEE_MAP = 'COPERNICUS/CORINE/V20/100m/2018'
 
 PRICES = {
     'gpt-5.4-mini': {'input': 0.75, 'output': 4.5},
@@ -39,10 +39,9 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 
 log = logging.getLogger(__name__)
 
-# Columns
+# Used Columns
 ID = 'HerbariumID'
 NAME = 'FullNameCache'
-NAME_S = 'NameCache'
 GENUS = 'Genus'
 FAMILY = 'Family'
 LAT = 'Latitude'
@@ -52,8 +51,10 @@ CULTIVATED_FIELD = 'Anmerkungen'
 LOCALITY_LABELS = {
     'FundortUNdOeko': 'Habitat and ecology',   # primary
     'Locality':       'Locality',              # secondary
+    # more if necessary
 }
 
+# fill out with descriptive labels for the columns that are in use
 FIELD_LABELS = {
     'FundortUNdOeko':  'Habitat and ecology',
     'Locality':        'Locality',
