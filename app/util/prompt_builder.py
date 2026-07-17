@@ -16,12 +16,11 @@ v1's base is the EXPERIMENT 1 WINNER (prompt B: land COVER not use, no regional
 priors). Do not stack on the losing prompt.
 """
 
-from __future__ import annotations
 import pandas as pd
 
 from .taxon_ref import TAXONOMY_REFERENCE
 from .models import TaxonMatch
-from ..config import LOCALITY_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
+from ..config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
 
 # --- the single source of truth ----------------------------------------------
 
@@ -142,22 +141,27 @@ def _locality_values(row: pd.Series, all_fields: bool) -> list[tuple[str, str]]:
 
 def _taxon_values(taxon: TaxonMatch | None, row: pd.Series) -> list[tuple[str, str]]:
     """Resolved taxon if GBIF is confident, else the raw CSV name. Labels a
-    genus-rank hit as 'Genus', not 'Species', so the model doesn't over-infer
-    from a name that isn't a species. Never emits the GBIF key."""
+    genus-rank hit with the genus label, not the species one, so the model
+    doesn't over-infer from a name that isn't a species. Never emits the GBIF
+    key. Display labels come from FIELD_LABELS in the schema; the English names
+    are fallbacks for when the schema omits them."""
+    sp_label  = FIELD_LABELS.get("species", "Species")
+    gen_label = FIELD_LABELS.get("genus", "Genus")
+    fam_label = FIELD_LABELS.get("family", "Family")
+
     if taxon and taxon.status == "resolved" and taxon.canonical_name:
-        label = "Genus" if taxon.rank == "GENUS" else "Species"
+        label = gen_label if taxon.rank == "GENUS" else sp_label
         out = [(label, taxon.canonical_name)]
         if taxon.family:
-            out.append(("Family", taxon.family))
+            out.append((fam_label, taxon.family))
         return out
 
     out = []
-    for label, key in (("Species", NAME), ("Genus", GENUS), ("Family", FAMILY)):
+    for label, key in ((sp_label, NAME), (gen_label, GENUS), (fam_label, FAMILY)):
         val = _clean(row.get(key))
         if val:
             out.append((label, val))
     return out
-
 
 def is_cultivated(row: pd.Series) -> bool:
     """Derived flag, NOT the raw notes column. Anmerkungen is free text full of

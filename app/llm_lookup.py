@@ -3,12 +3,15 @@
 import json
 import hashlib
 import re
+import logging
 
 from openai import AsyncOpenAI
 
-from .config import log, OPENAI_API_KEY 
+from .config import OPENAI_API_KEY 
 from .util.taxon_ref import _by_code
 from .util.models import LLMMatch
+
+log = logging.getLogger(__name__)
 
 _clients: dict[str, AsyncOpenAI] = {}
 _warmed: set[str] = set()          # prefix hashes already written to the cache

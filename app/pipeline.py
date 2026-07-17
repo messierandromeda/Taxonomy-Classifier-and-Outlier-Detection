@@ -2,10 +2,10 @@
 pipeline.py: Takes a DF in process_csv and builds the output in batches.
 """
 
-from __future__ import annotations
 import asyncio
-
 import httpx
+import logging
+
 import pandas as pd
 
 from .util.prompt_builder import build_system, build_user, top_n_for
@@ -13,8 +13,9 @@ from .util.throttle import TokenBucket, estimate_tokens
 from .util.models import TaxonMatch, ClassifierResult, LLMMatch
 from .gbif_lookup import match_gbif
 from .llm_lookup import classify_land
-from .config import log, BATCH_SIZE, ID, NAME, GENUS, FAMILY
+from .config import BATCH_SIZE, ID, NAME, GENUS, FAMILY
 
+log = logging.getLogger(__name__)
 _bucket = TokenBucket(tpm=200_000, safety=0.8)
 
 

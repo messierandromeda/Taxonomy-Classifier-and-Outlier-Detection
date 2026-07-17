@@ -13,10 +13,8 @@
     "Locality": "Locality"
   },
   "field_labels": {
-    "FundortUNdOeko": "Habitat and ecology",
-    "Locality": "Locality",
-    "NameCache": "Collected species",
-    "Genus": "Genus",
-    "Family": "Family"
+    "species": "Species",
+    "genus": "Genus",
+    "family": "Family"
   }
 }

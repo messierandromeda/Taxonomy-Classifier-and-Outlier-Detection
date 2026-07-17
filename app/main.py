@@ -1,19 +1,24 @@
 import io
+import logging
 
 import numpy as np
 import pandas as pd
+
 from enum import Enum
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response, JSONResponse
 import json
 
-from .config import log, DEFAULT_CONFIG
+from .config import DEFAULT_CONFIG, configure_logging
 from .pipeline import process_csv
 
 app = FastAPI(
     title='Land Taxonomy Classifier and Plant Taxonomy Service',
     version='1.0.0',
 )
+
+configure_logging()
+log = logging.getLogger(__name__)
 
 @app.get('/')
 def root():
@@ -35,10 +40,8 @@ async def classify(
         raise HTTPException(status_code=400, detail='Only CSV or JSON files are supported.')
 
     content = await file.read()
-    if fmt is OutputFormat.json:
-        df = pd.read_json(io.BytesIO(content))
-    else:
-        df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
+    
+    df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
     
     log.info('Received %s with %d rows', file.filename, len(df))
 
