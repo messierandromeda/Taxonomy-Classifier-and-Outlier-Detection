@@ -16,7 +16,7 @@ Part of the BiodivPipeline project, where it runs as the `TAXONOMY_CLASSIFY` Nex
 ### Setup
 ```bash
 cp .env.example .env
-# edit .env: OPENAI_API_KEY=sk-...
+# edit .env and change environment variables as desired
 ```
 
 ### Run the batch CLI (what the pipeline uses)
@@ -78,7 +78,7 @@ One row per input record, joinable on `id`. The pipeline runs in two phases: GBI
 | `llm_model`, `llm_prompt_variant`, `llm_top_n` | Run configuration |
 | `llm_prompt_tokens`, `llm_completion_tokens`, `llm_cached_tokens` | Cost accounting |
 | `llm_parse_failure` | Model output could not be parsed as JSON |
-| `llm_unknown_code` | Model returned a code not in the CLC taxonomy (should not happen!) |
+| `llm_unknown_code` | Model returned a code not in the CLC taxonomy |
 | `llm_error` | Error text; empty on success |
 
 ### Taxonomy (GBIF)
@@ -95,7 +95,7 @@ One row per input record, joinable on `id`. The pipeline runs in two phases: GBI
 | `taxon_is_synonym`, `taxon_accepted_status` | Whether the matched name is a synonym |
 | `error` | Row-level error; empty on success |
 
-### `taxon_status`, precisely
+### `taxon_status`
 - **`resolved`** — confidence ≥ 80 (`GBIF_CONFIDENCE_RESOLVED`) **and** match type
   is `EXACT` or `FUZZY`.
 - **`fuzzy`** — a match was returned but didn't meet that bar. Note this includes `HIGHERRANK` hits *even at confidence 100*: hybrid resolving to its genus is

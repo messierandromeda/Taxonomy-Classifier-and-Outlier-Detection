@@ -1,0 +1,22 @@
+{
+  "columns": {
+    "id": "HerbariumID",
+    "name": "FullNameCache",
+    "genus": "Genus",
+    "family": "Family",
+    "lat": "Latitude",
+    "lon": "Longitude",
+    "cultivated_field": "Anmerkungen"
+  },
+  "locality_labels": {
+    "FundortUNdOeko": "Habitat and ecology",
+    "Locality": "Locality"
+  },
+  "field_labels": {
+    "FundortUNdOeko": "Habitat and ecology",
+    "Locality": "Locality",
+    "NameCache": "Collected species",
+    "Genus": "Genus",
+    "Family": "Family"
+  }
+}
