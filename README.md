@@ -22,7 +22,7 @@ cp .env.example .env
 ### Run the batch CLI (what the pipeline uses)
 ```bash
 docker compose run --build --rm classifier \
-  python -m app.cli --input <path-with-input.csv> --output <path-with-outpu.csv>
+  python -m app.cli --input <path-with-input.csv> --output <path-with-output.csv>
 ```
 
 ### Run as an interactive service

@@ -1,7 +1,7 @@
 import ee
 import pandas as pd
 
-from ..config import LAT, LON, GEE_PROJECT, GEE_MAP
+from ...app.config import LAT, LON, GEE_PROJECT, GEE_MAP
 
 def get_clc_mapping(input: str, output: str):
     ee.Initialize(project=GEE_PROJECT)

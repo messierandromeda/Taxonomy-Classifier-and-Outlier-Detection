@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-from app.models import TaxonMatch
+from app.util.models import TaxonMatch
 
 def _fmt(val, limit=100):
     if isinstance(val, str) and len(val) > limit:

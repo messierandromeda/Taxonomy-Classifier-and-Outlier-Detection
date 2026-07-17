@@ -11,11 +11,11 @@ import pandas as pd
 from .config import ID_TEST, NAME, GENUS, FAMILY
 from .classifier import classify_land_test
 from .models import TestClassification, TestResult
-from .prompt_builder import build_system, build_user, top_n_for
-from .throttle import TokenBucket, estimate_tokens
+from app.util.prompt_builder import build_system, build_user, top_n_for
+from app.util.throttle import TokenBucket, estimate_tokens
 
 from app.gbif_lookup import match_gbif
-from app.models import TaxonMatch
+from app.util.models import TaxonMatch
 from app.config import log, BATCH_SIZE
 
 _bucket = TokenBucket(tpm=200_000, safety=0.8)

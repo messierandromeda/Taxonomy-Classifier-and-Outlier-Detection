@@ -1,17 +1,14 @@
 import io
-import os
-import tempfile
 
 import numpy as np
 import pandas as pd
 from enum import Enum
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response, JSONResponse
+import json
 
 from .config import log, DEFAULT_CONFIG
-from .llm_lookup import classify_land
 from .pipeline import process_csv
-from .util.models import LLMMatch, TextRequest, TestModels, ClassifyCSVRequest
 
 app = FastAPI(
     title='Land Taxonomy Classifier and Plant Taxonomy Service',
@@ -22,53 +19,27 @@ app = FastAPI(
 def root():
     return {'status': 'ok'}
 
-'''
-@app.post('/classify', response_model=CLCMatch)
-async def classify_text(req: TextRequest) -> CLCMatch:
-    if not req.text.strip():
-        raise HTTPException(status_code=400, detail='text must not be empty')
-    return await classify_land(req.text)
-    
-@app.post('/test-models', response_model=list[TestModels])
-async def test_multiple_models(req: TextRequest) -> list[TestModels]:
-    if not req.text.strip():
-        raise HTTPException(status_code=400, detail='text must not be empty')
-
-    output = []
-    models = req.models
-    reps = req.reps
-
-    for model in models:
-        rows = []
-        for rep in range(reps):
-            r = await classify_land(req.text, req.use_ollama, model)
-            rows.append(r)
-        output.append({
-            'model': model,
-            'cost': -1,
-            'prob_code': 'TODO',
-            'output': rows,
-        })
-    
-    return output
-'''
-
 class OutputFormat(str, Enum):
     csv = 'csv'
     json = 'json'
 
-@app.post('/classify/csv')
-async def classify_csv(
+@app.post('/classify')
+async def classify(
     file: UploadFile = File(...),
     fmt: OutputFormat = Query(default=OutputFormat.csv, description='Response format.'),
+    download_file: bool = True,
 ):
-    # log.info(req)
-    if not file.filename or not file.filename.endswith('.csv'):
-        log.warning('Rejected upload: not a CSV (filename=%s)', file.filename)
-        raise HTTPException(status_code=400, detail='Only CSV files are supported.')
+
+    if not file.filename or not file.filename.endswith(('.csv', '.json')):
+        log.warning('Rejected upload: not a CSV or JSON (filename=%s)', file.filename)
+        raise HTTPException(status_code=400, detail='Only CSV or JSON files are supported.')
 
     content = await file.read()
-    df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
+    if fmt is OutputFormat.json:
+        df = pd.read_json(io.BytesIO(content))
+    else:
+        df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
+    
     log.info('Received %s with %d rows', file.filename, len(df))
 
 
@@ -80,14 +51,33 @@ async def classify_csv(
     )
 
     if fmt is OutputFormat.json:
-        return JSONResponse(content={
-            'rows': len(result),
-            'columns': list(result.columns),
-            'data': result.replace({np.nan: None}).to_dict(orient='records'),
-        })
+        if download_file:
+            payload = {
+                'rows': len(result),
+                'columns': list(result.columns),
+                'data': result.replace({np.nan: None}).to_dict(orient='records'),
+            }
 
-    return Response(
-        content=result.to_csv(index=False),
-        media_type='text/csv',
-        headers={'Content-Disposition': f'attachment; filename=processed_{file.filename}'},
-    )
+            json_bytes = json.dumps(payload).encode('utf-8')
+    
+            return Response(
+                content=json_bytes,
+                media_type='application/json',
+                headers={'Content-Disposition': f'attachment; filename=processed_{file.filename}'},
+            )
+        else:
+            return JSONResponse(content={
+                'rows': len(result),
+                'columns': list(result.columns),
+                'data': result.replace({np.nan: None}).to_dict(orient='records'),
+            })
+
+    if download_file:
+        return Response(
+            content=result.to_csv(index=False),
+            media_type='text/csv',
+            headers={'Content-Disposition': f'attachment; filename=processed_{file.filename}'},
+        )
+    
+    else: 
+        return result.to_dict(orient='records')

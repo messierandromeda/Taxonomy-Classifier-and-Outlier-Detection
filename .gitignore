@@ -6,3 +6,7 @@ __pycache__/
 .idea/
 data/
 TODO.txt
+.ipynb_checkpoints/
+*.log
+.nf-test/
+*.egg-info

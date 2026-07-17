@@ -21,7 +21,7 @@ import pandas as pd
 
 from .taxon_ref import TAXONOMY_REFERENCE
 from .models import TaxonMatch
-from ..config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
+from ..config import LOCALITY_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
 
 # --- the single source of truth ----------------------------------------------
 

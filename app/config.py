@@ -1,6 +1,5 @@
 import logging
 import os
-
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -40,6 +39,7 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 
 # Used Columns
+ID_TEST = 'row_id'
 ID = 'HerbariumID'
 NAME = 'FullNameCache'
 GENUS = 'Genus'
@@ -70,3 +70,13 @@ DEFAULT_CONFIG = {
     'taxa': None,
     'use_species': True
 }
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+
+WORKING_DATA = Path(__file__).resolve().parent.parent / 'data' / 'working20.csv'
+WORKING_DATA2 = Path(__file__).resolve().parent.parent / 'data' / 'working5.csv'
+WORKING_DATA3 = Path(__file__).resolve().parent.parent / 'data' / 'working1.csv'
+WORKING_DATA100 = Path(__file__).resolve().parent.parent / 'data' / 'working100.csv'
+HELDOUT_DATA100 = Path(__file__).resolve().parent.parent / 'data' / 'heldout100.csv'
+RESULT_PATH = Path(__file__).resolve().parent.parent / 'results'
+DATA_PATH = Path(__file__).resolve().parent.parent / 'data'
