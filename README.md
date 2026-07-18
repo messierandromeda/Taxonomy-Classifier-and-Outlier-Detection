@@ -13,7 +13,7 @@ The detection pipeline processes biodiversity specimen records through multiple 
 1. **Quality Detection** — rule-based validation for hard constraints
 2. **Statistical Detection** — univariate and multivariate outlier analysis
 3. **Semantic Detection** — ecological and textual inconsistency checking
-4. **LLM Detection** (optional) — semantic analysis via Ollama
+4. **LLM Detection** — semantic analysis via OpenAI or Ollama 
 
 **See [Detectors.md](Detectors.md) for detailed descriptions of all 9 detector types, their algorithms, configuration options, and performance characteristics.**
 
@@ -25,7 +25,7 @@ The detection pipeline processes biodiversity specimen records through multiple 
 Taxonomy-Classifier-and-Outlier-Detection/
 ├── app/
 │   ├── __init__.py
-│   ├── cli_functions.py                 # CLI functions in
+│   ├── cli_functions.py                 # CLI functions defined in main_with_cli.py
 │   ├── config.py                        # Configuration constants
 │   ├── main_with_cli.py                 # Main function for parsing CLI arguments
 │   ├── main.py                          # FastAPI application
@@ -250,6 +250,36 @@ uvicorn app.main:app --reload
 The API is available at `http://127.0.0.1:8000/docs`
 
 ---
+
+## Testing with Nextflow
+
+Run steps 1-3 in the outlier_detect directory:
+1. Start docker
+```bash
+docker compose up -d
+```
+
+2. Verify the Ollama is downloaded (optional: can be used if there is no OpenAI API key available)
+```bash
+docker exec -it ollama-service ollama list
+```
+
+If the list is empty, run
+```bash
+docker exec -it ollama-service ollama pull llama3.2:3b
+```
+
+3. Build the image
+```bash
+docker build -t ghcr.io/biodivportal/outlier-detect:0.1
+```
+
+Run step 4 in the root directory BiodivPipeline/
+
+4. Run the test
+```bash
+nf-test test modules/local/outlier_detect/tests/main.nf.test
+```
 
 ## CLI version 
 The overall structure of the command line arguments:

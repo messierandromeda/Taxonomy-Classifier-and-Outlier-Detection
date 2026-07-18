@@ -3,39 +3,48 @@ from dotenv import load_dotenv
 import requests
 import subprocess
 import time
+import json
 
 load_dotenv()
 
-# Columns (explicit constants for every expected column)
-# Primary fields
-HERBARIUM_ID = "HerbariumID"
-BILD = "Bild"
-DB = "DB"
-FAMILY = "Family"
-FULL_NAME_CACHE = "FullNameCache"
-ANMERKUNGEN = "Anmerkungen"
-SAMMLERTEAM = "Sammlerteam"
-SAMMELNUMMER = "Sammelnummer"
-COLLECTION_DATE_BEGIN = "CollectionDateBegin"
-COLLECTION_DATE_END = "CollectionDateEnd"
-COUNTRY = "Country"
-LOCALITY = "Locality"
-TITEL_ETIKETT = "TitelEtikett"
-EXPEDITIONSANGABE = "Expeditionsangabe"
-SHOW_ON_MAP = "ShowOnMap"
-LATITUDE = "Latitude"
-LONGITUDE = "Longitude"
-FUNDORT_UND_OEKO = "FundortUNdOeko"
-NAME_CACHE = "NameCache"
-GENUS = "Genus"
-IDENTIFIER = "Identifier"
-BARCODE = "Barcode"
-STABLE_URI = "StableURI"
+JSON_PATH = "/app/config.json"
 
-# Backwards-compatible aliases used elsewhere in the codebase
-ID = HERBARIUM_ID
-NAME = FULL_NAME_CACHE
-DATE = COLLECTION_DATE_BEGIN
+def get_columns() -> dict[str, str]:
+    if os.path.exists(JSON_PATH):
+        try:
+            with open(JSON_PATH, "r", encoding="utf-8") as f:
+                columns = json.load(f)
+                return columns.get("field_labels", {})
+        except (json.JSONDecodeError, IOError):
+            print("Error parsing config.json, using fallback defaults.")
+            pass
+
+    # Fallback if no json file is given or file is corrupted
+    return {
+        "HERBARIUM_ID": "HerbariumID",
+        "BILD": "Bild",
+        "DB": "DB",
+        "FAMILY": "Family",
+        "FULL_NAME_CACHE": "FullNameCache",
+        "ANMERKUNGEN": "Anmerkungen",
+        "SAMMLERTEAM": "Sammlerteam",
+        "SAMMELNUMMER": "Sammelnummer",
+        "COLLECTION_DATE_BEGIN": "CollectionDateBegin",
+        "COLLECTION_DATE_END": "CollectionDateEnd",
+        "COUNTRY": "Country",
+        "LOCALITY": "Locality",
+        "TITEL_ETIKETT": "TitelEtikett",
+        "EXPEDITIONSANGABE": "Expeditionsangabe",
+        "SHOW_ON_MAP": "ShowOnMap",
+        "LATITUDE": "Latitude",
+        "LONGITUDE": "Longitude",
+        "FUNDORT_UND_OEKO": "FundortUNdOeko",
+        "NAME_CACHE": "NameCache",
+        "GENUS": "Genus",
+        "IDENTIFIER": "Identifier",
+        "BARCODE": "Barcode",
+        "STABLE_URI": "StableURI",
+    }
 
 # Messages
 RULE_BASED_MSG = "Check for missing columns. If set to True, many entries will be incorrectly marked as outliers due to missing columns."

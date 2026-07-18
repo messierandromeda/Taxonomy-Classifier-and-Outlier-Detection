@@ -1,0 +1,21 @@
+[project]
+name = "swp-ss2026-classifier-and-outlier-detection"
+version = "0.1.0"
+description = "Outlier Detection"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cython>=3.2.8",
+    "fastapi[standard]==0.115.6",
+    "hdbscan>=0.8.33",
+    "httpx==0.28.1",
+    "numpy==2.2.1",
+    "openai>=2.45.0",
+    "pandas==2.2.3",
+    "pydantic==2.10.4",
+    "pytest==8.3.4",
+    "python-multipart==0.0.20",
+    "requests==2.32.3",
+    "scikit-learn==1.6.0",
+    "uvicorn[standard]==0.34.0",
+]

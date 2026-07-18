@@ -36,3 +36,4 @@ data/
 *.log
 
 .ruff_cache/
+*.egg-info

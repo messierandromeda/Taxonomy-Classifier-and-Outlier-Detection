@@ -2,23 +2,7 @@ import json
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.config import (
-    HERBARIUM_ID,
-    DB,
-    FAMILY,
-    FULL_NAME_CACHE,
-    NAME_CACHE,
-    GENUS,
-    COLLECTION_DATE_BEGIN,
-    COLLECTION_DATE_END,
-    COUNTRY,
-    LOCALITY,
-    LATITUDE,
-    LONGITUDE,
-    BARCODE,
-    STABLE_URI,
-)
-
+from app.config import get_columns
 
 client = TestClient(app)
 
@@ -28,39 +12,39 @@ TRAIN_ENDPOINT = "/train-csv"
 
 
 _HEADER_TO_CONST = {
-    "HerbariumID": HERBARIUM_ID,
-    "DB": DB,
-    "Family": FAMILY,
-    "FullNameCache": FULL_NAME_CACHE,
-    "NameCache": NAME_CACHE,
-    "Genus": GENUS,
-    "CollectionDateBegin": COLLECTION_DATE_BEGIN,
-    "CollectionDateEnd": COLLECTION_DATE_END,
-    "Country": COUNTRY,
-    "Locality": LOCALITY,
-    "Latitude": LATITUDE,
-    "Longitude": LONGITUDE,
-    "Barcode": BARCODE,
-    "StableURI": STABLE_URI,
+    "HerbariumID": get_columns().get("HERBARIUM_ID"),
+    "DB": get_columns().get("DB"),
+    "Family": get_columns().get("FAMILY"),
+    "FullNameCache": get_columns().get("FULL_NAME_CACHE"),
+    "NameCache": get_columns().get("NAME_CACHE"),
+    "Genus": get_columns().get("GENUS"),
+    "CollectionDateBegin": get_columns().get("COLLECTION_DATE_BEGIN"),
+    "CollectionDateEnd": get_columns().get("COLLECTION_DATE_END"),
+    "Country": get_columns().get("COUNTRY"),
+    "Locality": get_columns().get("LOCALITY"),
+    "Latitude": get_columns().get("LATITUDE"),
+    "Longitude": get_columns().get("LONGITUDE"),
+    "Barcode": get_columns().get("BARCODE"),
+    "StableURI": get_columns().get("STABLE_URI"),
 }
 
 
 def make_record(**overrides):
     record = {
-        HERBARIUM_ID: "test-1",
-        DB: "BGBM",
-        FAMILY: "Fagaceae",
-        FULL_NAME_CACHE: "Quercus robur L.",
-        NAME_CACHE: "Quercus robur",
-        GENUS: "Quercus",
-        COLLECTION_DATE_BEGIN: "2020-05-12",
-        COLLECTION_DATE_END: "2020-05-13",
-        COUNTRY: "Germany",
-        LOCALITY: "Berlin",
-        LATITUDE: 52.5,
-        LONGITUDE: 13.4,
-        BARCODE: "BGBM12345",
-        STABLE_URI: "https://example.org/record/test-1",
+        get_columns().get("HERBARIUM_ID"): "test-1",
+        get_columns().get("DB"): "BGBM",
+        get_columns().get("FAMILY"): "Fagaceae",
+        get_columns().get("FULL_NAME_CACHE"): "Quercus robur L.",
+        get_columns().get("NAME_CACHE"): "Quercus robur",
+        get_columns().get("GENUS"): "Quercus",
+        get_columns().get("COLLECTION_DATE_BEGIN"): "2020-05-12",
+        get_columns().get("COLLECTION_DATE_END"): "2020-05-13",
+        get_columns().get("COUNTRY"): "Germany",
+        get_columns().get("LOCALITY"): "Berlin",
+        get_columns().get("LATITUDE"): 52.5,
+        get_columns().get("LONGITUDE"): 13.4,
+        get_columns().get("BARCODE"): "BGBM12345",
+        get_columns().get("STABLE_URI"): "https://example.org/record/test-1",
     }
 
     converted = {}
@@ -228,22 +212,25 @@ def test_annotated_records_contains_confidence():
 
 
 def test_detect_csv_download():
-    header = ",".join([
-        HERBARIUM_ID,
-        DB,
-        FAMILY,
-        FULL_NAME_CACHE,
-        NAME_CACHE,
-        GENUS,
-        COLLECTION_DATE_BEGIN,
-        COLLECTION_DATE_END,
-        COUNTRY,
-        LOCALITY,
-        LATITUDE,
-        LONGITUDE,
-        BARCODE,
-        STABLE_URI,
-    ])
+    header = ",".join(
+        [
+            get_columns().get("HERBARIUM_ID"),
+            get_columns().get("DB"),
+            get_columns().get("FAMILY"),
+            get_columns().get("FULL_NAME_CACHE"),
+            get_columns().get("NAME_CACHE"),
+            get_columns().get("GENUS"),
+            get_columns().get("COLLECTION_DATE_BEGIN"),
+            get_columns().get("COLLECTION_DATE_END"),
+            get_columns().get("COUNTRY"),
+            get_columns().get("LOCALITY"),
+            get_columns().get("LATITUDE"),
+            get_columns().get("LONGITUDE"),
+            get_columns().get("BARCODE"),
+            get_columns().get("STABLE_URI"),
+        ]
+
+    )
 
     csv_content = (
         f"{header}\n"
@@ -273,22 +260,24 @@ def test_detect_csv_download():
 
 
 def test_train_csv_upload():
-    header = ",".join([
-        HERBARIUM_ID,
-        DB,
-        FAMILY,
-        FULL_NAME_CACHE,
-        NAME_CACHE,
-        GENUS,
-        COLLECTION_DATE_BEGIN,
-        COLLECTION_DATE_END,
-        COUNTRY,
-        LOCALITY,
-        LATITUDE,
-        LONGITUDE,
-        BARCODE,
-        STABLE_URI,
-    ])
+    header = ",".join(
+        [
+            get_columns().get("HERBARIUM_ID"),
+            get_columns().get("DB"),
+            get_columns().get("FAMILY"),
+            get_columns().get("FULL_NAME_CACHE"),
+            get_columns().get("NAME_CACHE"),
+            get_columns().get("GENUS"),
+            get_columns().get("COLLECTION_DATE_BEGIN"),
+            get_columns().get("COLLECTION_DATE_END"),
+            get_columns().get("COUNTRY"),
+            get_columns().get("LOCALITY"),
+            get_columns().get("LATITUDE"),
+            get_columns().get("LONGITUDE"),
+            get_columns().get("BARCODE"),
+            get_columns().get("STABLE_URI"),
+        ]
+    )
 
     csv_content = (
         f"{header}\n"

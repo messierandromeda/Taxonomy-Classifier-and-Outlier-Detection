@@ -116,8 +116,8 @@ class IsolationForestDetector(BaseDetector):
             if fields == ["decimalLatitude", "decimalLongitude"]:
                 flag_type = "coordinate_multivariate_outlier"
                 message = (
-                    "Coordinate pair is unusual when latitude and longitude "
-                    "are considered together."
+                    "Isolation forest: Coordinates fall outside the geographic distribution "
+                    "of the data used to train the model."
                 )
             elif "eventYear" in fields:
                 flag_type = "coordinate_date_multivariate_outlier"

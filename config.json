@@ -1,0 +1,27 @@
+{
+  "field_labels":{
+    "HERBARIUM_ID": "HerbariumID",
+    "BILD": "Bild",
+    "DB": "DB",
+    "FAMILY": "Family",
+    "FULL_NAME_CACHE": "FullNameCache",
+    "ANMERKUNGEN": "Anmerkungen",
+    "SAMMLERTEAM": "Sammlerteam",
+    "SAMMELNUMMER": "Sammelnummer",
+    "COLLECTION_DATE_BEGIN": "CollectionDateBegin",
+    "COLLECTION_DATE_END": "CollectionDateEnd",
+    "COUNTRY": "Country",
+    "LOCALITY": "Locality",
+    "TITEL_ETIKETT": "TitelEtikett",
+    "EXPEDITIONSANGABE": "Expeditionsangabe",
+    "SHOW_ON_MAP": "ShowOnMap",
+    "LATITUDE": "Latitude",
+    "LONGITUDE": "Longitude",
+    "FUNDORT_UND_OEKO": "FundortUNdOeko",
+    "NAME_CACHE": "NameCache",
+    "GENUS": "Genus",
+    "IDENTIFIER": "Identifier",
+    "BARCODE": "Barcode",
+    "STABLE_URI": "StableURI"
+  }
+}

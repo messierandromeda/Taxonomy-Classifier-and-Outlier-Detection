@@ -193,8 +193,8 @@ class HDBSCANGeoDetector(BaseDetector):
                     severity=severity,
                     score=score,
                     message=(
-                        "Coordinate pair does not belong to a dense "
-                        "geographic cluster (HDBSCAN)."
+                        "HDBSCAN: Coordinates fall outside the geographic distribution "
+                        "of the data used to train the model."
                     ),
                     value={
                         "decimalLatitude": records[row_index].get("decimalLatitude"),
