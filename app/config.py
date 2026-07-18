@@ -9,6 +9,7 @@ load_dotenv()
 
 JSON_PATH = "/app/config.json"
 
+
 def get_columns() -> dict[str, str]:
     if os.path.exists(JSON_PATH):
         try:
@@ -45,6 +46,7 @@ def get_columns() -> dict[str, str]:
         "BARCODE": "Barcode",
         "STABLE_URI": "StableURI",
     }
+
 
 # Messages
 RULE_BASED_MSG = "Check for missing columns. If set to True, many entries will be incorrectly marked as outliers due to missing columns."

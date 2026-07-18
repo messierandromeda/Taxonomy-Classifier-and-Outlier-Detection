@@ -32,10 +32,10 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         [
             "id",
             "ID",
-            get_columns().get("HERBARIUM_ID"),
+            get_columns().get("HERBARIUM_ID", "HerbariumID"),
             "catalogNumber",
             "CatalogNumber",
-            get_columns().get("BARCODE"),
+            get_columns().get("BARCODE", "Barcode"),
             "barcode",
             "occurrenceID",
             "OccurrenceID",
@@ -47,7 +47,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["barcode"] = first_present(
         record,
         [
-            get_columns().get("BARCODE"),
+            get_columns().get("BARCODE", "Barcode"),
             "barcode",
             "catalogNumber",
             "CatalogNumber",
@@ -57,7 +57,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["stableUri"] = first_present(
         record,
         [
-            get_columns().get("STABLE_URI"),
+            get_columns().get("STABLE_URI", "StableURI"),
             "stableUri",
             "stableURI",
             "uri",
@@ -70,7 +70,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["imageUrl"] = first_present(
         record,
         [
-            get_columns().get("BILD"),
+            get_columns().get("BILD", "Bild"),
             "image",
             "Image",
             "imageUrl",
@@ -84,7 +84,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["database"] = first_present(
         record,
         [
-            get_columns().get("DB"),
+            get_columns().get("DB", "DB"),
             "database",
             "Database",
             "source",
@@ -95,7 +95,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["identifier"] = first_present(
         record,
         [
-            get_columns().get("IDENTIFIER"),
+            get_columns().get("IDENTIFIER", "Identifier"),
             "identifier",
             "identifiedBy",
             "IdentifiedBy",
@@ -107,7 +107,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["family"] = first_present(
         record,
         [
-            get_columns().get("FAMILY"),
+            get_columns().get("FAMILY", "Family"),
             "family",
         ],
     )
@@ -115,7 +115,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["genus"] = first_present(
         record,
         [
-            get_columns().get("GENUS"),
+            get_columns().get("GENUS", "Genus"),
             "genus",
         ],
     )
@@ -123,7 +123,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["scientificName"] = first_present(
         record,
         [
-            get_columns().get("NAME_CACHE"),
+            get_columns().get("NAME_CACHE", "NameCache"),
             "scientificName",
             "ScientificName",
             "scientific_name",
@@ -137,20 +137,20 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["scientificNameFull"] = first_present(
         record,
         [
-            get_columns().get("FULL_NAME_CACHE"),
+            get_columns().get("FULL_NAME_CACHE", "FullNameCache"),
             "scientificNameFull",
             "fullScientificName",
             "FullScientificNameString",
             "scientificName",
             "ScientificName",
-            get_columns().get("NAME_CACHE"),
+            get_columns().get("NAME_CACHE", "NameCache"),
         ],
     )
 
     normalized["country"] = first_present(
         record,
         [
-            get_columns().get("COUNTRY"),
+            get_columns().get("COUNTRY", "Country"),
             "country",
             "countryName",
             "CountryName",
@@ -160,7 +160,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["locality"] = first_present(
         record,
         [
-            get_columns().get("LOCALITY"),
+            get_columns().get("LOCALITY", "Locality"),
             "locality",
             "verbatimLocality",
             "VerbatimLocality",
@@ -172,7 +172,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["habitat"] = first_present(
         record,
         [
-            get_columns().get("FUNDORT_UND_OEKO"),
+            get_columns().get("FUNDORT_UND_OEKO", "FundortUNdOeko"),
             "habitat",
             "Habitat",
         ],
@@ -181,7 +181,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["fundortUndOeko"] = first_present(
         record,
         [
-            get_columns().get("FUNDORT_UND_OEKO"),
+            get_columns().get("FUNDORT_UND_OEKO", "FundortUNdOeko"),
             "fundortUndOeko",
             "FundortUndOeko",
         ],
@@ -191,7 +191,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         first_present(
             record,
             [
-                get_columns().get("LATITUDE"),
+                get_columns().get("LATITUDE", "Latitude"),
                 "decimalLatitude",
                 "DecimalLatitude",
                 "latitude",
@@ -205,7 +205,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
         first_present(
             record,
             [
-                get_columns().get("LONGITUDE"),
+                get_columns().get("LONGITUDE", "Longitude"),
                 "decimalLongitude",
                 "DecimalLongitude",
                 "longitude",
@@ -220,7 +220,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["showOnMap"] = first_present(
         record,
         [
-            get_columns().get("SHOW_ON_MAP"),
+            get_columns().get("SHOW_ON_MAP", "ShowOnMap"),
             "showOnMap",
             "show_on_map",
         ],
@@ -229,7 +229,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["eventDate"] = first_present(
         record,
         [
-            get_columns().get("COLLECTION_DATE_BEGIN"),
+            get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
             "eventDate",
             "EventDate",
             "date",
@@ -242,7 +242,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["collectionDateBegin"] = first_present(
         record,
         [
-            get_columns().get("COLLECTION_DATE_BEGIN"),
+            get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
             "collectionDateBegin",
             "eventDate",
             "EventDate",
@@ -252,7 +252,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["collectionDateEnd"] = first_present(
         record,
         [
-            get_columns().get("COLLECTION_DATE_END"),
+            get_columns().get("COLLECTION_DATE_END", "CollectionDateEnd"),
             "collectionDateEnd",
         ],
     )
@@ -260,7 +260,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["collector"] = first_present(
         record,
         [
-            get_columns().get("SAMMLERTEAM"),
+            get_columns().get("SAMMLERTEAM", "Sammlerteam"),
             "collector",
             "Collector",
             "recordedBy",
@@ -273,7 +273,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["collectorNumber"] = first_present(
         record,
         [
-            get_columns().get("SAMMELNUMMER"),
+            get_columns().get("SAMMELNUMMER", "Sammelnummer"),
             "collectorNumber",
             "CollectorNumber",
             "recordNumber",
@@ -284,7 +284,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["expedition"] = first_present(
         record,
         [
-            get_columns().get("EXPEDITIONSANGABE"),
+            get_columns().get("EXPEDITIONSANGABE", "Expeditionsangabe"),
             "expedition",
             "Expedition",
         ],
@@ -293,7 +293,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["labelText"] = first_present(
         record,
         [
-            get_columns().get("TITEL_ETIKETT"),
+            get_columns().get("TITEL_ETIKETT", "TitelEtikett"),
             "labelText",
             "LabelText",
             "label",
@@ -308,7 +308,7 @@ def normalize_bgbm_record(record: dict[str, Any]) -> dict[str, Any]:
     normalized["collectorNotes"] = first_present(
         record,
         [
-            get_columns().get("ANMERKUNGEN"),
+            get_columns().get("ANMERKUNGEN", "Anmerkungen"),
             "collectorNotes",
             "collector_notes",
             "notes",

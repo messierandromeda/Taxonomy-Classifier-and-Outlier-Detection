@@ -12,7 +12,7 @@ TRAIN_ENDPOINT = "/train-csv"
 
 
 _HEADER_TO_CONST = {
-    "HerbariumID": get_columns().get("HERBARIUM_ID"),
+    "HerbariumID": get_columns().get("HERBARIUM_ID", "HerbariumID"),
     "DB": get_columns().get("DB"),
     "Family": get_columns().get("FAMILY"),
     "FullNameCache": get_columns().get("FULL_NAME_CACHE"),
@@ -31,7 +31,7 @@ _HEADER_TO_CONST = {
 
 def make_record(**overrides):
     record = {
-        get_columns().get("HERBARIUM_ID"): "test-1",
+        get_columns().get("HERBARIUM_ID", "HerbariumID"): "test-1",
         get_columns().get("DB"): "BGBM",
         get_columns().get("FAMILY"): "Fagaceae",
         get_columns().get("FULL_NAME_CACHE"): "Quercus robur L.",
@@ -214,22 +214,21 @@ def test_annotated_records_contains_confidence():
 def test_detect_csv_download():
     header = ",".join(
         [
-            get_columns().get("HERBARIUM_ID"),
-            get_columns().get("DB"),
-            get_columns().get("FAMILY"),
-            get_columns().get("FULL_NAME_CACHE"),
-            get_columns().get("NAME_CACHE"),
-            get_columns().get("GENUS"),
-            get_columns().get("COLLECTION_DATE_BEGIN"),
-            get_columns().get("COLLECTION_DATE_END"),
-            get_columns().get("COUNTRY"),
-            get_columns().get("LOCALITY"),
-            get_columns().get("LATITUDE"),
-            get_columns().get("LONGITUDE"),
-            get_columns().get("BARCODE"),
-            get_columns().get("STABLE_URI"),
+            get_columns().get("HERBARIUM_ID", "HerbariumID"),
+            get_columns().get("DB", "DB"),
+            get_columns().get("FAMILY", "Family"),
+            get_columns().get("FULL_NAME_CACHE", "FullNameCache"),
+            get_columns().get("NAME_CACHE", "NameCache"),
+            get_columns().get("GENUS", "Genus"),
+            get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
+            get_columns().get("COLLECTION_DATE_END", "CollectionDateEnd"),
+            get_columns().get("COUNTRY", "Country"),
+            get_columns().get("LOCALITY", "Locality"),
+            get_columns().get("LATITUDE", "Latitude"),
+            get_columns().get("LONGITUDE", "Longitude"),
+            get_columns().get("BARCODE", "Barcode"),
+            get_columns().get("STABLE_URI", "StableURI"),
         ]
-
     )
 
     csv_content = (
@@ -262,20 +261,20 @@ def test_detect_csv_download():
 def test_train_csv_upload():
     header = ",".join(
         [
-            get_columns().get("HERBARIUM_ID"),
-            get_columns().get("DB"),
-            get_columns().get("FAMILY"),
-            get_columns().get("FULL_NAME_CACHE"),
-            get_columns().get("NAME_CACHE"),
-            get_columns().get("GENUS"),
-            get_columns().get("COLLECTION_DATE_BEGIN"),
-            get_columns().get("COLLECTION_DATE_END"),
-            get_columns().get("COUNTRY"),
-            get_columns().get("LOCALITY"),
-            get_columns().get("LATITUDE"),
-            get_columns().get("LONGITUDE"),
-            get_columns().get("BARCODE"),
-            get_columns().get("STABLE_URI"),
+            get_columns().get("HERBARIUM_ID", "HerbariumID"),
+            get_columns().get("DB", "DB"),
+            get_columns().get("FAMILY", "Family"),
+            get_columns().get("FULL_NAME_CACHE", "FullNameCache"),
+            get_columns().get("NAME_CACHE", "NameCache"),
+            get_columns().get("GENUS", "Genus"),
+            get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
+            get_columns().get("COLLECTION_DATE_END", "CollectionDateEnd"),
+            get_columns().get("COUNTRY", "Country"),
+            get_columns().get("LOCALITY", "Locality"),
+            get_columns().get("LATITUDE", "Latitude"),
+            get_columns().get("LONGITUDE", "Longitude"),
+            get_columns().get("BARCODE", "Barcode"),
+            get_columns().get("STABLE_URI", "StableURI"),
         ]
     )
 

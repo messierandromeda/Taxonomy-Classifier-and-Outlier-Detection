@@ -4,7 +4,7 @@ This document explains how the `annotated_records` fields are calculated.
 
 ## Main idea
 
-Each detector returns one or more **flags** for a record. A flag contains:
+Each detector returns one or more flags for a record. A flag contains:
 
 ```text
 field, method, type, severity, score, message, value
@@ -12,11 +12,8 @@ field, method, type, severity, score, message, value
 
 Then all flags of the same record are merged. The final `outlier_*` columns are calculated from these merged flags.
 
-## Important answer: where does `outlier_score` come from?
-
-`outlier_score` is **not always from the LLM**.
-
-It is calculated as the **highest score of all flags** for this record:
+## Explanation of `outlier_score`
+The `outlier_score` calculated as the highest score of all flags for this record and is not always from the LLM:
 
 ```python
 outlier_score = max(flag.score for flag in flags)

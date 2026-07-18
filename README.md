@@ -29,7 +29,6 @@ Taxonomy-Classifier-and-Outlier-Detection/
 │   ├── config.py                        # Configuration constants
 │   ├── main_with_cli.py                 # Main function for parsing CLI arguments
 │   ├── main.py                          # FastAPI application
-│   ├── ollama_config.py                 # Ollama service integration
 │   ├── pipeline.py                      # Main detection pipeline
 │   ├── report.py                        # Result aggregation and scoring
 │   ├── schemas.py                       # Pydantic models (DetectionFlag, results)
@@ -38,25 +37,25 @@ Taxonomy-Classifier-and-Outlier-Detection/
 │   │
 │   ├── detectors/                       # Detector implementations
 │   │   ├── base.py                      # BaseDetector abstract class
+│   │   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
+│   │   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
+│   │   ├── iqr_detector.py              # IQRDetector (interquartile range)
+│   │   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
+│   │   ├── llm_detector.py              # LLMDetector (semantic via LLM)
+│   │   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
 │   │   ├── rule_detector.py             # RuleDetector (syntactic validation)
 │   │   ├── semantic_rule_detector.py    # SemanticRuleDetector (ecological rules)
-│   │   ├── iqr_detector.py              # IQRDetector (interquartile range)
 │   │   ├── zscore_detector.py           # ZScoreDetector (z-score analysis)
-│   │   ├── modified_zscore_detector.py  # ModifiedZScoreDetector (robust stats)
-│   │   ├── date_outlier_detector.py     # DateOutlierDetector (year analysis)
-│   │   ├── isolation_forest_detector.py # IsolationForestDetector (multivariate)
-│   │   ├── hdbscan_geo_detector.py      # HDBSCANGeoDetector (density-based geo)
-│   │   ├── llm_detector.py              # LLMDetector (semantic via LLM)
 │   │   │
 │   │   └── models/                      # Persisted detector models
-│   │       ├── z-score.json
-│   │       ├── modified-z-score.json
-│   │       ├── iqr_detector.json
 │   │       ├── date_outlier.json
-│   │       ├── isolation_forest_scaler.pkl
-│   │       ├── isolation_forest_model.pkl
+│   │       ├── hdbscan_model.pkl
 │   │       ├── hdbscan_scaler.pkl
-│   │       └── hdbscan_model.pkl
+│   │       ├── iqr_detector.json
+│   │       ├── isolation_forest_model.pkl
+│   │       ├── isolation_forest_scaler.pkl
+│   │       ├── modified-z-score.json
+│   │       └── z-score.json
 │   │
 │   └── preprocessing/                   # Data preprocessing utilities
 │       ├── bgbm_normalizer.py           # BGBM field normalization
@@ -65,27 +64,50 @@ Taxonomy-Classifier-and-Outlier-Detection/
 ├── tests/                               # Integration tests
 │   └── test_service.py
 │
-├── Dockerfile
-├── README.md
+├── annotated_records.md
+├── config.json                          # define the input columns and the output columns 
 ├── Detectors.md
 ├── docker-compose.yml
+├── Dockerfile
+├── README.md
 └── requirements.txt
 ```
 
 ## Canonical Field Names
 
-The canonical BGBM header names used by the service are defined as constants in `app/config.py`. Use those constants when referring to CSV headers or integrating with the CSV ingestion pipeline. Key constants include:
+The canonical BGBM header names used by the service are defined as constants in `config.json`, which can be given if the field names do not match the default names. Use those constants when referring to CSV headers or integrating with the CSV ingestion pipeline. The `config.json` file should be in the following format where the column names can be changed accordingly, e.g. `HerbariumID` can be changed to another column name if required. If the column names in the dataset match the following keys, then they do not need to be specified in `config.json`.
 
-- `HERBARIUM_ID` (`HerbariumID`)
-- `FULL_NAME_CACHE` (`FullNameCache`)
-- `COLLECTION_DATE_BEGIN` (`CollectionDateBegin`)
-- `COLLECTION_DATE_END` (`CollectionDateEnd`)
-- `COUNTRY` (`Country`)
-- `LOCALITY` (`Locality`)
-- `LATITUDE` (`Latitude`)
-- `LONGITUDE` (`Longitude`)
-- `BARCODE` (`Barcode`)
-- `STABLE_URI` (`StableURI`)
+```json
+{
+  "field_labels":{
+    "HERBARIUM_ID": "HerbariumID",
+    "BILD": "Bild",
+    "DB": "DB",
+    "FAMILY": "Family",
+    "FULL_NAME_CACHE": "FullNameCache",
+    "ANMERKUNGEN": "Anmerkungen",
+    "SAMMLERTEAM": "Sammlerteam",
+    "SAMMELNUMMER": "Sammelnummer",
+    "COLLECTION_DATE_BEGIN": "CollectionDateBegin",
+    "COLLECTION_DATE_END": "CollectionDateEnd",
+    "COUNTRY": "Country",
+    "LOCALITY": "Locality",
+    "TITEL_ETIKETT": "TitelEtikett",
+    "EXPEDITIONSANGABE": "Expeditionsangabe",
+    "SHOW_ON_MAP": "ShowOnMap",
+    "LATITUDE": "Latitude",
+    "LONGITUDE": "Longitude",
+    "FUNDORT_UND_OEKO": "FundortUNdOeko",
+    "NAME_CACHE": "NameCache",
+    "GENUS": "Genus",
+    "IDENTIFIER": "Identifier",
+    "BARCODE": "Barcode",
+    "STABLE_URI": "StableURI"
+  }
+}
+```
+
+
 
 Refer to [app/config.py](app/config.py) for the full list of header constants.
 
@@ -271,7 +293,7 @@ docker exec -it ollama-service ollama pull llama3.2:3b
 
 3. Build the image
 ```bash
-docker build -t ghcr.io/biodivportal/outlier-detect:0.1
+docker build -t outlier-detect:latest .
 ```
 
 Run step 4 in the root directory BiodivPipeline/

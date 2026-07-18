@@ -22,11 +22,7 @@ from app.config import (
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
 from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
-from app.config import (
-    UNINITIALIZED_MSG,
-    RULE_BASED_MSG,
-    get_columns
-)
+from app.config import UNINITIALIZED_MSG, RULE_BASED_MSG, get_columns
 
 logging.basicConfig(
     level=logging.INFO,
@@ -120,7 +116,7 @@ async def detect_json(
             )
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON file contents.")
-    
+
     if isinstance(data, list):
         records_list = data
         payload = {"records": records_list}
@@ -230,7 +226,7 @@ async def detect_csv(
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        get_columns().get("HERBARIUM_ID"),
+        get_columns().get("HERBARIUM_ID", "HerbariumID"),
         get_columns().get("FULL_NAME_CACHE"),
         get_columns().get("COUNTRY"),
         get_columns().get("LOCALITY"),

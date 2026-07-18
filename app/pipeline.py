@@ -62,14 +62,6 @@ def sample_training_records(
     return rng.sample(records, k=subset_size)
 
 
-def train_detectors(detectors, records: list[dict]) -> None:
-    for detector in detectors:
-        try:
-            detector.train(records)
-        except Exception:
-            continue
-
-
 def prepare_records(records: list[dict]) -> list[dict]:
     """Normalize raw records and add derived fields used by detectors."""
     if not records:
@@ -247,7 +239,7 @@ def run_detectors(
 
     This pipeline normalizes records, executes each
     enabled detector, merges flag outputs, and produces a final DetectResponse.
-    
+
     Parameters:
         records: List of records to process
         enable_quality: Enable all quality detectors (can be overridden by individual flags)
@@ -381,7 +373,7 @@ def run_detectors(
     logging.info(f"\n[RUN] Processing {len(result)} records")
 
     for detector in detectors:
-        try: 
+        try:
             detector_name = detector.name
 
             logging.info(f"[DETECTOR START] {detector_name}")

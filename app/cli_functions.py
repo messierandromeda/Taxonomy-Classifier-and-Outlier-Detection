@@ -9,7 +9,7 @@ from app.config import (
     start_ollama_if_needed,
     is_ollama_running,
     OLLAMA_MODEL,
-    get_columns
+    get_columns,
 )
 from app.preprocessing.process_csv import process_csv_in_chunks
 from app.utils import apply_bgbm_columns_if_needed, prepare_dataframe
@@ -51,20 +51,38 @@ def detect_json(args):
     response = run_detectors(
         records=request.records,
         enable_quality=args.enable_quality,
-        enable_outliers=args.enable_outliers if hasattr(args, 'enable_outliers') else True,
+        enable_outliers=args.enable_outliers
+        if hasattr(args, "enable_outliers")
+        else True,
         enable_semantic=args.enable_semantic,
         enable_llm=args.enable_llm,
         use_ollama=args.use_ollama,
         numeric_fields=request.numeric_fields,
         text_fields=request.text_fields,
-        enable_rule_detector=args.enable_rule_detector if hasattr(args, 'enable_rule_detector') else None,
-        enable_semantic_rule_detector=args.enable_semantic_rule_detector if hasattr(args, 'enable_semantic_rule_detector') else None,
-        enable_iqr_detector=args.enable_iqr_detector if hasattr(args, 'enable_iqr_detector') else None,
-        enable_zscore_detector=args.enable_zscore_detector if hasattr(args, 'enable_zscore_detector') else None,
-        enable_modified_zscore_detector=args.enable_modified_zscore_detector if hasattr(args, 'enable_modified_zscore_detector') else None,
-        enable_date_outlier_detector=args.enable_date_outlier_detector if hasattr(args, 'enable_date_outlier_detector') else None,
-        enable_isolation_forest_detector=args.enable_isolation_forest_detector if hasattr(args, 'enable_isolation_forest_detector') else None,
-        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector if hasattr(args, 'enable_hdbscan_geo_detector') else None,
+        enable_rule_detector=args.enable_rule_detector
+        if hasattr(args, "enable_rule_detector")
+        else None,
+        enable_semantic_rule_detector=args.enable_semantic_rule_detector
+        if hasattr(args, "enable_semantic_rule_detector")
+        else None,
+        enable_iqr_detector=args.enable_iqr_detector
+        if hasattr(args, "enable_iqr_detector")
+        else None,
+        enable_zscore_detector=args.enable_zscore_detector
+        if hasattr(args, "enable_zscore_detector")
+        else None,
+        enable_modified_zscore_detector=args.enable_modified_zscore_detector
+        if hasattr(args, "enable_modified_zscore_detector")
+        else None,
+        enable_date_outlier_detector=args.enable_date_outlier_detector
+        if hasattr(args, "enable_date_outlier_detector")
+        else None,
+        enable_isolation_forest_detector=args.enable_isolation_forest_detector
+        if hasattr(args, "enable_isolation_forest_detector")
+        else None,
+        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector
+        if hasattr(args, "enable_hdbscan_geo_detector")
+        else None,
     )
 
     json_output = response.model_dump_json(indent=4)
@@ -100,27 +118,45 @@ def detect_csv(args):
         llm_only_flagged=args.llm_only_flagged,
         enable_quality=args.enable_quality,
         enable_semantic=args.enable_semantic,
-        enable_outliers=args.enable_outliers if hasattr(args, 'enable_outliers') else True,
-        enable_rule_detector=args.enable_rule_detector if hasattr(args, 'enable_rule_detector') else None,
-        enable_semantic_rule_detector=args.enable_semantic_rule_detector if hasattr(args, 'enable_semantic_rule_detector') else None,
-        enable_iqr_detector=args.enable_iqr_detector if hasattr(args, 'enable_iqr_detector') else None,
-        enable_zscore_detector=args.enable_zscore_detector if hasattr(args, 'enable_zscore_detector') else None,
-        enable_modified_zscore_detector=args.enable_modified_zscore_detector if hasattr(args, 'enable_modified_zscore_detector') else None,
-        enable_date_outlier_detector=args.enable_date_outlier_detector if hasattr(args, 'enable_date_outlier_detector') else None,
-        enable_isolation_forest_detector=args.enable_isolation_forest_detector if hasattr(args, 'enable_isolation_forest_detector') else None,
-        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector if hasattr(args, 'enable_hdbscan_geo_detector') else None,
+        enable_outliers=args.enable_outliers
+        if hasattr(args, "enable_outliers")
+        else True,
+        enable_rule_detector=args.enable_rule_detector
+        if hasattr(args, "enable_rule_detector")
+        else None,
+        enable_semantic_rule_detector=args.enable_semantic_rule_detector
+        if hasattr(args, "enable_semantic_rule_detector")
+        else None,
+        enable_iqr_detector=args.enable_iqr_detector
+        if hasattr(args, "enable_iqr_detector")
+        else None,
+        enable_zscore_detector=args.enable_zscore_detector
+        if hasattr(args, "enable_zscore_detector")
+        else None,
+        enable_modified_zscore_detector=args.enable_modified_zscore_detector
+        if hasattr(args, "enable_modified_zscore_detector")
+        else None,
+        enable_date_outlier_detector=args.enable_date_outlier_detector
+        if hasattr(args, "enable_date_outlier_detector")
+        else None,
+        enable_isolation_forest_detector=args.enable_isolation_forest_detector
+        if hasattr(args, "enable_isolation_forest_detector")
+        else None,
+        enable_hdbscan_geo_detector=args.enable_hdbscan_geo_detector
+        if hasattr(args, "enable_hdbscan_geo_detector")
+        else None,
     )
 
     df = pd.DataFrame(response.annotated_records)
 
     important_columns = [
-        get_columns().get("HERBARIUM_ID"),
-        get_columns().get("FULL_NAME_CACHE"),
-        get_columns().get("COUNTRY"),
-        get_columns().get("LOCALITY"),
-        get_columns().get("LATITUDE"),
-        get_columns().get("LONGITUDE"),
-        get_columns().get("COLLECTION_DATE_BEGIN"),
+        get_columns().get("HERBARIUM_ID", "HerbariumID"),
+        get_columns().get("FULL_NAME_CACHE", "FullNameCache"),
+        get_columns().get("COUNTRY", "Country"),
+        get_columns().get("LOCALITY", "Locality"),
+        get_columns().get("LATITUDE", "Latitude"),
+        get_columns().get("LONGITUDE", "Longitude"),
+        get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",

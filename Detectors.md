@@ -122,7 +122,7 @@ The pipeline enables detectors based on configuration flags:
 - IsolationForestDetector
 - HDBSCANGeoDetector
 
-**Rule-Based (No Training):**
+**Rule-Based and LLMs (No Training):**
 - RuleDetector
 - SemanticRuleDetector
 - LLMDetector
