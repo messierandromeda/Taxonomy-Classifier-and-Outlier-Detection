@@ -249,7 +249,6 @@ async def detect_csv(
     existing_columns = [column for column in important_columns if column in df.columns]
 
     df = df[existing_columns]
-    print("Surviving columns:", df.columns.tolist())
 
     stream = io.StringIO()
     df.to_csv(stream, index=False)
