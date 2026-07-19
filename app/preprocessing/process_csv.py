@@ -1,5 +1,6 @@
 import io
 import pandas as pd
+import csv
 
 from app.schemas import DetectResponse, RecordQualityResult
 from app.utils import prepare_dataframe, apply_bgbm_columns_if_needed
@@ -35,13 +36,23 @@ def process_csv_in_chunks(
     chunk_reader = pd.read_csv(
         io.BytesIO(file_bytes),
         chunksize=chunksize,
-        sep=None,
-        engine="python",
+        sep=",",          
+        engine="python",           
+        encoding="utf-8-sig",   # remove UTF-8 Byte Order Mark (BOM)       
+        on_bad_lines="skip",
+        skip_blank_lines=True  
     )
 
     for chunk in chunk_reader:
         if max_records is not None and total_seen >= max_records:
             break
+        
+        # clean the column names, in case the BOM was not removed 
+        chunk.columns = (
+            chunk.columns.str.replace('ï»¿', '', regex=False) 
+                         .str.replace('"', '', regex=False)    
+                         .str.strip()                         
+        )
 
         chunk = apply_bgbm_columns_if_needed(chunk)
         chunk = prepare_dataframe(chunk)

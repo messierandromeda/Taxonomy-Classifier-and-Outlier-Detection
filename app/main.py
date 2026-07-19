@@ -227,12 +227,12 @@ async def detect_csv(
 
     important_columns = [
         get_columns().get("HERBARIUM_ID", "HerbariumID"),
-        get_columns().get("FULL_NAME_CACHE"),
-        get_columns().get("COUNTRY"),
-        get_columns().get("LOCALITY"),
-        get_columns().get("LATITUDE"),
-        get_columns().get("LONGITUDE"),
-        get_columns().get("COLLECTION_DATE_BEGIN"),
+        get_columns().get("DB", "DB"),
+        get_columns().get("FAMILY", "Family"),
+        get_columns().get("FULL_NAME_CACHE", "FullNameCache"),
+        get_columns().get("NAME_CACHE", "NameCache"),
+        get_columns().get("GENUS", "Genus"),
+        get_columns().get("COLLECTION_DATE_BEGIN", "CollectionDateBegin"),
         "outlier_detected",
         "outlier_status",
         "outlier_confidence",
@@ -249,6 +249,7 @@ async def detect_csv(
     existing_columns = [column for column in important_columns if column in df.columns]
 
     df = df[existing_columns]
+    print("Surviving columns:", df.columns.tolist())
 
     stream = io.StringIO()
     df.to_csv(stream, index=False)
