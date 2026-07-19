@@ -1,6 +1,5 @@
 import io
 import pandas as pd
-import csv
 
 from app.schemas import DetectResponse, RecordQualityResult
 from app.utils import prepare_dataframe, apply_bgbm_columns_if_needed
