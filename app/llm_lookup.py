@@ -87,13 +87,9 @@ async def classify_land(
     model: str,
     system_prompt: str,
     user_prompt: str,
-    prompt_variant: str,
-    top_n: int = 1,
+    top_n: int = 3,
 ) -> LLMMatch:
-    result = LLMMatch(
-        id=id, input=user_prompt, model=model,
-        prompt_variant=prompt_variant, top_n=top_n,
-    )
+    result = LLMMatch(id=id, input=user_prompt, model=model, top_n=top_n)
 
 
     client = _client_for(model)
@@ -120,8 +116,7 @@ async def classify_land(
     try:
         data = json.loads(raw)
     except (json.JSONDecodeError, TypeError):
-        log.warning('LLM returned invalid JSON (model=%s, variant=%s): %s',
-                    model, prompt_variant, user_prompt[:80])
+        log.warning('LLM returned invalid JSON (model=%s): %s', model, user_prompt[:80])
         result.parse_failure = True
         return result
 

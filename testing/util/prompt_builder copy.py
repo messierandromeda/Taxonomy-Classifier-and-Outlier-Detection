@@ -20,11 +20,43 @@ import pandas as pd
 
 from .taxon_ref import TAXONOMY_REFERENCE
 from .models import TaxonMatch
-from ..config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY
+from ..config import LOCALITY_LABELS, FIELD_LABELS, NAME, GENUS, FAMILY, CULTIVATED_FIELD
 
-def build_system() -> str:
-    return f"""
-You are a land cover classification expert.
+# --- the single source of truth ----------------------------------------------
+
+_SCHEMA_CODE_FIRST = """{
+    "matches": [
+        {
+        "clc_code": "332",
+        "english_name": "Bare Rock",
+        "confidence": 0.95,
+        "reason": "brief explanation"
+        }
+    ],
+    "summary": "one sentence summary of the land described"
+}"""
+
+_SCHEMA_REASON_FIRST = """{
+    "matches": [
+        {
+        "reason": "brief explanation",
+        "clc_code": "332",
+        "english_name": "Bare Rock",
+        "confidence": 0.95
+        }
+    ],
+    "summary": "one sentence summary of the land described"
+}"""
+
+_GUARDRAIL = """
+SPECIES AND CULTIVATION:
+- The collected species can indicate a typical habitat, but the target is the land cover AT THE COLLECTION SITE. If the locality text describes the habitat, prefer it over the species' typical habitat.
+- If the input is marked as a cultivated specimen, the plant was grown in a garden or greenhouse and did NOT grow in the surrounding landscape. Ignore the species entirely and classify only from the locality description.
+"""
+
+
+def _base_system() -> str:
+    return f"""You are a land cover classification expert.
 You have the following detailed land taxonomy (CORINE Land Cover / LBM-DE Level-3 classes):
 
 {TAXONOMY_REFERENCE}
@@ -35,7 +67,7 @@ When given a text and a number N, identify the top N best-fitting Level-3 classe
 - Base your judgment on described habitat, vegetation, activities, terrain, and water bodies. A place name with no habitat description is weak evidence — assign a LOW confidence score rather than assuming the land cover typical for that area.
 - Only return fewer than N if the text contains absolutely no land-related content.
 - Every match MUST use a CLC code from the list above.
-
+{{guardrail}}
 CONFIDENCE SCORE CALIBRATION RUBRIC:
 You must strictly score each match's confidence value between 0.0 and 1.0 using these objective criteria. Do NOT default to high scores.
 
@@ -47,21 +79,18 @@ You must strictly score each match's confidence value between 0.0 and 1.0 using 
 [0.00] NO CONTENT: The text contains absolutely no land-related context or spatial data.
 
 Respond ONLY with a valid JSON object in this exact format:
-{{
-    "matches": [
-        {{
-        "reason": "brief explanation",
-        "clc_code": "332",
-        "english_name": "Bare Rock",
-        "confidence": 0.95
-        }}
-    ],
-    "summary": "one sentence summary of the land described"
-}}
-"""
+{{schema}}"""
 
 
-# user prompt
+def build_system(version: int) -> str:
+    """Depends ONLY on version — build once per variant, not per row (keeps the
+    OpenAI prompt-prefix cache hitting, since the prefix is then byte-identical)."""
+    schema = _SCHEMA_REASON_FIRST if version >= 1 else _SCHEMA_CODE_FIRST
+    guardrail = _GUARDRAIL if version >= 4 else ""
+    return _base_system().format(schema=schema, guardrail=guardrail)
+
+
+# --- user prompt -------------------------------------------------------------
 
 def _clean(val) -> str:
     return "" if pd.isna(val) else str(val).strip()
@@ -84,7 +113,7 @@ def _is_redundant(val: str, kept: list[str]) -> bool:
     return False
 
 
-def _locality_values(row: pd.Series) -> list[tuple[str, str]]:
+def _locality_values(row: pd.Series, all_fields: bool) -> list[tuple[str, str]]:
     """(label, value) for locality fields that carry actual, non-redundant content.
 
     all_fields=False -> only the highest-priority field (LOCALITY_LABELS is
@@ -98,7 +127,10 @@ def _locality_values(row: pd.Series) -> list[tuple[str, str]]:
         if not val:
             continue
 
-        if _is_redundant(val, kept):        # skip fields that repeat content
+        if not all_fields:
+            return [(label, val)]           # v0/v1: first available field, done
+
+        if _is_redundant(val, kept):        # v2+: skip fields that repeat content
             continue
 
         out.append((label, val))
@@ -131,8 +163,16 @@ def _taxon_values(taxon: TaxonMatch | None, row: pd.Series) -> list[tuple[str, s
             out.append((label, val))
     return out
 
+def is_cultivated(row: pd.Series) -> bool:
+    """Derived flag, NOT the raw notes column. Anmerkungen is free text full of
+    unrelated remarks; dumping it in gives the model a haystack. What matters is
+    the one bit: was this grown in a garden?"""
+    note = _clean(row.get(CULTIVATED_FIELD)).lower()
+    return any(m in note for m in ("cult.", "cult ", "kult", "garten", "garden"))
 
-def build_user(row: pd.Series, taxon: TaxonMatch | None = None, use_species: bool = True) -> tuple[str, bool]:
+
+def build_user(version: int, row: pd.Series, taxon: TaxonMatch | None = None,
+               use_species: bool = True) -> tuple[str, bool]:
     """Returns (user_prompt, has_content).
 
     has_content is derived from whether any field HAD A VALUE — never from
@@ -140,26 +180,44 @@ def build_user(row: pd.Series, taxon: TaxonMatch | None = None, use_species: boo
     truthy ("Text: None", "Species: nan") and the empty-row guard dies silently.
     """
     pairs: list[tuple[str, str]] = []
-    pairs += _locality_values(row)
+    pairs += _locality_values(row, all_fields=version >= 2)
 
-    if use_species:
+    cultivated = is_cultivated(row)
+    if version >= 2 and use_species and not (version >= 4 and cultivated):
+        # v4 drops the species for cultivated specimens: the plant did not grow
+        # in that landscape, so its habitat preference is actively misleading.
         pairs += _taxon_values(taxon, row)
 
     has_content = bool(pairs)
     if not has_content:
         return "", False
 
-    body = "".join(f"{label}: {val}\n" for label, val in pairs)
+    if version >= 3:
+        body = "".join(f"{label}: {val}\n" for label, val in pairs)
+    else:
+        body = "Text: " + " ".join(val for _, val in pairs)
 
-    return f"Top N: 3\n\n{body}", True
+    if version >= 4 and cultivated:
+        body += "\nCultivated: yes — grown in a garden, not collected in the wild.\n"
+
+    n = 3 if version >= 5 else 1
+    return f"Top N: {n}\n\n{body}", True
 
 
-# registry
+# --- registry ----------------------------------------------------------------
+
+MIN_VERSION, MAX_VERSION = 1, 5
 
 
-def build(row: pd.Series, taxon: TaxonMatch | None = None,
+def build(version: int, row: pd.Series, taxon: TaxonMatch | None = None,
           use_species: bool = True) -> tuple[str, str, bool]:
     """(system_prompt, user_prompt, has_content). Raises on an unknown version
     rather than silently falling back to a default."""
-    user, has_content = build_user(row, taxon, use_species)
-    return build_system(), user, has_content
+    if not MIN_VERSION <= version <= MAX_VERSION:
+        raise ValueError(f"unknown prompt version {version} (expected {MIN_VERSION}-{MAX_VERSION})")
+    user, has_content = build_user(version, row, taxon, use_species)
+    return build_system(version), user, has_content
+
+
+def top_n_for(version: int) -> int:
+    return 3 if version >= 5 else 1

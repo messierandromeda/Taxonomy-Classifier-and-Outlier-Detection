@@ -8,18 +8,18 @@ import logging
 
 import pandas as pd
 
-from .util.prompt_builder import build_system, build_user, top_n_for
+from .util.prompt_builder import build_system, build_user
 from .util.throttle import TokenBucket, estimate_tokens
 from .util.models import TaxonMatch, ClassifierResult, LLMMatch
 from .gbif_lookup import match_gbif
 from .llm_lookup import classify_land
-from .config import BATCH_SIZE, ID, NAME, GENUS, FAMILY
+from .config import BATCH_SIZE, ID, NAME, GENUS, FAMILY, CULTIVATED_FIELD, OPENAI_TPM
 
 log = logging.getLogger(__name__)
-_bucket = TokenBucket(tpm=200_000, safety=0.8)
+_bucket = TokenBucket(tpm=OPENAI_TPM, safety=0.8)
 
 
-# --- GBIF: resolved once, up front (unchanged) --------------------------------
+# GBIF: resolved once, up front (unchanged)
 
 async def resolve_taxa(df: pd.DataFrame) -> dict[str, TaxonMatch]:
     taxa: dict[str, TaxonMatch] = {}
@@ -54,38 +54,33 @@ def taxon_diff_report(df: pd.DataFrame, taxa: dict[str, TaxonMatch]) -> pd.DataF
     return pd.DataFrame(rows)
 
 
-# --- one row --------------------------------------------------------------
+# one row
 
 async def process_row(
     row: pd.Series,
     system_prompt: str,
-    version: int,
     model: str,
     taxon: TaxonMatch | None,
-    variant: str,
     use_species: bool = True,
 ) -> ClassifierResult:
     id = str(row.get(ID, "?"))
-    top_n = top_n_for(version)
 
-    user_prompt, has_content = build_user(version, row, taxon, use_species)
+    user_prompt, has_content = build_user(row, taxon, use_species)
 
     if not has_content:
         log.warning("Row %s has no usable text field; skipping classification", id)
         return ClassifierResult(
             id=id, taxon=taxon,
-            llm=LLMMatch(id=id, input="", model=model,
-                        top_n=top_n, prompt_variant=variant),
+            llm=LLMMatch(id=id, input="", model=model),
         )
     
-    expected_output = 700 if top_n >= 3 else 300   # v5 asks for 3 matches -> longer completion
+    expected_output = 700 
     est = estimate_tokens(system_prompt, user_prompt, expected_output)
 
     await _bucket.acquire(est)                      # THE gate — no semaphore alongside it
     llm = await classify_land(
         id=id, model=model,
-        system_prompt=system_prompt, user_prompt=user_prompt,
-        top_n=top_n, prompt_variant=variant,
+        system_prompt=system_prompt, user_prompt=user_prompt
     )
 
     if llm.prompt_tokens is not None and llm.completion_tokens is not None:
@@ -95,16 +90,13 @@ async def process_row(
     return ClassifierResult(id=id, taxon=taxon, llm=llm)
 
 
-async def check_batch(batch, system_prompt, version, model, taxa, variant,
-                      use_species=True) -> list[ClassifierResult]:
+async def check_batch(batch, system_prompt, model, taxa, use_species=True) -> list[ClassifierResult]:
     """Returns TestResult objects (not .to_row() dicts) so the caller can find
     and retry failures before finalizing the batch."""
     results = await asyncio.gather(
         *[
             process_row(
-                row=row, system_prompt=system_prompt, version=version,
-                model=model, taxon=taxa.get(str(row.get(ID, "?"))),
-                variant=variant, use_species=use_species
+                row=row, system_prompt=system_prompt, model=model, taxon=taxa.get(str(row.get(ID, "?"))), use_species=use_species
             )
             for row in batch
         ],
@@ -121,8 +113,7 @@ async def check_batch(batch, system_prompt, version, model, taxa, variant,
     return out
 
 
-async def _retry_failed(failed: list[tuple[pd.Series, str]], system_prompt, version,
-                        model, taxa, variant, use_species) -> dict[str, ClassifierResult]:
+async def _retry_failed(failed: list[tuple[pd.Series, str]], system_prompt, model, taxa, use_species) -> dict[str, ClassifierResult]:
     """One retry pass, SEQUENTIAL (not gathered) — these already survived the
     SDK's own retry/backoff and still failed, so hammering them concurrently
     again is more likely to repeat the failure than fix it."""
@@ -132,8 +123,7 @@ async def _retry_failed(failed: list[tuple[pd.Series, str]], system_prompt, vers
     retried = {}
     for row, rid in failed:
         try:
-            r = await process_row(row, system_prompt, version, model,
-                                  taxa.get(rid), variant, use_species)
+            r = await process_row(row, system_prompt, model, taxa.get(rid), use_species)
             retried[rid] = r
             if r.error:
                 log.warning("retry still failed for %s: %s", rid, r.error)
@@ -141,31 +131,33 @@ async def _retry_failed(failed: list[tuple[pd.Series, str]], system_prompt, vers
             log.warning("retry raised for %s: %s", rid, exc)
     return retried
 
+def apply_is_cultivated(val):
+    txt = "" if pd.isna(val) else str(val).strip().lower()
+    return any(m in txt for m in ("cult.", "cult ", "kult", "garten", "garden"))
 
 async def process_csv(
     df: pd.DataFrame,
     model: str,
-    version: int,
-    variant: str | None = None,
     taxa: dict[str, TaxonMatch] | None = None,
     use_species: bool = True
 ) -> pd.DataFrame:
-    variant = variant or f"v{version}"
-    system_prompt = build_system(version)
+    system_prompt = build_system()
     if taxa is None:
         taxa = await resolve_taxa(df)
 
-    rows_id = {str(row.get(ID, "?")): row for _, row in df.iterrows()}
+    df['Cultivated'] = df[CULTIVATED_FIELD].apply(apply_is_cultivated)
+    df_filtered = df.loc[df['Cultivated'] == False]
+
+    id = {str(row.get(ID, "?")): row for _, row in df_filtered.iterrows()}
     result: list[ClassifierResult] = []
     batch: list[pd.Series] = []
 
     async def flush(batch):
         if not batch:
             return []
-        return await check_batch(batch, system_prompt, version, model,
-                                 taxa, variant, use_species)
+        return await check_batch(batch, system_prompt, model, taxa, use_species)
 
-    for _, row in df.iterrows():
+    for _, row in df_filtered.iterrows():
         batch.append(row)
         if len(batch) == BATCH_SIZE:
             result.extend(await flush(batch))
@@ -173,10 +165,10 @@ async def process_csv(
     result.extend(await flush(batch))
 
     # one retry pass for anything that still has an error after gather+SDK retries
-    failed = [(rows_id[r.id], r.id) for r in result if r.error and r.id in rows_id]
+    failed = [(id[r.id], r.id) for r in result if r.error and r.id in id]
+    
     if failed:
-        retried = await _retry_failed(failed, system_prompt, version, model,
-                                      taxa, variant, use_species)
+        retried = await _retry_failed(failed, system_prompt, model, taxa, use_species)
         result = [retried.get(r.id, r) if r.error else r for r in result]
 
     return pd.DataFrame([r.to_row() for r in result])

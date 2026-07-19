@@ -1,4 +1,8 @@
+import logging
+
 from ..config import PRICES, DEFAULT_MODEL
+
+log = logging.getLogger(__name__)
 
 def calc_pricing(prompt_tokens: int, completion_tokens: int, cached_tokens: int, model: str = DEFAULT_MODEL) -> float:    
     """
@@ -6,6 +10,8 @@ def calc_pricing(prompt_tokens: int, completion_tokens: int, cached_tokens: int,
     The cost is given in USD as that is what OpenAI displays
     Works for the models defined in PRICES
     """
+    log.info(f'pt: {prompt_tokens}, ct: {completion_tokens}, ct: {cached_tokens}, model: {model}')
+
     prompt_tokens /= 10**6
     completion_tokens /= 10**6
     cached_tokens /= 10**6

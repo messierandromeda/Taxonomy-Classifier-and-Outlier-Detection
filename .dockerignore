@@ -4,6 +4,5 @@ __pycache__/
 *.pyc
 *.pyo
 .idea/
-data/
-TODO.txt
 testing/
+output.csv

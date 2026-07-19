@@ -28,9 +28,8 @@ DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", OPENAI_MODEL)
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", 10))
 GBIF_CONFIDENCE_RESOLVED = int(os.getenv("GBIF_CONFIDENCE_RESOLVED", 80))
 
-# Google Earth Engine
-GEE_PROJECT = os.getenv("GEE_PROJECT", "clc-code")
-GEE_MAP = os.getenv("GEE_MAP", "COPERNICUS/CORINE/V20/100m/2018")
+# Rate Limiting
+OPENAI_TPM = int(os.getenv("OPENAI_TPM", 200_000))
 
 # Pricing (per 1M tokens, as of 17-07-2026)
 PRICES = {
@@ -43,26 +42,17 @@ PRICES = {
 
 DEFAULT_CONFIG = {
     "model": DEFAULT_MODEL,
-    "version": int(os.getenv("CONFIG_VERSION", 5)),
-    "variant": None,
     "taxa": None,
     "use_species": True,
 }
 
 # Load Dataset Schema
-DATASET_SCHEMA = Path(os.getenv("DATASET_SCHEMA", HERE / "schema.json"))
+DATASET_SCHEMA = Path(os.getenv("DATASET_SCHEMA", HERE / "schema.json")).resolve()
 
 
 def _load_schema(path: Path) -> dict:
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError as exc:
-        raise FileNotFoundError(
-            f"Dataset schema not found at {path}. Copy schema.example.json to "
-            "schema.json (or set DATASET_SCHEMA to point at your dataset's "
-            "schema) and try again."
-        ) from exc
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 _schema = _load_schema(DATASET_SCHEMA)

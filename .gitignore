@@ -4,9 +4,9 @@ __pycache__/
 *.pyc
 *.pyo
 .idea/
-data/
 TODO.txt
 .ipynb_checkpoints/
 *.log
 .nf-test/
 *.egg-info
+output.csv

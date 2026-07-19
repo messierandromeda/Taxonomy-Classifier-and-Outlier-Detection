@@ -15,7 +15,6 @@ from __future__ import annotations
 import asyncio
 import time
 
-
 class TokenBucket:
     def __init__(self, tpm: int = 200_000, safety: float = 0.7, max_burst_tokens: int = 6_000):
         self.rate = (tpm * safety) / 60      # sustained tokens/sec

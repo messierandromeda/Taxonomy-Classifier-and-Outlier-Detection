@@ -18,7 +18,6 @@ async def _run(args):
     result = await process_csv(
         df=df,
         model=DEFAULT_CONFIG['model'],
-        version=DEFAULT_CONFIG['version'],
     )
     result.to_csv(args.output, index=False)
 

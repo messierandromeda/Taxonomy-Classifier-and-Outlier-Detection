@@ -20,8 +20,7 @@ class LLMMatch(BaseModel):
     reason: str = ''
     input: str = ''
     model: str = ''
-    prompt_variant: str = ''
-    top_n: int = 1
+    top_n: int = 3
     all_matches: list[dict] = []
     prompt_tokens: Optional[int] = None
     completion_tokens: Optional[int] = None
@@ -58,4 +57,3 @@ class TextRequest(BaseModel):
 
 class ClassifyCSVRequest(BaseModel):
     model: str = 'gpt-5.4-mini'
-    version: int = 5

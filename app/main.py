@@ -11,6 +11,7 @@ import json
 
 from .config import DEFAULT_CONFIG, configure_logging
 from .pipeline import process_csv
+from .util.pricing import calc_pricing
 
 app = FastAPI(
     title='Land Taxonomy Classifier and Plant Taxonomy Service',
@@ -24,14 +25,40 @@ log = logging.getLogger(__name__)
 def root():
     return {'status': 'ok'}
 
-class OutputFormat(str, Enum):
+class InputFormat(str, Enum):
     csv = 'csv'
     json = 'json'
+
+@app.post('/price')
+async def pricing(
+    file: UploadFile = File(...),
+):
+
+    if not file.filename or not file.filename.endswith(('.csv', '.json')):
+        log.warning('Rejected upload: not a CSV or JSON (filename=%s)', file.filename)
+        raise HTTPException(status_code=400, detail='Only CSV or JSON files are supported.')
+
+    content = await file.read()
+    
+    df = pd.read_csv(io.BytesIO(content), sep=None, engine='python')
+    
+    log.info('Received %s with %d rows', file.filename, len(df))
+
+
+    # process_csv writes to temp file
+    result = calc_pricing(
+        prompt_tokens=df['llm_prompt_tokens'].sum(),
+        completion_tokens=df['llm_completion_tokens'].sum(),
+        cached_tokens=df['llm_cached_tokens'].sum(),
+        model=df['llm_model'].iloc[0],
+    )
+
+    return f'The output cost ${result}.'
 
 @app.post('/classify')
 async def classify(
     file: UploadFile = File(...),
-    fmt: OutputFormat = Query(default=OutputFormat.csv, description='Response format.'),
+    fmt: InputFormat = Query(default=InputFormat.csv, description='Response format.'),
     download_file: bool = True,
 ):
 
@@ -50,10 +77,9 @@ async def classify(
     result = await process_csv(
         df=df,
         model=DEFAULT_CONFIG['model'],
-        version=DEFAULT_CONFIG['version'],
     )
 
-    if fmt is OutputFormat.json:
+    if fmt is InputFormat.json:
         if download_file:
             payload = {
                 'rows': len(result),
